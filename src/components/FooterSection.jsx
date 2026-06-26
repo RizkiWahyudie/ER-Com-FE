@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex } from "@chakra-ui/react";
+import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image } from "@chakra-ui/react";
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function FooterSection() {
@@ -10,50 +10,40 @@ export default function FooterSection() {
     <Box
       w="full"
       bg="#070810"
-      py={{ base: 16, md: 15 }}
+      py={{ base: 14, md: '50px' }}
       borderTop="1px solid rgba(255, 255, 255, 0.05)"
     >
-      <Container maxW="1180px" px={{ base: 6, md: 6 }} mx="auto">
-        <VStack spacing={8} align="stretch">
+      <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
+        <VStack spacing={8} align={{ md: "stretch" }}>
           {/* Footer Grid */}
           <Grid
             templateColumns={{ base: "1fr", md: "1.2fr 1fr 1fr 1.4fr" }}
             gap={{ base: 8, md: 8 }}
           >
             {/* Company Info */}
-            <VStack align={{ base: "center", md: "flex-start" }} spacing={3}>
-              <Box fontSize="34px" fontWeight="800" letterSpacing="-1px">
-                <Box as="span" color="var(--primary)">
-                  ER
-                </Box>
-                <Box as="span" color="var(--accent)">
-                  +
-                </Box>
-              </Box>
-              <Text fontSize="xs" color="rgba(90, 98, 122, 1)" letterSpacing="2px" textTransform="uppercase">
-                Communication
-              </Text>
-              <Text fontSize="xs" color="rgba(139, 147, 167, 1)">
-                Building trust and driving impact through strategic communication.
-              </Text>
-            </VStack>
+            <Image
+              src="/assets/hero/navbar-logo.svg"
+              w={{ base: "140px", md: "177px" }}
+              h={{ base: "78px", md: "118px" }}
+              mx={{ base: "auto", md:"0px" }}
+            />
 
             {/* Solutions */}
-            <VStack align={{ base: "center", md: "flex-start" }} spacing={4}>
-              <Text fontSize="sm" fontWeight="600" color="#fff">
-                Solutions
+            <VStack align={{ base: "center", md: "flex-start" }} spacing={{ base: 4, md: 6 }}>
+              <Text fontSize={{ base: "sm", md: "lg" }} fontWeight="600" color="#C73818">
+                Useful Links
               </Text>
-              <VStack spacing={2} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+              <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Media Relations
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Brand Strategy
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Events & Activation
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Digital Campaign
                 </Link>
               </VStack>
@@ -61,20 +51,20 @@ export default function FooterSection() {
 
             {/* Company */}
             <VStack align={{ base: "center", md: "flex-start" }} spacing={4}>
-              <Text fontSize="sm" fontWeight="600" color="#fff">
-                Company
+              <Text fontSize={{ base: "sm", md: "lg" }} fontWeight="600" color="#C73818">
+                Help
               </Text>
-              <VStack spacing={2} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+              <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   About Us
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Our Team
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Portfolio
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Contact
                 </Link>
               </VStack>
@@ -82,17 +72,17 @@ export default function FooterSection() {
 
             {/* Legal */}
             <VStack align={{ base: "center", md: "flex-start" }} spacing={4}>
-              <Text fontSize="sm" fontWeight="600" color="#fff">
-                Legal
+              <Text fontSize={{ base: "sm", md: "lg" }} fontWeight="600" color="#C73818">
+                Connect With Us
               </Text>
-              <VStack spacing={2} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+              <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Privacy Policy
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Terms of Service
                 </Link>
-                <Link fontSize="xs" color="rgba(139, 147, 167, 1)" _hover={{ color: "var(--primary)" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
                   Cookie Policy
                 </Link>
               </VStack>
@@ -100,7 +90,7 @@ export default function FooterSection() {
           </Grid>
 
           {/* Divider */}
-          <Box h="1px" bg="rgba(255, 255, 255, 0.05)" />
+          <Box h="1px" bg="#751f0c" />
 
           {/* Bottom Footer */}
           <Flex
@@ -109,70 +99,62 @@ export default function FooterSection() {
             flexDir={{ base: "column", md: "row" }}
             gap={4}
             py={4}
-            fontSize="xs"
-            color="rgba(90, 98, 122, 1)"
+            fontSize={{ base: "xs", md: "md" }}
+            color="#cfcfcf"
           >
             <Text textAlign={{ base: "center", md: "left" }}>
-              © {currentYear} ER+ Communication. All rights reserved.
+              © {currentYear} All Right Reserved.
             </Text>
 
             {/* Socials */}
             <HStack spacing={2.5}>
               <Box
-                w="30px"
-                h="30px"
+                w="40px"
+                h="40px"
                 borderRadius="full"
-                bg="rgba(255, 255, 255, 0.06)"
+                bg="transparent"
+                border="1px solid #C73818"
+                color="#C73818"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: "var(--primary)" }}
+                _hover={{ bg: "white" }}
               >
-                <Icon as={FaFacebook} fontSize="xs" color="rgba(207, 213, 227, 1)" />
+                <Icon as={FaFacebook} fontSize="lg" />
               </Box>
               <Box
-                w="30px"
-                h="30px"
+                w="40px"
+                h="40px"
                 borderRadius="full"
-                bg="rgba(255, 255, 255, 0.06)"
+                bg="transparent"
+                border="1px solid #C73818"
+                color="#C73818"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: "var(--primary)" }}
+                _hover={{ bg: "white" }}
               >
-                <Icon as={FaLinkedin} fontSize="xs" color="rgba(207, 213, 227, 1)" />
+                <Icon as={FaTwitter} fontSize="lg" />
               </Box>
               <Box
-                w="30px"
-                h="30px"
+                w="40px"
+                h="40px"
                 borderRadius="full"
-                bg="rgba(255, 255, 255, 0.06)"
+                bg="transparent"
+                border="1px solid #C73818"
+                color="#C73818"
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 cursor="pointer"
                 transition="all 0.2s"
-                _hover={{ bg: "var(--primary)" }}
+                _hover={{ bg: "white" }}
               >
-                <Icon as={FaTwitter} fontSize="xs" color="rgba(207, 213, 227, 1)" />
-              </Box>
-              <Box
-                w="30px"
-                h="30px"
-                borderRadius="full"
-                bg="rgba(255, 255, 255, 0.06)"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                transition="all 0.2s"
-                _hover={{ bg: "var(--primary)" }}
-              >
-                <Icon as={FaInstagram} fontSize="xs" color="rgba(207, 213, 227, 1)" />
+                <Icon as={FaInstagram} fontSize="lg" />
               </Box>
             </HStack>
           </Flex>

@@ -13,34 +13,35 @@ import {
   Image,
   Flex,
   Icon,
+  Divider
 } from "@chakra-ui/react";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
 const teamMembers = [
   {
     name: "Ingga Mawardy",
     role: "Founder & CEO",
-    img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&h=500&fit=crop&crop=faces",
+    img: "/assets/team/team-1.png",
   },
   {
     name: "Sarah Putri",
     role: "Creative Director",
-    img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=500&h=500&fit=crop&crop=faces",
+    img: "/assets/team/team-2.png",
   },
   {
     name: "Andi Wijaya",
     role: "Lead Strategist",
-    img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&h=500&fit=crop&crop=faces",
+    img: "/assets/team/team-3.png",
   },
   {
     name: "Rina Kartika",
     role: "Account Manager",
-    img: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&h=500&fit=crop&crop=faces",
+    img: "/assets/team/team-1.png",
   },
   {
     name: "Budi Santoso",
     role: "Senior PR Manager",
-    img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=500&h=500&fit=crop&crop=faces",
+    img: "/assets/team/team-2.png",
   },
 ];
 
@@ -51,6 +52,12 @@ export default function TeamSection() {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const selected = teamMembers[selectedIdx];
 
+  const prevIdx =
+  (selectedIdx - 1 + teamMembers.length) % teamMembers.length;
+
+  const nextIdx =
+  (selectedIdx + 1) % teamMembers.length;
+
   return (
     <Box
       w="full"
@@ -58,7 +65,7 @@ export default function TeamSection() {
       py={{ base: 20, md: 20 }}
       position="relative"
     >
-      <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
+      <Container maxW="8xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={{ base: 12, md: 16 }} align="stretch">
           {/* Tabs */}
           <HStack justify="center" spacing={3.5}>
@@ -87,126 +94,173 @@ export default function TeamSection() {
             templateColumns={{ base: "1fr", md: "1fr 1fr" }}
             gap={{ base: 8, md: 15 }}
             alignItems="center"
-            maxW="7xl"
+            maxW="8xl"
             mx="auto"
             w="full"
           >
             {/* Team Photo */}
             <Flex justify="center" position="relative" h="auto">
-              <Box
-                position="relative"
-                w={{ base: "280px", md: "340px" }}
-                h={{ base: "280px", md: "340px" }}
-                borderRadius="full"
-                overflow="hidden"
-                background="radial-gradient(circle at 30% 30%, var(--primary) 0%, #0c1426 70%)"
-                p={1.5}
-              >
-                <Image
-                  src={selected.img}
-                  alt={selected.name}
-                  w="full"
-                  h="full"
-                  objectFit="cover"
-                  borderRadius="full"
-                />
-              </Box>
+              <VStack gap={{ base: 6, md: 10 }} align="center">
+                <Box
+                  position="relative"
+                  w={{ base: "100%", md: "880px" }}
+                  maxW="880px"
+                  h={{ base: "250px", md: "620px" }}
+                >
+                  {teamMembers.map((member, idx) => {
+                    const isActive = idx === selectedIdx;
+                    const isPrev = idx === prevIdx;
+                    const isNext = idx === nextIdx;
+
+                    return (
+                      <Box
+                        key={idx}
+                        position="absolute"
+                        left="50%"
+                        top="50%"
+                        transform={{
+                          base: `translate(-50%, -50%) ${
+                            isActive
+                              ? "translateX(0) scale(1)"
+                              : isPrev
+                              ? "translateX(-55px) scale(.8)"
+                              : isNext
+                              ? "translateX(55px) scale(.8)"
+                              : "scale(.6)"
+                          }`,
+                          md: `translate(-50%, -50%) ${
+                            isActive
+                              ? "translateX(0) scale(1)"
+                              : isPrev
+                              ? "translateX(-190px) scale(.82)"
+                              : isNext
+                              ? "translateX(190px) scale(.82)"
+                              : "scale(.6)"
+                          }`,
+                        }}
+                        opacity={isActive ? 1 : isPrev || isNext ? 0.35 : 0}
+                        filter={isActive ? "blur(0)" : "blur(6px)"}
+                        zIndex={isActive ? 3 : isPrev || isNext ? 2 : 0}
+                        transition="all .55s cubic-bezier(.22,1,.36,1)"
+                      >
+                        <Image
+                          src={member.img}
+                          w={{
+                            base: "240px",
+                            sm: "300px",
+                            md: "880px",
+                          }}
+                          h={{
+                            base: "240px",
+                            sm: "380px",
+                            md: "620px",
+                          }}
+                          objectFit="cover"
+                          borderRadius={{
+                            base: "120px 120px 0 0",
+                            md: "220px 220px 0 0",
+                          }}
+                        />
+                      </Box>
+                    );
+                  })}
+                </Box>
+
+                {/* Avatar */}
+                <HStack justify="center" spacing={3.5}>
+                  {teamMembers.map((member, idx) => (
+                    <Box
+                      key={idx}
+                      w={{ base: "50px", md: "64px", xl: "90px" }}
+                      h={{ base: "50px", md: "64px", xl: "90px" }}
+                      borderRadius="full"
+                      overflow="hidden"
+                      cursor="pointer"
+                      onClick={() => setSelectedIdx(idx)}
+                    >
+                      <Image
+                        src={member.img}
+                        w="100%"
+                        h="100%"
+                        objectFit="cover"
+                      />
+                    </Box>
+                  ))}
+                </HStack>
+              </VStack>
+              
 
               {/* Photo Navigation */}
               <Button
                 position="absolute"
-                left={{ base: "-20px", md: "-10px" }}
+                left={{ base: "0px", md: "20px", xl: "195px" }}
                 top="50%"
                 transform="translateY(-50%)"
-                w="42px"
-                h="42px"
+                w={{ base: "42px", md: "48px" }}
+                h={{ base: "42px", md: "48px" }}
                 borderRadius="full"
-                bg="rgba(255, 255, 255, 0.95)"
-                color="#05060a"
-                fontSize="22px"
-                zIndex={2}
+                bg="transparent"
+                color="#fff"
+                border="1px solid white"
+                fontSize={{ base: "2xl", md: "xl" }}
+                zIndex={5}
                 _hover={{ transform: "translateY(-50%) scale(1.08)" }}
                 onClick={() => setSelectedIdx((selectedIdx - 1 + teamMembers.length) % teamMembers.length)}
               >
-                ‹
+                <FaArrowLeft fontSize={{ base: "2xl", md: "xl" }} />
               </Button>
 
               <Button
                 position="absolute"
-                right={{ base: "-20px", md: "-10px" }}
+                right={{ base: "0px", md: "20px", xl: "195px" }}
                 top="50%"
                 transform="translateY(-50%)"
-                w="42px"
-                h="42px"
+                w={{ base: "42px", md: "48px" }}
+                h={{ base: "42px", md: "48px" }}
                 borderRadius="full"
                 bg="var(--primary)"
                 color="#fff"
-                fontSize="22px"
-                zIndex={2}
+                fontSize={{ base: "md", md: "xl" }}
+                zIndex={5}
                 _hover={{ transform: "translateY(-50%) scale(1.08)" }}
                 onClick={() => setSelectedIdx((selectedIdx + 1) % teamMembers.length)}
               >
-                ›
+                <FaArrowRight fontSize={{ base: "md", md: "xl" }} />
               </Button>
             </Flex>
 
             {/* Team Info */}
             <VStack align={{ base: "center", md: "flex-start" }} spacing={6} textAlign={{ base: "center", md: "left" }}>
-              <Heading size={{ base: "lg", md: "3xl" }} w={{ base: "full", md: "80%" }} color="#fff" lineHeight="1.2" fontWeight={400}>
+              <Heading size={{ base: "lg", md: "3xl" }} color="#fff" lineHeight="1.2" fontWeight={400}>
                 Meet the People Behind Every Great Project.
               </Heading>
-              <Text fontSize={{ base: "sm", md: "md" }} color="#fff">
+              <Text fontSize={{ base: "sm", md: "lg" }} color="#c4c1c1">
                 A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.
               </Text>
               <Box>
-                <Heading as="h3" size="lg" color="var(--primary)" mb={1}>
+                <Divider borderColor="var(--primary)" borderWidth="1.5px" mb={3} />
+                <Heading as="h2" size="xl" color="var(--primary)" mb={1}>
                   {selected.name}
                 </Heading>
-                <Text fontSize="xs" color="rgba(139, 147, 167, 1)">
+                <Text fontSize={{ base: "sm", md: "md" }} color="#c4c1c1">
                   {selected.role}
                 </Text> 
               </Box>
               <Button
                 className="pill-btn dark"
                 mt={4}
-                px={7}
-                py={2.5}
+                px={{ base: 4, md: 6 }}
+                py={{ base: 2, md: 4 }}
                 borderRadius="full"
                 bg="#fff"
                 color="#05060a"
-                fontSize="sm"
+                fontSize={{ base: "sm", md: "md" }}
                 fontWeight="600"
               >
                 See All Teams
               </Button>
             </VStack>
           </Grid>
-
-          {/* Team Avatars */}
-          <HStack justify="center" spacing={3.5}>
-            {teamMembers.map((member, idx) => (
-              <Box
-                key={idx}
-                w="54px"
-                h="54px"
-                borderRadius="full"
-                border="2px solid var(--primary)"
-                overflow="hidden"
-                cursor="pointer"
-                transition="transform 0.2s"
-                _hover={{ transform: "scale(1.1)" }}
-                onClick={() => setSelectedIdx(idx)}
-              >
-                <Image
-                  src={member.img}
-                  alt={member.name}
-                  w="full"
-                  h="full"
-                  objectFit="cover"
-                />
-              </Box>
-            ))}
-          </HStack>
         </VStack>
       </Container>
 

@@ -6,14 +6,13 @@ import {
   Container,
   Grid,
   VStack,
-  HStack,
   Heading,
   Text,
   Input,
   Textarea,
   Button,
-  Checkbox,
-  FormControl,
+  Flex,
+  HStack
 } from "@chakra-ui/react";
 
 export default function ContactSection() {
@@ -40,44 +39,35 @@ export default function ContactSection() {
   return (
     <Box
       w="full"
-      background="linear-gradient(135deg, #0a1530 0%, #0d2b5c 50%, #1a4a8c 100%)"
+      bgImage="url('/assets/contact/contact-bg.png')"
+      bgSize="cover"
+      bgPosition="center"
+      bgRepeat="no-repeat"
       py={{ base: 20, md: 20 }}
       position="relative"
       overflow="hidden"
-      _before={{
-        content: '""',
-        position: "absolute",
-        right: "-200px",
-        top: "-200px",
-        w: "600px",
-        h: "600px",
-        borderRadius: "full",
-        background: "radial-gradient(circle, rgba(33, 150, 243, 0.3), transparent 70%)",
-        filter: "blur(40px)",
-        pointerEvents: "none",
-      }}
     >
-      <Container maxW="1180px" px={{ base: 6, md: 6 }} mx="auto" position="relative" zIndex={1}>
-        <Grid
-          templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-          gap={{ base: 8, md: 12 }}
+      <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto" position="relative" zIndex={1}>
+        <Flex
+          direction={{ base: "column", md: "row" }}
+          justifyContent="space-between"
+          gap={{ base: 8, md: 12, xl: 24 }}
         >
           {/* Left Side */}
-          <VStack align={{ base: "center", md: "flex-start" }} spacing={8}>
-            <VStack align={{ base: "center", md: "flex-start" }} spacing={4} textAlign={{ base: "center", md: "left" }}>
-              <Heading as="h2" size={{ base: "lg", md: "2xl" }}>
-                Let's Work<br />
-                Together
+          <VStack align={{ base: "center", md: "flex-start" }} flex={1.2} spacing={8}>
+            <VStack align={{ base: "center", md: "flex-start" }} spacing={4} textAlign={{ base: "center", md: "left" }} color="#d4dbeb">
+              <Heading as="h2" size={{ base: "lg", md: "xl" }}>
+                Ready TO Contact Us for Professional PR Support?
               </Heading>
-              <Text fontSize={{ base: "sm", md: "md" }} color="rgba(207, 213, 227, 1)">
-                Get in touch with us for any inquiries about our services or to discuss your next project.
+              <Text fontSize={{ base: "sm", md: "md" }} color="#d4dbeb">
+                If you require assistance with PR matters, our experienced team is here to help. Please use the form below to get in touch with our team and discuss your company needs.
               </Text>
             </VStack>
 
             {/* Map */}
             <Box
-              w="full"
-              h="200px"
+              w={{ base: "full", md: "80%" }}
+              h={{ base: "200px", md: "300px" }}
               borderRadius="14px"
               overflow="hidden"
               border="1px solid rgba(255, 255, 255, 0.1)"
@@ -95,100 +85,166 @@ export default function ContactSection() {
 
           {/* Right Side - Form */}
           <Box
-            bg="rgba(255, 255, 255, 0.06)"
+            position="relative"
+            overflow="hidden"
+            flex={0.8}
+            bg="rgba(128, 128, 128, 0.18)"
             backdropFilter="blur(20px)"
-            border="1px solid rgba(255, 255, 255, 0.1)"
-            borderRadius="18px"
-            p={8}
+            // WebkitBackdropFilter="blur(20px)"
+            borderRadius="40px"
+            border="1px solid rgba(255,255,255,.08)"
+            px={{ base: 6, md: 10 }}
+            py={{ base: 8, md: 10 }}
+            boxShadow="
+              0 30px 60px rgba(0,0,0,.25),
+              inset 0 1px 0 rgba(255,255,255,.08)
+            "
           >
-            <VStack as="form" onSubmit={handleSubmit} spacing={4}>
-              <Heading as="h3" size="lg" fontWeight="700" fontSize="22px">
-                Get In Touch
-              </Heading>
-              <Text fontSize="xs" color="rgba(207, 213, 227, 1)">
-                Send us a message and we'll respond as soon as possible.
-              </Text>
-
-              {/* Form Fields */}
-              <FormControl>
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email address"
-                  value={formData.email}
-                  onChange={handleChange}
-                  bg="rgba(0, 0, 0, 0.25)"
-                  border="1px solid rgba(255, 255, 255, 0.1)"
-                  borderRadius="10px"
-                  color="#fff"
-                  fontSize="sm"
-                  py={3}
-                  px={4}
-                  _placeholder={{ color: "rgba(139, 147, 167, 1)" }}
-                  _focus={{
-                    outline: "none",
-                    borderColor: "var(--primary)",
-                    boxShadow: "0 0 0 1px var(--primary)",
-                  }}
-                  required
-                />
-              </FormControl>
-
-              <FormControl>
-                <Textarea
-                  name="message"
-                  placeholder="Your message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  bg="rgba(0, 0, 0, 0.25)"
-                  border="1px solid rgba(255, 255, 255, 0.1)"
-                  borderRadius="10px"
-                  color="#fff"
-                  fontSize="sm"
-                  py={3}
-                  px={4}
-                  minH="120px"
-                  resize="vertical"
-                  _placeholder={{ color: "rgba(139, 147, 167, 1)" }}
-                  _focus={{
-                    outline: "none",
-                    borderColor: "var(--primary)",
-                    boxShadow: "0 0 0 1px var(--primary)",
-                  }}
-                  required
-                />
-              </FormControl>
-
-              {/* Footer */}
-              <HStack justify="space-between" align="center" w="full">
-                <Checkbox
-                  name="consent"
-                  isChecked={formData.consent}
-                  onChange={handleChange}
-                  colorScheme="blue"
-                  size="sm"
+            <VStack
+              as="form"
+              onSubmit={handleSubmit}
+              spacing={5}
+              align="stretch"
+            >
+              {/* Heading */}
+              <VStack spacing={1}>
+                <Text
+                  fontSize={{ base: "xl", md: "4xl" }}
+                  fontWeight="600"
+                  textAlign="center"
+                  bgGradient="linear(to-r, white, #4DA8FF)"
+                  bgClip="text"
                 >
-                  <Text fontSize="xs" color="rgba(207, 213, 227, 1)">
-                    I agree to the terms
-                  </Text>
-                </Checkbox>
+                  GET IN TOUCH
+                </Text>
+
+                <Text
+                  color="rgba(255,255,255,.7)"
+                  fontSize={{ base: "md", lg: "lg" }}
+                >
+                  We're available 24 / 7
+                </Text>
+              </VStack>
+
+              {/* Name */}
+              <Input
+                placeholder="Your Name"
+                h="46px"
+                px={5}
+                borderRadius="999px"
+                bg="rgba(128, 128, 128, 0.2)"
+                backdropFilter="blur(20px)"
+                // WebkitBackdropFilter="blur(20px)"
+                border="0.5px solid rgba(255,255,255,0.15)"
+                color="white"
+                fontSize="14px"
+                fontWeight="400"
+                transition="all .25s ease"
+                _placeholder={{
+                  color: "rgba(255,255,255,.45)",
+                }}
+                _hover={{
+                  borderColor: "rgba(255,255,255,.25)",
+                }}
+                _focus={{
+                  bg: "rgba(128,128,128,.24)",
+                  borderColor: "var(--primary)",
+                  boxShadow: "0 0 0 1px var(--primary)",
+                }}
+              />
+
+              {/* Phone */}
+              <Input
+                placeholder="Your Contact Number"
+                h="46px"
+                px={5}
+                borderRadius="999px"
+                bg="rgba(128, 128, 128, 0.2)"
+                backdropFilter="blur(20px)"
+                // WebkitBackdropFilter="blur(20px)"
+                border="0.5px solid rgba(255,255,255,0.15)"
+                color="white"
+                fontSize="14px"
+                fontWeight="400"
+                transition="all .25s ease"
+                _placeholder={{
+                  color: "rgba(255,255,255,.45)",
+                }}
+                _hover={{
+                  borderColor: "rgba(255,255,255,.25)",
+                }}
+                _focus={{
+                  bg: "rgba(128,128,128,.24)",
+                  borderColor: "var(--primary)",
+                  boxShadow: "0 0 0 1px var(--primary)",
+                }}
+              />
+
+              <Textarea
+                placeholder="How can we help?"
+                minH="140px"
+                px={5}
+                borderRadius="20px"
+                bg="rgba(128, 128, 128, 0.2)"
+                backdropFilter="blur(20px)"
+                // WebkitBackdropFilter="blur(20px)"
+                border="0.5px solid rgba(255,255,255,0.15)"
+                color="white"
+                fontSize="14px"
+                fontWeight="400"
+                transition="all .25s ease"
+                _placeholder={{
+                  color: "rgba(255,255,255,.45)",
+                }}
+                _hover={{
+                  borderColor: "rgba(255,255,255,.25)",
+                }}
+                _focus={{
+                  bg: "rgba(128,128,128,.24)",
+                  borderColor: "var(--primary)",
+                  boxShadow: "0 0 0 1px var(--primary)",
+                }}
+              />
+
+              {/* Bottom */}
+              <Flex
+                justify="space-between"
+                align="center"
+                pt={2}
+              >
+                <Button
+                  variant="outline"
+                  borderRadius="999px"
+                  borderColor="rgba(255,255,255,.4)"
+                  color="white"
+                  leftIcon={<Text fontSize="lg">+</Text>}
+                  bg="transparent"
+                  px={6}
+                  _hover={{
+                    bg: "rgba(255,255,255,.05)"
+                  }}
+                >
+                  REQUEST CALLBACK
+                </Button>
+
                 <Button
                   type="submit"
-                  px={7.5}
-                  py={2.5}
-                  borderRadius="50px"
-                  bg="#fff"
-                  color="#05060a"
-                  fontWeight="600"
-                  fontSize="sm"
-                  _hover={{ bg: "rgba(255, 255, 255, 0.9)" }}
+                  borderRadius="999px"
+                  px={8}
+                  bgGradient="linear(to-r, #F8F8F8, #63B3ED)"
+                  color="#1A202C"
+                  fontWeight="700"
+                  _hover={{
+                    bgGradient:
+                      "linear(to-r, #FFFFFF, #4299E1)"
+                  }}
                 >
-                  Send
+                  SEND
                 </Button>
-              </HStack>
+              </Flex>
             </VStack>
           </Box>
-        </Grid>
+        </Flex>
       </Container>
     </Box>
   );

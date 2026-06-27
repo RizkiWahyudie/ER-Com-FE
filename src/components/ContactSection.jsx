@@ -39,14 +39,94 @@ export default function ContactSection() {
   return (
     <Box
       w="full"
-      bgImage="url('/assets/contact/contact-bg.png')"
-      bgSize="cover"
-      bgPosition="center"
-      bgRepeat="no-repeat"
+      bg="#05060a"
       py={{ base: 20, md: 20 }}
       position="relative"
       overflow="hidden"
     >
+      {/* Water flow animation styles */}
+      <style>{`
+        @keyframes blobFlow1 {
+          0%   { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 62% 38% 68% 32% / 52% 58% 42% 68%; opacity: 0.9; }
+          15%  { transform: translate(5%,  -8%)   scale(1.07) rotate(10deg);  border-radius: 38% 62% 32% 68% / 68% 38% 62% 32%; opacity: 1;   }
+          30%  { transform: translate(9%,   3%)   scale(1.03) rotate(-5deg);  border-radius: 72% 28% 55% 45% / 35% 72% 45% 55%; opacity: 0.88;}
+          45%  { transform: translate(3%,  12%)   scale(0.96) rotate(-14deg); border-radius: 45% 55% 72% 28% / 58% 42% 28% 72%; opacity: 1;   }
+          60%  { transform: translate(-7%,  7%)   scale(1.05) rotate(6deg);   border-radius: 58% 42% 42% 58% / 42% 64% 36% 58%; opacity: 0.92;}
+          75%  { transform: translate(-5%, -4%)   scale(0.98) rotate(18deg);  border-radius: 35% 65% 62% 38% / 65% 35% 55% 45%; opacity: 1;   }
+          90%  { transform: translate(2%,  -9%)   scale(1.04) rotate(-8deg);  border-radius: 68% 32% 48% 52% / 48% 68% 42% 58%; opacity: 0.9; }
+          100% { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 62% 38% 68% 32% / 52% 58% 42% 68%; opacity: 0.9; }
+        }
+        @keyframes blobFlow2 {
+          0%   { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 42% 58% 32% 68% / 62% 38% 68% 32%; opacity: 0.85;}
+          20%  { transform: translate(-8%,  6%)   scale(1.09) rotate(-18deg); border-radius: 68% 32% 58% 42% / 38% 68% 32% 62%; opacity: 0.95;}
+          40%  { transform: translate(-3%, -9%)   scale(0.94) rotate(8deg);   border-radius: 32% 68% 48% 52% / 72% 28% 52% 48%; opacity: 1;   }
+          55%  { transform: translate(8%,  -5%)   scale(1.06) rotate(-12deg); border-radius: 58% 42% 68% 32% / 45% 55% 38% 62%; opacity: 0.88;}
+          70%  { transform: translate(6%,   8%)   scale(0.97) rotate(15deg);  border-radius: 48% 52% 38% 62% / 62% 42% 68% 38%; opacity: 1;   }
+          85%  { transform: translate(-5%,  3%)   scale(1.03) rotate(-6deg);  border-radius: 65% 35% 55% 45% / 32% 68% 45% 55%; opacity: 0.9; }
+          100% { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 42% 58% 32% 68% / 62% 38% 68% 32%; opacity: 0.85;}
+        }
+        @keyframes blobFlow3 {
+          0%   { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 55% 45% 62% 38% / 48% 58% 42% 52%; opacity: 0.75;}
+          18%  { transform: translate(10%, -5%)   scale(1.08) rotate(22deg);  border-radius: 38% 62% 42% 58% / 68% 32% 58% 42%; opacity: 0.9; }
+          35%  { transform: translate(4%,  10%)   scale(0.95) rotate(-12deg); border-radius: 68% 32% 58% 42% / 38% 62% 32% 68%; opacity: 1;   }
+          52%  { transform: translate(-9%,  6%)   scale(1.07) rotate(8deg);   border-radius: 42% 58% 35% 65% / 55% 45% 65% 35%; opacity: 0.82;}
+          68%  { transform: translate(-6%, -8%)   scale(0.98) rotate(-20deg); border-radius: 62% 38% 68% 32% / 32% 68% 48% 52%; opacity: 0.95;}
+          84%  { transform: translate(5%,  -3%)   scale(1.04) rotate(10deg);  border-radius: 35% 65% 52% 48% / 65% 35% 38% 62%; opacity: 0.78;}
+          100% { transform: translate(0%,   0%)   scale(1)    rotate(0deg);   border-radius: 55% 45% 62% 38% / 48% 58% 42% 52%; opacity: 0.75;}
+        }
+        @keyframes ripple {
+          0%, 100% { transform: scale(1);   opacity: 0.15; }
+          50%       { transform: scale(1.18); opacity: 0.06; }
+        }
+      `}</style>
+
+      {/* Animated water blobs */}
+      <Box
+        position="absolute"
+        top="-20%"
+        right="-10%"
+        w={{ base: "500px", md: "720px" }}
+        h={{ base: "500px", md: "720px" }}
+        bg="radial-gradient(circle at 42% 38%, rgba(0,130,255,0.9) 0%, rgba(0,90,210,0.65) 38%, transparent 68%)"
+        style={{ animation: "blobFlow1 7s ease-in-out infinite" }}
+        pointerEvents="none"
+        zIndex={0}
+      />
+      <Box
+        position="absolute"
+        bottom="-25%"
+        right="12%"
+        w={{ base: "400px", md: "620px" }}
+        h={{ base: "400px", md: "620px" }}
+        bg="radial-gradient(circle at 55% 52%, rgba(0,160,255,0.75) 0%, rgba(0,110,225,0.5) 42%, transparent 68%)"
+        style={{ animation: "blobFlow2 9s ease-in-out infinite" }}
+        pointerEvents="none"
+        zIndex={0}
+      />
+      <Box
+        position="absolute"
+        top="25%"
+        right="-8%"
+        w={{ base: "300px", md: "480px" }}
+        h={{ base: "300px", md: "480px" }}
+        bg="radial-gradient(circle at 50% 48%, rgba(40,190,255,0.6) 0%, rgba(0,110,210,0.35) 48%, transparent 68%)"
+        style={{ animation: "blobFlow3 11s ease-in-out infinite" }}
+        pointerEvents="none"
+        zIndex={0}
+      />
+      {/* Ripple layer */}
+      <Box
+        position="absolute"
+        top="0%" right="-5%"
+        w={{ base: "600px", md: "860px" }}
+        h={{ base: "600px", md: "860px" }}
+        borderRadius="full"
+        border="60px solid rgba(0,130,255,0.12)"
+        style={{ animation: "ripple 5s ease-in-out infinite" }}
+        pointerEvents="none"
+        zIndex={0}
+      />
+
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto" position="relative" zIndex={1}>
         <Flex
           direction={{ base: "column", md: "row" }}

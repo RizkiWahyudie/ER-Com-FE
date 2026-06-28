@@ -130,20 +130,7 @@ export default function ClientsPage() {
   const current = testimonials[testimonialIdx];
 
   return (
-    <Box
-      position="relative"
-      bg="#000"
-      _before={{
-        content: '""',
-        position: "fixed",
-        inset: 0,
-        background:
-          "radial-gradient(ellipse at 15% 20%, rgba(29,78,216,0.22) 0%, transparent 50%), " +
-          "radial-gradient(ellipse at 85% 75%, rgba(194,65,12,0.25) 0%, transparent 50%)",
-        pointerEvents: "none",
-        zIndex: 0,
-      }}
-    >
+    <>
       <Navbar />
 
       {/* ── Hero ── */}
@@ -233,7 +220,7 @@ export default function ClientsPage() {
       </Box>
 
       {/* ── Filter Tabs ── */}
-      <Box bg="transparent" pb={10}>
+      <Box bg="#000" pb={10}>
         <Container maxW="7xl" px={{ base: 6, md: 8 }}>
           <Flex justify="center" gap={3} flexWrap="wrap">
             {categories.map((cat) => {
@@ -267,7 +254,7 @@ export default function ClientsPage() {
       </Box>
 
       {/* ── Logo Grid ── */}
-      <Box bg="transparent" py={{ base: 8, md: 12 }}>
+      <Box bg="#000" py={{ base: 8, md: 12 }}>
         <Container maxW="7xl" px={{ base: 6, md: 8 }}>
           <SimpleGrid
             columns={{ base: 2, sm: 3, md: 4 }}
@@ -287,7 +274,7 @@ export default function ClientsPage() {
       </Box>
 
       {/* ── Testimonial ── */}
-      <Box bg="transparent" py={{ base: 16, md: 24 }}>
+      <Box bg="#000" py={{ base: 16, md: 24 }}>
         <Container maxW="3xl" px={{ base: 6, md: 8 }} textAlign="center">
           <VStack spacing={8}>
             <Text fontSize={{ base: "13px", md: "14px" }} color="#2196f3" fontWeight="500">
@@ -356,6 +343,6 @@ export default function ClientsPage() {
 
       <ContactSection />
       <FooterSection />
-    </Box>
+    </>
   );
 }

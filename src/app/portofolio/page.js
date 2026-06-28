@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Box,
   Container,
@@ -13,6 +13,8 @@ import {
   Icon,
   SimpleGrid,
   Portal,
+  Button,
+  Spinner,
 } from "@chakra-ui/react";
 import { FaPlay, FaArrowRight, FaTimes, FaChevronLeft, FaChevronRight, FaExpand } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
@@ -34,14 +36,23 @@ const featuredSlides = [
   },
 ];
 
-const gridPhotos = [
+const allGridPhotos = [
   "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1528605105345-5344ea20e269?w=600&h=400&fit=crop",
+  "https://images.unsplash.com/photo-1551818255-e6e10579a0ab?w=600&h=400&fit=crop",
 ];
+
+const INITIAL_COUNT = 6;
+const BATCH_SIZE = 6;
 
 function Lightbox({ photos, index, onClose }) {
   const [current, setCurrent] = useState(index);
@@ -264,8 +275,30 @@ function Lightbox({ photos, index, onClose }) {
 export default function PortofolioPage() {
   const [slideIdx, setSlideIdx] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const [isLoading, setIsLoading] = useState(false);
+  const [newlyAdded, setNewlyAdded] = useState(new Set());
+  const gridRef = useRef(null);
+
+  const gridPhotos = allGridPhotos.slice(0, visibleCount);
+  const hasMore = visibleCount < allGridPhotos.length;
 
   const nextSlide = () => setSlideIdx((i) => (i + 1) % featuredSlides.length);
+
+  const handleViewAll = useCallback(() => {
+    if (isLoading || !hasMore) return;
+    setIsLoading(true);
+    setTimeout(() => {
+      const prevCount = visibleCount;
+      const nextCount = Math.min(visibleCount + BATCH_SIZE, allGridPhotos.length);
+      const added = new Set();
+      for (let i = prevCount; i < nextCount; i++) added.add(i);
+      setNewlyAdded(added);
+      setVisibleCount(nextCount);
+      setIsLoading(false);
+      setTimeout(() => setNewlyAdded(new Set()), 700);
+    }, 600);
+  }, [isLoading, hasMore, visibleCount]);
 
   return (
     <>
@@ -469,11 +502,17 @@ export default function PortofolioPage() {
 
       {/* ── Photo Grid ── */}
       <Box bg="var(--background)" py={{ base: 4, md: 6 }} pb={{ base: 16, md: 24 }}>
+        <style>{`
+          @keyframes gridFadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `}</style>
         <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          <SimpleGrid columns={{ base: 2, md: 3 }} spacing={3}>
+          <SimpleGrid ref={gridRef} columns={{ base: 2, md: 3 }} spacing={3}>
             {gridPhotos.map((src, idx) => (
               <Box
-                key={idx}
+                key={src}
                 borderRadius="14px"
                 overflow="hidden"
                 h={{ base: "140px", md: "220px" }}
@@ -486,6 +525,11 @@ export default function PortofolioPage() {
                   transform: "translateY(-4px) scale(1.02)",
                   boxShadow: "0 16px 40px rgba(37,99,235,0.25)",
                 }}
+                style={
+                  newlyAdded.has(idx)
+                    ? { animation: `gridFadeIn 0.55s cubic-bezier(0.34,1.26,0.64,1) both` }
+                    : undefined
+                }
               >
                 <Image
                   src={src}
@@ -533,6 +577,40 @@ export default function PortofolioPage() {
               </Box>
             ))}
           </SimpleGrid>
+
+          {/* View All button */}
+          {hasMore && (
+            <Flex justify="center" mt={{ base: 8, md: 12 }}>
+              <Button
+                onClick={handleViewAll}
+                isLoading={isLoading}
+                disabled={isLoading}
+                px={10}
+                py={6}
+                fontSize={{ base: "14px", md: "15px" }}
+                fontWeight="600"
+                fontFamily="Plus Jakarta Sans"
+                color="#fff"
+                bg="transparent"
+                border="1.5px solid rgba(37,99,235,0.6)"
+                borderRadius="full"
+                letterSpacing="0.02em"
+                position="relative"
+                overflow="hidden"
+                transition="all 0.3s ease"
+                _hover={{
+                  bg: "rgba(37,99,235,0.15)",
+                  borderColor: "#2563EB",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 8px 32px rgba(37,99,235,0.3)",
+                }}
+                _active={{ transform: "translateY(0)" }}
+                spinner={<Spinner size="sm" color="#2563EB" />}
+              >
+                {isLoading ? "Loading..." : `View All (${allGridPhotos.length - visibleCount} more)`}
+              </Button>
+            </Flex>
+          )}
         </Container>
       </Box>
 

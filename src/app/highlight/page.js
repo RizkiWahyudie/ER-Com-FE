@@ -13,6 +13,7 @@ import {
   SimpleGrid,
   Avatar,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
 
@@ -103,8 +104,9 @@ const allProjects = [
 
 const PER_PAGE = 6;
 
-function ProjectCard({ img, title, desc, author, date }) {
+function ProjectCard({ img, title, desc, author, date, index: cardIndex = 0, id }) {
   return (
+    <Link href={`/highlight/${id}`} style={{ textDecoration: "none", display: "block" }}>
     <Box
       borderRadius="20px"
       overflow="hidden"
@@ -143,24 +145,47 @@ function ProjectCard({ img, title, desc, author, date }) {
             {desc}
           </Text>
 
-          <HStack spacing={3} pt={1}>
-            <Avatar
-              size="sm"
-              name={author}
-              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces"
-            />
-            <VStack spacing={0} align="flex-start">
-              <Text fontSize="13px" fontWeight="600" color="#111">
-                {author}
-              </Text>
-              <Text fontSize="11px" color="#888">
-                {date}
-              </Text>
-            </VStack>
+          <HStack spacing={3} pt={1} w="full" justify="space-between" align="center">
+            <HStack spacing={3}>
+              <Avatar
+                size="sm"
+                name={author}
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces"
+              />
+              <VStack spacing={0} align="flex-start">
+                <Text fontSize="13px" fontWeight="600" color="#111">
+                  {author}
+                </Text>
+                <Text fontSize="11px" color="#888">
+                  {date}
+                </Text>
+              </VStack>
+            </HStack>
+
+            <Box
+              as="span"
+              display="inline-flex"
+              alignItems="center"
+              gap="6px"
+              px={4}
+              py={1.5}
+              borderRadius="full"
+              bg="#2563EB"
+              color="#fff"
+              fontSize="12px"
+              fontWeight="600"
+              flexShrink={0}
+              transition="all 0.2s"
+              _hover={{ bg: "#1d4ed8", transform: "translateX(2px)" }}
+            >
+              Read More
+              <Text as="span" fontSize="11px">→</Text>
+            </Box>
           </HStack>
         </VStack>
       </Box>
     </Box>
+    </Link>
   );
 }
 
@@ -381,7 +406,7 @@ export default function HighlightPage() {
           {paginated.length > 0 ? (
             <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
               {paginated.map((project, idx) => (
-                <ProjectCard key={idx} {...project} />
+                <ProjectCard key={idx} {...project} index={idx} id={allProjects.indexOf(project)} />
               ))}
             </SimpleGrid>
           ) : (

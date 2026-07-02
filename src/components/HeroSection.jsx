@@ -27,7 +27,7 @@ export default function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        backgroundImage="url('/assets/hero/hero-bg.png')"
+        backgroundImage="url('/assets/hero/hero-bg-new.png')"
         backgroundSize="cover"
         backgroundPosition="center"
         // filter="brightness(0.55) saturate(0.85)"

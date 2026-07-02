@@ -15,21 +15,28 @@ import {
   DrawerCloseButton,
   VStack,
   IconButton,
+  Text
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { FaWhatsapp } from "react-icons/fa";
-
-const navItems = [
-  { label: "About Us", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Clients", href: "#clients" },
-  { label: "Highlight", href: "#highlight" },
-  { label: "Contact", href: "#contact" },
-  { label: "Career", href: "#career" },
-];
+import NextLink from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const pathname = usePathname();
+
+  const navItems = [
+    {
+      label: "About Us",
+      href: pathname === "/" ? "#aboutus" : "/about",
+    },
+    { label: "Services", href: "/services" },
+    { label: "Clients", href: "/clients" },
+    { label: "Highlight", href: "/highlight" },
+    { label: "Contact", href: "/contact" },
+    { label: "Career", href: "/career" },
+  ];
 
   return (
     <Box
@@ -70,18 +77,20 @@ export default function Navbar() {
           />
 
           {/* Logo - Center on mobile */}
-          <Box 
-            w={{ base: "50px", md: "70px" }} 
-            h="auto"
-            textAlign={{ base: "center", md: "left" }}
-          >
-            <Image 
-              src="/assets/hero/navbar-logo-sm.svg" 
-              alt="ER Communication Logo"
-              maxW="100%"
+          <NextLink href="/">
+            <Box 
+              w={{ base: "50px", md: "70px" }} 
               h="auto"
-            />
-          </Box>
+              textAlign={{ base: "center", md: "left" }}
+            >
+              <Image 
+                src="/assets/hero/navbar-logo-sm.svg" 
+                alt="ER Communication Logo"
+                maxW="100%"
+                h="auto"
+              />
+            </Box>
+          </NextLink>
 
           {/* Desktop Navigation */}
           <HStack
@@ -90,17 +99,17 @@ export default function Navbar() {
             flex={1}
           >
             {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                fontSize="14px"
-                color="#e9eaec"
-                fontWeight="500"
-                transition="color 0.2s"
-                _hover={{ color: "#fff" }}
-              >
-                {item.label}
-              </Link>
+              <NextLink key={item.label} href={item.href}>
+                <Text
+                  fontSize="14px"
+                  color="#e9eaec"
+                  fontWeight="500"
+                  transition="color 0.2s"
+                  _hover={{ color: "#fff" }}
+                >
+                  {item.label}
+                </Text>
+              </NextLink>
             ))}
           </HStack>
 

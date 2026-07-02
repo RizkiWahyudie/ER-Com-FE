@@ -152,6 +152,7 @@ export default function ContactSection() {
         <Flex
           direction={{ base: "column", md: "row" }}
           justifyContent="space-between"
+          alignItems="center"
           gap={{ base: 8, md: 12, xl: 24 }}
         >
           {/* Left Side */}
@@ -253,6 +254,60 @@ export default function ContactSection() {
                   boxShadow: "0 0 0 1px var(--primary)",
                 }}
               />
+              
+              {/* Business */}
+              <Input
+                placeholder="Your Business Name"
+                h="46px"
+                px={5}
+                borderRadius="999px"
+                bg="rgba(128, 128, 128, 0.2)"
+                backdropFilter="blur(20px)"
+                // WebkitBackdropFilter="blur(20px)"
+                border="0.5px solid rgba(255,255,255,0.15)"
+                color="white"
+                fontSize="14px"
+                fontWeight="400"
+                transition="all .25s ease"
+                _placeholder={{
+                  color: "rgba(255,255,255,.45)",
+                }}
+                _hover={{
+                  borderColor: "rgba(255,255,255,.25)",
+                }}
+                _focus={{
+                  bg: "rgba(128,128,128,.24)",
+                  borderColor: "var(--primary)",
+                  boxShadow: "0 0 0 1px var(--primary)",
+                }}
+              />
+              
+              {/* Email */}
+              <Input
+                placeholder="Your Email"
+                h="46px"
+                px={5}
+                borderRadius="999px"
+                bg="rgba(128, 128, 128, 0.2)"
+                backdropFilter="blur(20px)"
+                // WebkitBackdropFilter="blur(20px)"
+                border="0.5px solid rgba(255,255,255,0.15)"
+                color="white"
+                fontSize="14px"
+                fontWeight="400"
+                transition="all .25s ease"
+                _placeholder={{
+                  color: "rgba(255,255,255,.45)",
+                }}
+                _hover={{
+                  borderColor: "rgba(255,255,255,.25)",
+                }}
+                _focus={{
+                  bg: "rgba(128,128,128,.24)",
+                  borderColor: "var(--primary)",
+                  boxShadow: "0 0 0 1px var(--primary)",
+                }}
+              />
 
               {/* Phone */}
               <Input
@@ -309,11 +364,11 @@ export default function ContactSection() {
 
               {/* Bottom */}
               <Flex
-                justify="space-between"
+                justify="right"
                 align="center"
                 pt={2}
               >
-                <Button
+                {/* <Button
                   variant="outline"
                   borderRadius="999px"
                   borderColor="rgba(255,255,255,.4)"
@@ -326,7 +381,7 @@ export default function ContactSection() {
                   }}
                 >
                   REQUEST CALLBACK
-                </Button>
+                </Button> */}
 
                 <Button
                   type="submit"

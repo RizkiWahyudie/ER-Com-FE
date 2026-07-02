@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -15,7 +15,7 @@ import {
   Icon,
   Divider
 } from "@chakra-ui/react";
-import { FaWhatsapp, FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { FaArrowUp, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
 const teamMembers = [
   {
@@ -45,8 +45,6 @@ const teamMembers = [
   },
 ];
 
-const tabs = ["Clients", "Teams", "Experiences"];
-
 export default function TeamSection() {
   const [activeTab, setActiveTab] = useState("Teams");
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -58,6 +56,17 @@ export default function TeamSection() {
   const nextIdx =
   (selectedIdx + 1) % teamMembers.length;
 
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <Box
       w="full"
@@ -67,27 +76,6 @@ export default function TeamSection() {
     >
       <Container maxW="8xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={{ base: 12, md: 16 }} align="stretch">
-          {/* Tabs */}
-          <HStack justify="center" spacing={3.5}>
-            {tabs.map((tab) => (
-              <Button
-                key={tab}
-                px={{  base: 6, lg: 12 }}
-                py={{ base: 3, lg: 6 }}
-                borderRadius="full"
-                border="1px solid rgba(255, 255, 255, 0.2)"
-                color={activeTab === tab ? "#05060a" : "rgba(207, 213, 227, 1)"}
-                bg={activeTab === tab ? "#fff" : "rgba(255, 255, 255, 0.03)"}
-                fontSize={{ base: "sm", md: "lg" }}
-                fontWeight="500"
-                onClick={() => setActiveTab(tab)}
-                transition="all 0.25s"
-                _hover={{ bg: activeTab === tab ? "#fff" : "rgba(255, 255, 255, 0.08)" }}
-              >
-                {tab}
-              </Button>
-            ))}
-          </HStack>
 
           {/* Main Content */}
           <Grid
@@ -218,8 +206,9 @@ export default function TeamSection() {
                 w={{ base: "42px", md: "48px" }}
                 h={{ base: "42px", md: "48px" }}
                 borderRadius="full"
-                bg="var(--primary)"
+                bg="transparent"
                 color="#fff"
+                border="1px solid white"
                 fontSize={{ base: "md", md: "xl" }}
                 zIndex={5}
                 _hover={{ transform: "translateY(-50%) scale(1.08)" }}
@@ -237,6 +226,7 @@ export default function TeamSection() {
               <Text fontSize={{ base: "sm", md: "lg" }} color="#c4c1c1">
                 A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.
               </Text>
+              <Box my={{ base: 3, md: 6 }}></Box>
               <Box>
                 <Divider borderColor="var(--primary)" borderWidth="1.5px" mb={3} />
                 <Heading as="h2" size="xl" color="var(--primary)" mb={1}>
@@ -247,17 +237,22 @@ export default function TeamSection() {
                 </Text> 
               </Box>
               <Button
-                className="pill-btn dark"
-                mt={4}
+                size="sm"
                 px={{ base: 4, md: 6 }}
-                py={{ base: 2, md: 4 }}
-                borderRadius="full"
-                bg="#fff"
-                color="#05060a"
-                fontSize={{ base: "sm", md: "md" }}
-                fontWeight="600"
+                py={{ base: 1.5, md: 6 }}
+                mt={{ base: 3, md: 6 }}
+                borderRadius="50px"
+                bg="transparent"
+                color="white"
+                border="1px solid white"
+                fontSize={{ base: "xs", md: "md" }}
+                fontWeight="500"
+                _hover={{ bg: "white", color: "black" }}
               >
-                See All Teams
+                <HStack spacing={2}>
+                  <Text>View All</Text>
+                  <FaArrowRight size={14} />
+                </HStack>
               </Button>
             </VStack>
           </Grid>
@@ -265,7 +260,7 @@ export default function TeamSection() {
       </Container>
 
       {/* WhatsApp Float */}
-      <Flex
+      {/* <Flex
         position="fixed"
         right={6}
         bottom={6}
@@ -283,7 +278,37 @@ export default function TeamSection() {
         rel="noopener noreferrer"
       >
         <Icon as={FaWhatsapp} color="#fff" w={7} h={7} />
-      </Flex>
+      </Flex> */}
+
+      {showScrollTop && (
+        <Flex
+          position="fixed"
+          right={6}
+          bottom={6}
+          w={{ base: "24px", lg: "58px" }}
+          h={{ base: "24px", lg: "58px" }}
+          borderRadius="full"
+          bg="rgba(1, 1, 1, 0.5)"
+          p={{ base: 5, lg: 0 }}
+          align="center"
+          justify="center"  
+          cursor="pointer"
+          zIndex={60}
+          boxShadow="sm"
+          transition="0.2s"
+          _hover={{
+            transform: "translateY(-8px)",
+          }}
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            })
+          }
+        >
+          <Icon as={FaArrowUp} color="white" boxSize={{ base: 4, lg: 5 }} />
+        </Flex>
+      )}
     </Box>
   );
 }

@@ -3,7 +3,6 @@
 import {
   Box,
   Container,
-  Grid,
   Heading,
   VStack,
   HStack,
@@ -13,9 +12,10 @@ import {
   Circle,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useState, useMemo } from "react";
+import Link from "next/link";
 
 const portfolioImages = [
   "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=600&fit=crop",
@@ -151,23 +151,25 @@ export default function PortfolioSection() {
           </Box>
 
           {/* View All Button */}
-          <Button
-            size="sm"
-            px={{ base: 4, md: 6 }}
-            py={{ base: 1.5, md: 6 }}
-            borderRadius="50px"
-            bg="transparent"
-            color="white"
-            border="1px solid white"
-            fontSize={{ base: "xs", md: "md" }}
-            fontWeight="500"
-            _hover={{ bg: "white", color: "black" }}
-          >
-            <HStack spacing={2}>
-              <Text>View All</Text>
-              <FaArrowRight size={14} />
-            </HStack>
-          </Button>
+          <Link href="/highlight">
+            <Button
+              size="sm"
+              px={{ base: 4, md: 6 }}
+              py={{ base: 1.5, md: 6 }}
+              borderRadius="50px"
+              bg="transparent"
+              color="white"
+              border="1px solid white"
+              fontSize={{ base: "xs", md: "md" }}
+              fontWeight="500"
+              _hover={{ bg: "white", color: "black" }}
+            >
+              <HStack spacing={2}>
+                <Text>View All</Text>
+                <FaArrowRight size={14} />
+              </HStack>
+            </Button>
+          </Link>
         </VStack>
       </Container>
     </Box>

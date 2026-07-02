@@ -15,6 +15,7 @@ import {
   Icon,
   Divider
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { FaArrowUp, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
 const teamMembers = [
@@ -236,24 +237,26 @@ export default function TeamSection() {
                   {selected.role}
                 </Text> 
               </Box>
-              <Button
-                size="sm"
-                px={{ base: 4, md: 6 }}
-                py={{ base: 1.5, md: 6 }}
-                mt={{ base: 3, md: 6 }}
-                borderRadius="50px"
-                bg="transparent"
-                color="white"
-                border="1px solid white"
-                fontSize={{ base: "xs", md: "md" }}
-                fontWeight="500"
-                _hover={{ bg: "white", color: "black" }}
-              >
-                <HStack spacing={2}>
-                  <Text>View All</Text>
-                  <FaArrowRight size={14} />
-                </HStack>
-              </Button>
+              <Link href="/team">
+                <Button
+                  size="sm"
+                  px={{ base: 4, md: 6 }}
+                  py={{ base: 1.5, md: 6 }}
+                  mt={{ base: 3, md: 6 }}
+                  borderRadius="50px"
+                  bg="transparent"
+                  color="white"
+                  border="1px solid white"
+                  fontSize={{ base: "xs", md: "md" }}
+                  fontWeight="500"
+                  _hover={{ bg: "white", color: "black" }}
+                >
+                  <HStack spacing={2}>
+                    <Text>View All</Text>
+                    <FaArrowRight size={14} />
+                  </HStack>
+                </Button>
+              </Link>
             </VStack>
           </Grid>
         </VStack>

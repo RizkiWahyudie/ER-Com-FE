@@ -98,23 +98,25 @@ export default function HeadlineSection() {
             Er communication is one of leading agency in Indonesia and we
             specialize in consumer lifestyle.
           </Text>
-          <Button
-            size="sm"
-            px={{ base: 4, md: 6 }}
-            py={{ base: 1.5, md: 6 }}
-            borderRadius="50px"
-            bg="transparent"
-            color="white"
-            border="2px solid white"
-            fontSize={{ base: "xs", md: "md" }}
-            fontWeight="500"
-            _hover={{ bg: "white", color: "black" }}
-          >
-            <HStack spacing={2}>
-              <Text>View All</Text>
-              <FaArrowRight size={14} />
-            </HStack>
-          </Button>
+          <Link href="/services">
+            <Button
+              size="sm"
+              px={{ base: 4, md: 6 }}
+              py={{ base: 1.5, md: 6 }}
+              borderRadius="50px"
+              bg="transparent"
+              color="white"
+              border="2px solid white"
+              fontSize={{ base: "xs", md: "md" }}
+              fontWeight="500"
+              _hover={{ bg: "white", color: "black" }}
+            >
+              <HStack spacing={2}>
+                <Text>View All</Text>
+                <FaArrowRight size={14} />
+              </HStack>
+            </Button>
+          </Link>
         </VStack>
       </Container>
     </Box>

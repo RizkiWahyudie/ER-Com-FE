@@ -4,6 +4,7 @@ import { Box, Container, Grid, Heading, Text, VStack, Icon, HStack, Image, Butto
 import { keyframes } from "@emotion/react";
 import { FaArrowRight } from "react-icons/fa";
 import { useMemo } from "react";
+import Link from "next/link";
 
 const partners = [
   "/assets/partner/partner-logo-1.png",
@@ -125,24 +126,26 @@ export default function PartnersSection() {
             <Text fontSize={{ base: "sm", md: "lg" }} color="#bab9c4" lineHeight="1.6">
               Companies are leveraging our platform to bring transparency to their work.
             </Text>
-            <Button
-              size="sm"
-              px={{ base: 4, md: 6 }}
-              py={{ base: 1.5, md: 6 }}
-              borderRadius="50px"
-              bg="transparent"
-              color="white"
-              border="1px solid white"
-              mb={{ base: 2, md: 6 }}
-              fontSize={{ base: "xs", md: "md" }}
-              fontWeight="500"
-              _hover={{ bg: "white", color: "black" }}
-            >
-              <HStack spacing={2}>
-                <Text>View All</Text>
-                <FaArrowRight size={14} />
-              </HStack>
-            </Button>
+            <Link href="/clients">
+              <Button
+                size="sm"
+                px={{ base: 4, md: 6 }}
+                py={{ base: 1.5, md: 6 }}
+                borderRadius="50px"
+                bg="transparent"
+                color="white"
+                border="1px solid white"
+                mb={{ base: 2, md: 6 }}
+                fontSize={{ base: "xs", md: "md" }}
+                fontWeight="500"
+                _hover={{ bg: "white", color: "black" }}
+              >
+                <HStack spacing={2}>
+                  <Text>View All</Text>
+                  <FaArrowRight size={14} />
+                </HStack>
+              </Button>
+            </Link>
             <Box>
               <HStack spacing={3} align="center">
                 <Icon

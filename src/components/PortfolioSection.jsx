@@ -49,7 +49,7 @@ export default function PortfolioSection() {
   return (
     <Box w="full" bg="#05060a" py={{ base: 20, md: 20 }}>
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
-        <VStack spacing={16} align="center">
+        <VStack spacing={{ base: 4, md: 8 }} align="center">
           {/* Title */}
           <Heading
             as="h2"
@@ -74,8 +74,9 @@ export default function PortfolioSection() {
                 color="#2196f3"
                 position="absolute"
                 left={{ base: 1, md: -14 }}
-                top="50%"
-                transform="translateY(-50%)"
+                top={{ md: "50%" }}
+                bottom={{ base: "-18%", md: "auto" }}
+                transform={{ base: "translateY(0%)", md: "translateY(-50%)" }}
                 zIndex={2}
                 cursor="pointer"
                 transition="all 0.2s"
@@ -97,8 +98,9 @@ export default function PortfolioSection() {
                 color="#2196f3"
                 position="absolute"
                 right={{ base: 1, md: -14 }}
-                top="50%"
-                transform="translateY(-50%)"
+                top={{ md: "50%" }}
+                bottom={{ base: "-18%", md: "auto" }}
+                transform={{ base: "translateY(0%)", md: "translateY(-50%)" }}
                 zIndex={2}
                 cursor="pointer"
                 transition="all 0.2s"
@@ -156,7 +158,7 @@ export default function PortfolioSection() {
             borderRadius="50px"
             bg="transparent"
             color="white"
-            border="2px solid white"
+            border="1px solid white"
             fontSize={{ base: "xs", md: "md" }}
             fontWeight="500"
             _hover={{ bg: "white", color: "black" }}

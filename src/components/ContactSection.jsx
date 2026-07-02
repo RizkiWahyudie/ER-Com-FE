@@ -154,6 +154,7 @@ export default function ContactSection() {
           justifyContent="space-between"
           alignItems="center"
           gap={{ base: 8, md: 12, xl: 24 }}
+          w="full"
         >
           {/* Left Side */}
           <VStack align={{ base: "center", md: "flex-start" }} flex={1.2} spacing={8}>
@@ -188,6 +189,7 @@ export default function ContactSection() {
           {/* Right Side - Form */}
           <Box
             position="relative"
+            w="full"
             overflow="hidden"
             flex={0.8}
             bg="rgba(128, 128, 128, 0.18)"

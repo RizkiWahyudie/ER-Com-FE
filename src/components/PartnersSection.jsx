@@ -120,9 +120,7 @@ export default function PartnersSection() {
               fontFamily="Plus Jakarta Sans"
               color="#fff"
             >
-              Partnering with<br />
-              Brands that Lead<br />
-              with Impact.
+              Partnering with Brands that Lead with Impact.
             </Heading>
             <Text fontSize={{ base: "sm", md: "lg" }} color="#bab9c4" lineHeight="1.6">
               Companies are leveraging our platform to bring transparency to their work.

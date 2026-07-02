@@ -299,7 +299,7 @@ export default function TimelineSection() {
 
           {/* Quote Carousel */}
           <Flex
-            align="center"
+            align={{ base: 'end', md: 'center' }}
             justify="center"
             gap={{ base: 4, md: 10 }}
             w="full"

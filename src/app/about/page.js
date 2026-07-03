@@ -11,21 +11,24 @@ import {
   GridItem,
   Flex,
   Icon,
-  Divider,
+  Image,
 } from "@chakra-ui/react";
 import { FaUsers, FaGlobeAsia, FaBullseye, FaCompass } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
+import TimelineSection from "@/components/TimelineSection";
+import PartnersSection from "@/components/PartnersSection";
+import ContactSection from "@/components/ContactSection";
 
 const features = [
   {
     icon: FaUsers,
-    title: "Trusted Expertise",
+    title: "Creative Experience",
     desc: "With decades of industry experience, we deliver communication strategies built on insight, credibility, and proven results.",
   },
   {
     icon: FaGlobeAsia,
-    title: "Reputation First",
+    title: "Impactful Outreach",
     desc: "We help organizations build, strengthen, and protect their reputation through strategic communication initiatives.",
   },
   {
@@ -47,7 +50,7 @@ const timelineItems = [
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.",
   },
   {
-    year: "2016",
+    year: "2015",
     title: "Announcement",
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.",
   },
@@ -57,13 +60,54 @@ const timelineItems = [
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.",
   },
   {
-    year: "2026",
+    year: "2020",
     title: "Announcement",
     desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.",
   },
 ];
 
+const gridServices = [
+  {
+    title: "Media Relation",
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+  },
+  {
+    title: "Social & Digital",
+    img: "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=800&q=80",
+  },
+  {
+    title: "Media Event",
+    img: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80",
+  },
+  {
+    title: "Brand & Strategic",
+    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
+  },
+];
+
 export default function AboutPage() {
+  const particles = [
+    { top: "5%", left: "8%", size: "9px", color: "#F97316", opacity: 0.8, duration: "4s", delay: "0s" },
+    { top: "10%", left: "25%", size: "7px", color: "#334155", opacity: 0.7, duration: "5s", delay: "0.4s" },
+    { top: "8%", left: "60%", size: "8px", color: "#F97316", opacity: 0.6, duration: "4.5s", delay: "0.9s" },
+    { top: "15%", left: "88%", size: "10px", color: "#F97316", opacity: 0.7, duration: "5.5s", delay: "0.2s" },
+    { top: "22%", left: "40%", size: "6px", color: "#1E293B", opacity: 0.8, duration: "4s", delay: "1.1s" },
+    { top: "28%", left: "72%", size: "9px", color: "#F97316", opacity: 0.5, duration: "6s", delay: "0.6s" },
+    { top: "35%", left: "15%", size: "7px", color: "#334155", opacity: 0.7, duration: "5s", delay: "1.3s" },
+    { top: "40%", left: "55%", size: "8px", color: "#F97316", opacity: 0.7, duration: "6.5s", delay: "0.3s" },
+    { top: "45%", left: "90%", size: "8px", color: "#1E293B", opacity: 0.6, duration: "4.5s", delay: "0.8s" },
+    { top: "48%", left: "5%", size: "9px", color: "#F97316", opacity: 0.9, duration: "5s", delay: "0.5s" },
+    { top: "55%", left: "35%", size: "6px", color: "#334155", opacity: 0.6, duration: "4s", delay: "1.4s" },
+    { top: "58%", left: "78%", size: "10px", color: "#F97316", opacity: 0.6, duration: "5.5s", delay: "0.7s" },
+    { top: "62%", left: "20%", size: "7px", color: "#1E293B", opacity: 0.8, duration: "4.8s", delay: "1.0s" },
+    { top: "68%", left: "62%", size: "9px", color: "#F97316", opacity: 0.7, duration: "6s", delay: "0.2s" },
+    { top: "72%", left: "92%", size: "8px", color: "#334155", opacity: 0.7, duration: "5s", delay: "0.9s" },
+    { top: "78%", left: "10%", size: "8px", color: "#F97316", opacity: 0.8, duration: "6.5s", delay: "0.4s" },
+    { top: "82%", left: "45%", size: "7px", color: "#1E293B", opacity: 0.6, duration: "4.5s", delay: "1.2s" },
+    { top: "88%", left: "70%", size: "9px", color: "#F97316", opacity: 0.6, duration: "5.5s", delay: "0.6s" },
+    { top: "92%", left: "28%", size: "6px", color: "#334155", opacity: 0.7, duration: "4s", delay: "1.5s" },
+    { top: "95%", left: "85%", size: "10px", color: "#F97316", opacity: 0.7, duration: "6s", delay: "0.1s" },
+  ];
   return (
     <>
       <Navbar />
@@ -77,7 +121,7 @@ export default function AboutPage() {
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
-        backgroundImage="url('/assets/hero/hero-bg.png')"
+        backgroundImage="url('/assets/bg-about.png')"
         backgroundSize="cover"
         backgroundPosition="center"
       >
@@ -108,7 +152,7 @@ export default function AboutPage() {
               color="#fff"
               fontWeight="700"
               lineHeight="1.05"
-              letterSpacing="-1.5px"
+              letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
               Know Us{" "}
@@ -120,9 +164,9 @@ export default function AboutPage() {
             </Heading>
 
             <Text
-              fontSize={{ base: "15px", md: "17px", xl: "19px" }}
+              fontSize={{ base: "18px", md: "110px", xl: "19px" }}
               color="#ffffff"
-              maxW="2xl"
+              maxW="3xl"
               lineHeight="1.6"
               opacity={0.85}
             >
@@ -133,7 +177,7 @@ export default function AboutPage() {
           </VStack>
         </Container>
 
-        {/* Stats — match HeroSection exactly */}
+        {/* Stats */}
         <HStack
           spacing={{ base: 8, md: 20 }}
           justify="space-evenly"
@@ -144,7 +188,7 @@ export default function AboutPage() {
         >
           <VStack spacing={1.5}>
             <Text
-              fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+              fontSize={{ base: "16px", md: "18px", lg: "27px" }}
               fontWeight="600"
               color="var(--accent)"
               textTransform="uppercase"
@@ -165,7 +209,7 @@ export default function AboutPage() {
 
           <VStack spacing={1.5}>
             <Text
-              fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+              fontSize={{ base: "16px", md: "18px", lg: "27px" }}
               fontWeight="600"
               color="var(--accent)"
               textTransform="uppercase"
@@ -189,7 +233,7 @@ export default function AboutPage() {
         <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
           <Heading
             as="h2"
-            fontSize={{ base: "32px", md: "44px", lg: "52px" }}
+            fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
             color="#fff"
             fontWeight="700"
             fontFamily="Plus Jakarta Sans"
@@ -198,10 +242,10 @@ export default function AboutPage() {
             About ER Communications
           </Heading>
           <Text
-            fontSize={{ base: "15px", md: "16px" }}
+            fontSize={{ base: "sm", md: "lg" }}
             color="rgba(255,255,255,0.65)"
             lineHeight="1.8"
-            maxW="700px"
+            maxW="3xl"
             mx="auto"
           >
             ER Communication (Effective &amp; Responsibility) is one of Indonesia&apos;s pioneer PR
@@ -223,24 +267,23 @@ export default function AboutPage() {
             direction={{ base: "column", md: "row" }}
             justify="space-between"
             align={{ base: "flex-start", md: "center" }}
-            gap={{ base: 4, md: 12 }}
+            gap={{ base: 4, md: 6 }}
             mb={{ base: 12, md: 16 }}
           >
             <Heading
-              as="h2"
-              fontSize={{ base: "28px", md: "38px", lg: "46px" }}
+              fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
               color="#fff"
-              fontWeight="700"
+              fontWeight="500"
               fontFamily="Plus Jakarta Sans"
-              maxW={{ md: "480px" }}
+              maxW={{ md: "70%" }}
               lineHeight="1.15"
             >
               What drives ER Communications?
             </Heading>
             <Text
-              fontSize={{ base: "14px", md: "15px" }}
+              fontSize={{ base: "sm", md: "lg" }}
               color="rgba(255,255,255,0.6)"
-              maxW={{ md: "300px" }}
+              maxW={{ md: "30%" }}
               lineHeight="1.7"
             >
               Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
@@ -253,9 +296,8 @@ export default function AboutPage() {
               <GridItem key={idx}>
                 <Box
                   bg="rgba(255,255,255,0.06)"
-                  border="1px solid rgba(255,255,255,0.07)"
                   borderRadius="20px"
-                  p={{ base: 6, md: 8 }}
+                  p={{ base: 6, md: 10 }}
                   h="full"
                   _hover={{ bg: "rgba(255,255,255,0.09)" }}
                   transition="background 0.2s"
@@ -270,15 +312,15 @@ export default function AboutPage() {
                       justify="center"
                       flexShrink={0}
                     >
-                      <Icon as={feature.icon} color="#fff" w={6} h={6} />
+                      <Icon as={feature.icon} color="#fff" size={{base: 5, md: 14}} w={6} h={6} />
                     </Flex>
                     <VStack align="flex-start" spacing={2}>
-                      <Text fontSize={{ base: "15px", md: "17px" }} fontWeight="700" color="#fff">
+                      <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color="#fff">
                         {feature.title}
                       </Text>
                       <Text
-                        fontSize={{ base: "13px", md: "14px" }}
-                        color="rgba(255,255,255,0.55)"
+                        fontSize={{ base: "sm", md: "lg" }}
+                        color="rgba(255,255,255,0.85)"
                         lineHeight="1.7"
                       >
                         {feature.desc}
@@ -297,88 +339,193 @@ export default function AboutPage() {
         py={{ base: 20, md: 32 }}
         position="relative"
         overflow="hidden"
-        bg="#080C14"
+        bg="#05060A"
         _before={{
           content: '""',
           position: "absolute",
           top: 0, left: 0, right: 0, bottom: 0,
           background:
-            "radial-gradient(ellipse at 5% 40%, rgba(29, 78, 216, 0.45) 0%, transparent 50%), " +
-            "radial-gradient(ellipse at 85% 75%, rgba(194, 65, 12, 0.55) 0%, transparent 45%)",
+            "radial-gradient(circle at 20% 40%, rgba(29, 78, 216, 0.25) 0%, transparent 40%), " +
+            "radial-gradient(circle at 80% 60%, rgba(194, 65, 12, 0.35) 0%, transparent 40%)",
           zIndex: 0,
         }}
       >
-        <Container maxW="7xl" px={{ base: 6, md: 8 }} position="relative" zIndex={1}>
-          <Flex direction={{ base: "column", md: "row" }} gap={{ base: 12, md: 20 }} align="flex-start">
-            {/* Left */}
-            <Box flexShrink={0} maxW={{ md: "260px" }}>
+        <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
+          {particles.map((p, i) => (
+            <Box
+              key={i}
+              position="absolute"
+              top={p.top}
+              left={p.left}
+              w={p.size}
+              h={p.size}
+              borderRadius="full"
+              bg={p.color}
+              opacity={p.opacity}
+              sx={{
+                animation: `${p.duration} ease-in-out infinite alternate`,
+                animationName: "floatParticle",
+                animationDelay: p.delay,
+              }}
+            />
+          ))}
+        </Box>
+
+        <style jsx global>{`
+          @keyframes floatParticle {
+            0% {
+              transform: translate(0, 0);
+            }
+            50% {
+              transform: translate(9px, -10px);
+            }
+            100% {
+              transform: translate(-9px, 8px);
+            }
+          }
+        `}</style>
+        <Container maxW="4xl" position="relative" zIndex={1}>
+          <VStack spacing={20} align="center">
+            {/* Title */}
+            <VStack spacing={4} textAlign="center">
               <Heading
-                as="h2"
-                fontSize={{ base: "42px", md: "56px", lg: "64px" }}
-                fontWeight="700"
+                fontSize={{ base: "xl", md: "5xl" }}
+                fontWeight="600"
                 color="#fff"
                 fontFamily="Plus Jakarta Sans"
-                lineHeight="1"
-                mb={6}
               >
                 Timeline
               </Heading>
-              <Text fontSize={{ base: "13px", md: "14px" }} color="rgba(255,255,255,0.5)" lineHeight="1.8">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                Suspendisse varius enim in eros elementum tristique. Duis cursus,
-                mi quis viverra ornare, eros dolor interdum nulla, ut commodo diam
-                libero vitae erat.
+              <Text fontSize={{ base: "sm", md: "lg" }} color="rgba(255,255,255,0.6)" lineHeight="1.8" maxW="600px">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.
               </Text>
-            </Box>
-
-            {/* Right */}
-            <VStack
-              flex={1}
-              align="stretch"
-              spacing={0}
-              divider={<Divider borderColor="rgba(255,255,255,0.1)" />}
-            >
-              {timelineItems.map((item, idx) => (
-                <Box key={idx} py={8}>
-                  <HStack align="flex-start" spacing={6}>
-                    <Box
-                      w="14px"
-                      h="14px"
-                      borderRadius="full"
-                      bg="rgba(255,255,255,0.25)"
-                      border="2px solid rgba(255,255,255,0.45)"
-                      mt="6px"
-                      flexShrink={0}
-                    />
-                    <VStack align="flex-start" spacing={2}>
-                      <Text
-                        fontSize={{ base: "22px", md: "28px" }}
-                        fontWeight="700"
-                        color="#fff"
-                        fontFamily="Plus Jakarta Sans"
-                      >
-                        {item.year}
-                      </Text>
-                      <Text fontSize={{ base: "14px", md: "15px" }} fontWeight="700" color="#fff">
-                        {item.title}
-                      </Text>
-                      <Text
-                        fontSize={{ base: "13px", md: "14px" }}
-                        color="rgba(255,255,255,0.5)"
-                        lineHeight="1.7"
-                        maxW="560px"
-                      >
-                        {item.desc}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                </Box>
-              ))}
             </VStack>
-          </Flex>
+
+            {/* Vertical Timeline Centered */}
+            <Box position="relative" w="full" maxW="8xl" mx="auto">
+              {/* Central Line */}
+              <Box
+                position="absolute"
+                left={{ base: '3%', md: '50%' }}
+                top="0"
+                bottom="0"
+                w="3px"
+                rounded="full"
+                bg="rgba(255,255,255,0.5)"
+                transform="translateX(-50%)"
+              />
+
+              <VStack spacing={{ base: 10, md: 16 }} align="stretch" w="full" position="relative">
+                {timelineItems.map((item, idx) => {
+                  const isRight = idx % 2 === 0; // genap (0,2,...) -> kanan; ganjil -> kiri
+                  return (
+                    <Flex key={idx} w="full" justify={{ base: 'start', md: 'center'}} position="relative">
+                      {/* Dot */}
+                      <Box
+                        position="absolute"
+                        left={{ base: '3%', md: '50%' }}
+                        top="12px"
+                        w={{ base: '12px', md: '20px'}}
+                        h={{ base: '12px', md: '20px'}}
+                        borderRadius="full"
+                        bg="white"
+                        transform="translateX(-50%)"
+                        zIndex={2}
+                      />
+
+                      {/* Content Left or Right */}
+                      <Box
+                        w={{ base: 'full', md: "50%" }}
+                        ml={isRight ? { base: '0', md: "50%" } : { base: '0', md: "-50%" }}
+                        pl={isRight ? { base: '40px', md: 10 } : '40px'}
+                        pr={isRight ? 0 : { base: 0, md: 10 }}
+                      >
+                        <VStack
+                          align={isRight ? "flex-start" : {base: 'flex-start', md: "flex-end"}}
+                          spacing={1}
+                          textAlign={isRight ? "left" : {base: 'left', md: "right"}}
+                        >
+                          <Text
+                            fontSize={{ base: "20px", md: "2xl" }}
+                            fontWeight="700"
+                            color="#fff"
+                            fontFamily="Plus Jakarta Sans"
+                          >
+                            {item.year}
+                          </Text>
+                          <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color="#fff">
+                            {item.title}
+                          </Text>
+                          <Text
+                            fontSize={{ base: "sm", md: "lg" }}
+                            color="rgba(255,255,255,0.85)"
+                            lineHeight="1.6"
+                          >
+                            {item.desc}
+                          </Text>
+                        </VStack>
+                      </Box>
+                    </Flex>
+                  );
+                })}
+              </VStack>
+            </Box>
+          </VStack>
         </Container>
       </Box>
 
+      {/* ── 2x2 Services/Portfolio Grid ── */}
+      <Box bg="#05060A" pb={{ base: 20, md: 32 }}>
+        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={{ base: 4, md: 6 }}>
+            {gridServices.map((service, idx) => (
+              <GridItem key={idx}>
+                <Box
+                  position="relative"
+                  borderRadius="27px"
+                  overflow="hidden"
+                  h={{ base: "250px", md: "350px", lg: "420px" }}
+                  _hover={{ transform: "scale(1.02)" }}
+                  transition="transform 0.3s ease"
+                  cursor="pointer"
+                >
+                  <Image
+                    src={service.img}
+                    alt={service.title}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                  />
+                  {/* Overlay gradient */}
+                  <Box
+                    position="absolute"
+                    top={0} left={0} right={0} bottom={0}
+                    bg="linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)"
+                  />
+                  {/* Title */}
+                  <Heading
+                    as="h3"
+                    position="absolute"
+                    bottom={{ base: 6, md: 8 }}
+                    left={{ base: 6, md: 8 }}
+                    color="white"
+                    fontSize={{ base: "28px", md: "39px", lg: "42px" }}
+                    fontWeight="700"
+                    fontFamily="Plus Jakarta Sans"
+                  >
+                    {service.title}
+                  </Heading>
+                </Box>
+              </GridItem>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ── Additional Sections ── */}
+      <TimelineSection />
+      <PartnersSection />
+      <ContactSection />
       <FooterSection />
     </>
   );

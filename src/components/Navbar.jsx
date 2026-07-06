@@ -34,7 +34,7 @@ export default function Navbar() {
     { label: "Services", href: "/services" },
     { label: "Clients", href: "/clients" },
     { label: "Highlight", href: "/highlight" },
-    { label: "Contact", href: "/contact" },
+    { label: "Contact", href: "/#contact" },
     { label: "Career", href: "/career" },
   ];
 

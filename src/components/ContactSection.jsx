@@ -12,10 +12,12 @@ import {
   Textarea,
   Button,
   Flex,
-  HStack
+  HStack,
+  useToast
 } from "@chakra-ui/react";
 
 export default function ContactSection() {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     email: "",
     message: "",
@@ -32,8 +34,15 @@ export default function ContactSection() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission
     console.log(formData);
+    toast({
+      title: "Berhasil Dikirim!",
+      description: "Kami akan segera menghubungi Anda.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "bottom-center",
+    });
   };
 
   return (
@@ -43,6 +52,7 @@ export default function ContactSection() {
       py={{ base: 20, md: 20 }}
       position="relative"
       overflow="hidden"
+      id="contact"
     >
       {/* Abstract blob animation styles */}
       <style>{`
@@ -224,7 +234,7 @@ export default function ContactSection() {
 
                 <Text
                   color="rgba(255,255,255,.7)"
-                  fontSize={{ base: "md", lg: "lg" }}
+                  fontSize={{ base: "sm", lg: "lg" }}
                 >
                   We're available 24 / 7
                 </Text>
@@ -241,7 +251,7 @@ export default function ContactSection() {
                 // WebkitBackdropFilter="blur(20px)"
                 border="0.5px solid rgba(255,255,255,0.15)"
                 color="white"
-                fontSize="14px"
+                fontSize={{ base: "sm", lg: "md" }}
                 fontWeight="400"
                 transition="all .25s ease"
                 _placeholder={{
@@ -268,7 +278,7 @@ export default function ContactSection() {
                 // WebkitBackdropFilter="blur(20px)"
                 border="0.5px solid rgba(255,255,255,0.15)"
                 color="white"
-                fontSize="14px"
+                fontSize={{ base: "sm", lg: "md" }}
                 fontWeight="400"
                 transition="all .25s ease"
                 _placeholder={{
@@ -295,7 +305,7 @@ export default function ContactSection() {
                 // WebkitBackdropFilter="blur(20px)"
                 border="0.5px solid rgba(255,255,255,0.15)"
                 color="white"
-                fontSize="14px"
+                fontSize={{ base: "sm", lg: "md" }}
                 fontWeight="400"
                 transition="all .25s ease"
                 _placeholder={{
@@ -322,7 +332,7 @@ export default function ContactSection() {
                 // WebkitBackdropFilter="blur(20px)"
                 border="0.5px solid rgba(255,255,255,0.15)"
                 color="white"
-                fontSize="14px"
+                fontSize={{ base: "sm", lg: "md" }}
                 fontWeight="400"
                 transition="all .25s ease"
                 _placeholder={{
@@ -348,7 +358,7 @@ export default function ContactSection() {
                 // WebkitBackdropFilter="blur(20px)"
                 border="0.5px solid rgba(255,255,255,0.15)"
                 color="white"
-                fontSize="14px"
+                fontSize={{ base: "sm", lg: "md" }}
                 fontWeight="400"
                 transition="all .25s ease"
                 _placeholder={{
@@ -392,6 +402,7 @@ export default function ContactSection() {
                   bgGradient="linear(to-r, #F8F8F8, #63B3ED)"
                   color="#1A202C"
                   fontWeight="700"
+                  fontSize={{ base: "sm", lg: "lg" }}
                   _hover={{
                     bgGradient:
                       "linear(to-r, #FFFFFF, #4299E1)"

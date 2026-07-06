@@ -12,6 +12,7 @@ import {
   Button,
   Flex,
   Select,
+  useToast,
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
@@ -28,26 +29,44 @@ const positions = [
 const employmentTypes = ["Full time", "Part time", "Internship", "Freelance"];
 
 const fieldStyle = {
-  h: "56px",
+  h: { base: "50px", md: "56px" },
   px: 6,
   borderRadius: "full",
   bg: "rgba(0,0,0,0.6)",
   border: "1.5px solid #1d4ed8",
   color: "white",
-  fontSize: "15px",
+  fontSize: { base: "14px", md: "15px" },
   _placeholder: { color: "rgba(255,255,255,0.35)" },
   _hover: { border: "1.5px solid #3b82f6" },
   _focus: { border: "1.5px solid #60a5fa", boxShadow: "0 0 0 1px #3b82f6" },
 };
 
 const selectStyle = {
-  ...fieldStyle,
+  h: { base: "50px", md: "56px" },
+  borderRadius: "full",
+  bg: "rgba(0,0,0,0.6)",
+  border: "1.5px solid #1d4ed8",
+  color: "white",
+  fontSize: { base: "14px", md: "15px" },
+  _hover: { border: "1.5px solid #3b82f6", cursor: "pointer" },
+  _focus: { border: "1.5px solid #60a5fa", boxShadow: "0 0 0 1px #3b82f6" },
+  iconColor: "#3b82f6",
+  iconSize: "16px",
   sx: {
+    appearance: "none",
+    WebkitAppearance: "none",
+    MozAppearance: "none",
     option: { bg: "#0a0f1e", color: "white" },
+    "& + .chakra-select__icon-wrapper": {
+      right: "20px",
+      color: "#3b82f6",
+      pointerEvents: "none",
+    },
   },
 };
 
 export default function CareerPage() {
+  const toast = useToast();
   const [form, setForm] = useState({
     position: "Marketing Team",
     employmentType: "Full time",
@@ -56,72 +75,168 @@ export default function CareerPage() {
     phone: "",
     address: "",
   });
+
+  const [errors, setErrors] = useState({});
+  const [isDragActive, setIsDragActive] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragActive(true);
+    } else if (e.type === "dragleave") {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      setResumeFile(file);
+      if (errors.resumeFile) {
+        setErrors((prev) => ({ ...prev, resumeFile: "" }));
+      }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0] || null;
+    setResumeFile(file);
+    if (file && errors.resumeFile) {
+      setErrors((prev) => ({ ...prev, resumeFile: "" }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(form);
+    
+    // Validation
+    const tempErrors = {};
+    if (!form.fullName.trim()) {
+      tempErrors.fullName = "Nama lengkap wajib diisi";
+    }
+    if (!form.email.trim()) {
+      tempErrors.email = "Email wajib diisi";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      tempErrors.email = "Format email tidak valid";
+    }
+    if (!form.phone.trim()) {
+      tempErrors.phone = "Nomor telepon wajib diisi";
+    }
+    if (!form.address.trim()) {
+      tempErrors.address = "Alamat wajib diisi";
+    }
+    if (!resumeFile) {
+      tempErrors.resumeFile = "Resume / CV wajib diunggah";
+    }
+
+    if (Object.keys(tempErrors).length > 0) {
+      setErrors(tempErrors);
+      toast({
+        title: "Gagal Mengirim",
+        description: "Harap isi semua field wajib yang kosong.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+      return;
+    }
+
+    console.log(form, resumeFile);
+    toast({
+      title: "Lamaran Berhasil Dikirim!",
+      description: "Tim kami akan segera meninjau CV Anda.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+      position: "bottom-center",
+    });
+
+    // Clear form
+    setForm({
+      position: "Marketing Team",
+      employmentType: "Full time",
+      fullName: "",
+      email: "",
+      phone: "",
+      address: "",
+    });
+    setResumeFile(null);
+    setErrors({});
   };
 
   return (
     <Box
       position="relative"
-      bg="#000"
-      minH="100vh"
-      overflow="hidden"
+      bg="#05060A"
     >
-      {/* Blue glow — left */}
+      {/* Blue glow — top center */}
       <Box
         position="fixed"
-        top="10%"
-        left="-100px"
-        w="500px"
-        h="600px"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(29,78,216,0.28) 0%, transparent 65%)",
-        }}
-        pointerEvents="none"
-        zIndex={0}
-      />
-      {/* Orange glow — center */}
-      <Box
-        position="fixed"
-        top="5%"
+        top="-100px"
         left="50%"
         transform="translateX(-50%)"
-        w="700px"
-        h="500px"
+        w="1200px"
+        h="800px"
         style={{
-          background: "radial-gradient(ellipse at center, rgba(180,60,10,0.35) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse at center, rgba(216, 98, 29, 0.3) 0%, transparent 60%)",
         }}
         pointerEvents="none"
-        zIndex={0}
-      />
+        zIndex={0} />
 
       <Navbar />
 
-      <Container
-        maxW="800px"
-        px={{ base: 6, md: 8 }}
+      {/* ── Hero ── */}
+      <Box
         position="relative"
-        zIndex={1}
-        pt={{ base: "120px", md: "140px" }}
-        pb={{ base: 20, md: 24 }}
+        w="full"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        overflow="hidden"
       >
-        <VStack spacing={12} align="stretch">
+        {/* Blue glow — top center */}
+        <Box
+          position="absolute"
+          top="-60px"
+          left="50%"
+          transform="translateX(-50%)"
+          w="800px"
+          h="500px"
+          style={{
+            background: "radial-gradient(ellipse at center top, rgba(29,78,216,0.45) 0%, transparent 60%)",
+          }}
+          pointerEvents="none" />
 
-          {/* ── Hero Text ── */}
-          <VStack spacing={4} textAlign="center">
+        <Container
+          maxW="7xl"
+          px={{ base: 6, md: 8 }}
+          textAlign="center"
+          position="relative"
+          zIndex={1}
+          pt={{ base: "130px", md: "150px" }}
+          pb={{ base: 10, md: 14 }}
+        >
+          <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
             <Box
               display="inline-block"
-              bg="var(--accent)"
+              bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
               color="#fff"
-              fontSize="13px"
+              fontSize="lg"
               fontWeight="600"
               px={4}
               py={1}
@@ -132,214 +247,302 @@ export default function CareerPage() {
 
             <Heading
               as="h1"
-              fontSize={{ base: "38px", md: "62px", xl: "72px" }}
-              fontWeight="800"
+              fontSize={{ base: "52px", md: "72px", xl: "90px" }}
               color="#fff"
-              lineHeight="1.1"
-              letterSpacing="-1.5px"
+              fontWeight="700"
+              lineHeight="1.05"
+              letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              Your next Career<br />
+              Your Next Career<br />
               Starts Here With Us.
             </Heading>
 
             <Text
-              fontSize={{ base: "14px", md: "15px" }}
-              color="rgba(255,255,255,0.45)"
-              maxW="460px"
-              lineHeight="1.65"
-              mx="auto"
+              fontSize={{ base: "18px", md: "110px", xl: "19px" }}
+              color="#ffffff"
+              maxW="2xl"
+              lineHeight="1.6"
+              opacity={0.85}
             >
               Join ER Communications and grow alongside a team dedicated to
               delivering impactful communication solutions for leading companies.
             </Text>
           </VStack>
+        </Container>
+      </Box>
 
-          {/* ── Form ── */}
-          <VStack as="form" onSubmit={handleSubmit} spacing={6} align="stretch">
-
-            {/* Row 1 — Position + Employment type */}
-            <Flex gap={5} direction={{ base: "column", md: "row" }}>
-              <Box flex={1}>
-                <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                  Position applying for *
-                </Text>
-                <Select
-                  name="position"
-                  value={form.position}
-                  onChange={handleChange}
-                  {...selectStyle}
-                >
-                  {positions.map((p) => (
-                    <option key={p} value={p}>{p}</option>
-                  ))}
-                </Select>
-              </Box>
-
-              <Box flex={1}>
-                <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                  Employment type *
-                </Text>
-                <Select
-                  name="employmentType"
-                  value={form.employmentType}
-                  onChange={handleChange}
-                  {...selectStyle}
-                >
-                  {employmentTypes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </Select>
-              </Box>
-            </Flex>
-
-            {/* Full Name */}
-            <Box>
-              <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                Full name *
+      <Container
+        maxW="5xl"
+        px={{ base: 6, md: 8 }}
+        position="relative"
+        zIndex={1}
+        py={{ base: 20, md: 28 }}
+      >
+        {/* ── Form ── */}
+        <VStack as="form" onSubmit={handleSubmit} spacing={{ base: 5, md: 6 }} align="stretch">
+          {/* Position + Employment type */}
+          <Flex gap={5} direction={{ base: "column", md: "row" }}>
+            <Box flex={1}>
+              <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+                Position applying for *
               </Text>
-              <Input
-                name="fullName"
-                placeholder="Full name"
-                value={form.fullName}
+              <Select
+                name="position"
+                value={form.position}
                 onChange={handleChange}
-                {...fieldStyle}
-              />
-            </Box>
-
-            {/* Email */}
-            <Box>
-              <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                Email *
-              </Text>
-              <Input
-                name="email"
-                type="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-                {...fieldStyle}
-              />
-            </Box>
-
-            {/* Phone */}
-            <Box>
-              <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                Phone number *
-              </Text>
-              <Input
-                name="phone"
-                type="tel"
-                placeholder="Phone number"
-                value={form.phone}
-                onChange={handleChange}
-                {...fieldStyle}
-              />
-            </Box>
-
-            {/* Address */}
-            <Box>
-              <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                Address *
-              </Text>
-              <Input
-                name="address"
-                placeholder="Address"
-                value={form.address}
-                onChange={handleChange}
-                {...fieldStyle}
-              />
-            </Box>
-
-            {/* Upload Resume */}
-            <Box>
-              <Text fontSize="13px" color="#3b82f6" fontWeight="500" mb={2}>
-                Upload Resume / CV *
-              </Text>
-
-              {/* Hidden real file input */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx"
-                style={{ display: "none" }}
-                onChange={(e) => setResumeFile(e.target.files[0] || null)}
-              />
-
-              {/* Styled trigger */}
-              <Flex
-                as="button"
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                align="center"
-                justify="space-between"
-                w={{ base: "full", md: "320px" }}
-                h="56px"
-                px={6}
-                borderRadius="full"
-                bg="rgba(0,0,0,0.6)"
-                border="1.5px solid #1d4ed8"
-                cursor="pointer"
-                transition="border 0.2s"
-                _hover={{ border: "1.5px solid #3b82f6" }}
+                {...selectStyle}
               >
-                <Text
-                  fontSize="15px"
-                  color={resumeFile ? "#fff" : "rgba(255,255,255,0.35)"}
-                  noOfLines={1}
-                  textAlign="left"
-                  flex={1}
-                  mr={3}
-                >
-                  {resumeFile ? resumeFile.name : "From Files"}
-                </Text>
-                <Box color="#3b82f6" fontSize="12px" flexShrink={0}>▼</Box>
-              </Flex>
-
-              {resumeFile && (
-                <Text fontSize="12px" color="rgba(255,255,255,0.4)" mt={1} pl={2}>
-                  {(resumeFile.size / 1024).toFixed(0)} KB — {resumeFile.type || "file"}
-                </Text>
-              )}
+                {positions.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </Select>
             </Box>
 
-            {/* Submit */}
+            <Box flex={1}>
+              <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+                Employment type *
+              </Text>
+              <Select
+                name="employmentType"
+                value={form.employmentType}
+                onChange={handleChange}
+                {...selectStyle}
+              >
+                {employmentTypes.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </Select>
+            </Box>
+          </Flex>
+
+          {/* Full Name */}
+          <Box>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              Full name *
+            </Text>
+            <Input
+              name="fullName"
+              placeholder="Full name"
+              value={form.fullName}
+              onChange={handleChange}
+              {...fieldStyle}
+              borderColor={errors.fullName ? "#E53E3E" : "#1d4ed8"}
+              _hover={{ borderColor: errors.fullName ? "#E53E3E" : "#3b82f6" }}
+            />
+            {errors.fullName && (
+              <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
+                {errors.fullName}
+              </Text>
+            )}
+          </Box>
+
+          {/* Email */}
+          <Box>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              Email *
+            </Text>
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              {...fieldStyle}
+              borderColor={errors.email ? "#E53E3E" : "#1d4ed8"}
+              _hover={{ borderColor: errors.email ? "#E53E3E" : "#3b82f6" }}
+            />
+            {errors.email && (
+              <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
+                {errors.email}
+              </Text>
+            )}
+          </Box>
+
+          {/* Phone */}
+          <Box>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              Phone number *
+            </Text>
+            <Input
+              name="phone"
+              type="tel"
+              placeholder="Phone number"
+              value={form.phone}
+              onChange={handleChange}
+              {...fieldStyle}
+              borderColor={errors.phone ? "#E53E3E" : "#1d4ed8"}
+              _hover={{ borderColor: errors.phone ? "#E53E3E" : "#3b82f6" }}
+            />
+            {errors.phone && (
+              <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
+                {errors.phone}
+              </Text>
+            )}
+          </Box>
+
+          {/* Address */}
+          <Box>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              Address *
+            </Text>
+            <Input
+              name="address"
+              placeholder="Address"
+              value={form.address}
+              onChange={handleChange}
+              {...fieldStyle}
+              borderColor={errors.address ? "#E53E3E" : "#1d4ed8"}
+              _hover={{ borderColor: errors.address ? "#E53E3E" : "#3b82f6" }}
+            />
+            {errors.address && (
+              <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
+                {errors.address}
+              </Text>
+            )}
+          </Box>
+
+          <Box>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              Upload Resume / CV *
+            </Text>
+
+            {/* Hidden real file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx"
+              style={{ display: "none" }}
+              onChange={handleFileChange} />
+
+            {/* Dropzone Container */}
             <Flex
-              align={{ base: "flex-start", md: "center" }}
-              direction={{ base: "column", md: "row" }}
-              gap={{ base: 5, md: 8 }}
-              pt={2}
+              position="relative"
+              align="center"
+              justify="space-between"
+              w="full"
+              minH="130px"
+              px={{ base: 6, md: 10 }}
+              py={6}
+              borderRadius={{ base: "20px", md: "35px" }}
+              bg={isDragActive ? "rgba(29, 78, 216, 0.08)" : "rgba(0, 0, 0, 0.4)"}
+              border="2px dashed"
+              borderColor={resumeFile
+                ? "#10B981"
+                : errors.resumeFile
+                  ? "#E53E3E"
+                  : isDragActive
+                    ? "#3b82f6"
+                    : "rgba(29, 78, 216, 0.6)"}
+              transition="all 0.25s ease"
+              _hover={{
+                borderColor: resumeFile ? "#10B981" : errors.resumeFile ? "#E53E3E" : "#3b82f6",
+                bg: "rgba(29, 78, 216, 0.04)",
+              }}
+              cursor="pointer"
+              onClick={() => fileInputRef.current?.click()}
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
             >
-              <Button
-                type="submit"
-                bg="#2563EB"
-                color="#fff"
-                borderRadius="full"
-                px={10}
-                h="52px"
-                fontSize="15px"
-                fontWeight="600"
-                flexShrink={0}
-                _hover={{ bg: "#1d4ed8", transform: "translateY(-2px)" }}
-                _active={{ bg: "#1e40af" }}
-                transition="all 0.2s"
-                boxShadow="0 8px 24px rgba(37,99,235,0.4)"
-              >
-                Send application
-              </Button>
+              {/* Center Content: Icon and Text */}
+              <Flex direction="column" align="center" justify="center" flex={1} textAlign="center">
+                {/* Small File Icon with Plus */}
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  w="40px"
+                  h="40px"
+                  borderRadius="full"
+                  bg="rgba(59, 130, 246, 0.1)"
+                  mb={3}
+                  color={errors.resumeFile ? "#E53E3E" : "#3b82f6"}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="12" y1="18" x2="12" y2="12" />
+                    <line x1="9" y1="15" x2="15" y2="15" />
+                  </svg>
+                </Box>
 
-              <Text fontSize={{ base: "13px", md: "14px" }} color="rgba(255,255,255,0.5)" lineHeight="1.6">
-                By clicking{" "}
-                <Text as="span" fontWeight="700" color="rgba(255,255,255,0.8)">
-                  Send application
-                </Text>
-                , you agree to our User Agreement, Privacy Policy, and Cookie Policy.
-              </Text>
+                {resumeFile ? (
+                  <VStack spacing={1}>
+                    <Text fontSize="15px" fontWeight="600" color="#fff">
+                      {resumeFile.name}
+                    </Text>
+                    <Text fontSize="12px" color="rgba(255,255,255,0.45)">
+                      {(resumeFile.size / 1024).toFixed(0)} KB — Ready to send
+                    </Text>
+                  </VStack>
+                ) : (
+                  <VStack spacing={1}>
+                    <Text fontSize="14px" fontWeight="500" color="rgba(255,255,255,0.75)">
+                      <Text as="span" color={errors.resumeFile ? "#E53E3E" : "#3B82F6"} fontWeight="600" textDecoration="underline" _hover={{ color: errors.resumeFile ? "#fc8181" : "#60a5fa" }}>
+                        Click here
+                      </Text>{" "}
+                      to upload your file or drag.
+                    </Text>
+                    <Text fontSize="12px" color="rgba(255,255,255,0.45)">
+                      Supported Format: PDF, DOC, DOCX (10mb max)
+                    </Text>
+                  </VStack>
+                )}
+              </Flex>
             </Flex>
-          </VStack>
+            {errors.resumeFile && (
+              <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
+                {errors.resumeFile}
+              </Text>
+            )}
+          </Box>
+
+          {/* Submit */}
+          <Flex
+            align={{ base: "flex-start", md: "center" }}
+            direction={{ base: "column", md: "row" }}
+            gap={{ base: 5, md: 8 }}
+            pt={2}
+          >
+            <Button
+              type="submit"
+              bg="var(--accent)"
+              color="#fff"
+              borderRadius="full"
+              px={10}
+              h={{ base: "48px", md: "52px" }}
+              fontSize={{ base: "14px", md: "15px" }}
+              fontWeight="600"
+              flexShrink={0}
+              _hover={{ opacity: 0.9, transform: "translateY(-2px)" }}
+              _active={{ opacity: 0.85 }}
+              transition="all 0.2s"
+              boxShadow="0 8px 24px rgba(229,62,62,0.35)"
+            >
+              Send Application
+            </Button>
+
+            <Text fontSize={{ base: "sm", md: "md" }} color="rgba(255,255,255,0.5)" lineHeight="1.6">
+              By clicking{" "}
+              <Text as="span" fontWeight="700" color="rgba(255,255,255,0.8)">
+                Send application
+              </Text>
+              , you agree to our User Agreement, Privacy Policy, and Cookie Policy.
+            </Text>
+          </Flex>
         </VStack>
       </Container>
-
       <FooterSection />
     </Box>
   );

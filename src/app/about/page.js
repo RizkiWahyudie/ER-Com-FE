@@ -13,31 +13,31 @@ import {
   Icon,
   Image,
 } from "@chakra-ui/react";
-import { FaUsers, FaGlobeAsia, FaBullseye, FaCompass } from "react-icons/fa";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
 import TimelineSection from "@/components/TimelineSection";
 import PartnersSection from "@/components/PartnersSection";
+import ServicesListSection from "@/components/ServicesListSection";
 import ContactSection from "@/components/ContactSection";
 
 const features = [
   {
-    icon: FaUsers,
+    icon: "/assets/about/about-icon-1.svg",
     title: "Creative Experience",
     desc: "With decades of industry experience, we deliver communication strategies built on insight, credibility, and proven results.",
   },
   {
-    icon: FaGlobeAsia,
+    icon: "/assets/about/about-icon-2.svg",
     title: "Impactful Outreach",
     desc: "We help organizations build, strengthen, and protect their reputation through strategic communication initiatives.",
   },
   {
-    icon: FaBullseye,
+    icon: "/assets/about/about-icon-3.svg",
     title: "Client-Centric Approach",
     desc: "Every solution is tailored to align with our clients' objectives, challenges, and long-term business goals.",
   },
   {
-    icon: FaCompass,
+    icon: "/assets/about/about-icon-4.svg",
     title: "Meaningful Engagement",
     desc: "We create impactful connections between brands, stakeholders, media, and communities.",
   },
@@ -232,10 +232,9 @@ export default function AboutPage() {
       <Box py={{ base: 20, md: 28 }} background="linear-gradient(180deg, #05060A 0%, #05060A 100%)">
         <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
           <Heading
-            as="h2"
-            fontSize={{ base: "2xl", md: "3xl", lg: "4xl" }}
+            fontSize={{ base: "2xl", md: "3xl", lg: "6xl" }}
             color="#fff"
-            fontWeight="700"
+            fontWeight="400"
             fontFamily="Plus Jakarta Sans"
             mb={8}
           >
@@ -245,7 +244,7 @@ export default function AboutPage() {
             fontSize={{ base: "sm", md: "lg" }}
             color="rgba(255,255,255,0.65)"
             lineHeight="1.8"
-            maxW="3xl"
+            maxW="4xl"
             mx="auto"
           >
             ER Communication (Effective &amp; Responsibility) is one of Indonesia&apos;s pioneer PR
@@ -257,86 +256,7 @@ export default function AboutPage() {
         </Container>
       </Box>
 
-      {/* ── What Drives Section ── */}
       <Box
-        py={{ base: 16, md: 24 }}
-        background="linear-gradient(180deg, #05060A 0%, #0B1525 100%)"
-      >
-        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          <Flex
-            direction={{ base: "column", md: "row" }}
-            justify="space-between"
-            align={{ base: "flex-start", md: "center" }}
-            gap={{ base: 4, md: 6 }}
-            mb={{ base: 12, md: 16 }}
-          >
-            <Heading
-              fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
-              color="#fff"
-              fontWeight="500"
-              fontFamily="Plus Jakarta Sans"
-              maxW={{ md: "70%" }}
-              lineHeight="1.15"
-            >
-              What drives ER Communications?
-            </Heading>
-            <Text
-              fontSize={{ base: "sm", md: "lg" }}
-              color="rgba(255,255,255,0.6)"
-              maxW={{ md: "30%" }}
-              lineHeight="1.7"
-            >
-              Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
-              that align with each client&apos;s business objectives.
-            </Text>
-          </Flex>
-
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
-            {features.map((feature, idx) => (
-              <GridItem key={idx}>
-                <Box
-                  bg="rgba(255,255,255,0.06)"
-                  borderRadius="20px"
-                  p={{ base: 6, md: 10 }}
-                  h="full"
-                  _hover={{ bg: "rgba(255,255,255,0.09)" }}
-                  transition="background 0.2s"
-                >
-                  <HStack align="flex-start" spacing={5}>
-                    <Flex
-                      w="58px"
-                      h="58px"
-                      borderRadius="full"
-                      bg="#2563EB"
-                      align="center"
-                      justify="center"
-                      flexShrink={0}
-                    >
-                      <Icon as={feature.icon} color="#fff" size={{base: 5, md: 14}} w={6} h={6} />
-                    </Flex>
-                    <VStack align="flex-start" spacing={2}>
-                      <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color="#fff">
-                        {feature.title}
-                      </Text>
-                      <Text
-                        fontSize={{ base: "sm", md: "lg" }}
-                        color="rgba(255,255,255,0.85)"
-                        lineHeight="1.7"
-                      >
-                        {feature.desc}
-                      </Text>
-                    </VStack>
-                  </HStack>
-                </Box>
-              </GridItem>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
-
-      {/* ── Timeline Section ── */}
-      <Box
-        py={{ base: 20, md: 32 }}
         position="relative"
         overflow="hidden"
         bg="#05060A"
@@ -350,177 +270,214 @@ export default function AboutPage() {
           zIndex: 0,
         }}
       >
-        <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
-          {particles.map((p, i) => (
-            <Box
-              key={i}
-              position="absolute"
-              top={p.top}
-              left={p.left}
-              w={p.size}
-              h={p.size}
-              borderRadius="full"
-              bg={p.color}
-              opacity={p.opacity}
-              sx={{
-                animation: `${p.duration} ease-in-out infinite alternate`,
-                animationName: "floatParticle",
-                animationDelay: p.delay,
-              }}
-            />
-          ))}
+        {/* ── What Drives Section ── */}
+        <Box
+          py={{ base: 16, md: 24 }}
+        >
+          <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+            <Flex
+              direction={{ base: "column", md: "row" }}
+              justify="space-between"
+              align={{ base: "flex-start", md: "center" }}
+              gap={{ base: 4, md: 6 }}
+              mb={{ base: 12, md: 16 }}
+            >
+              <Heading
+                fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
+                color="#fff"
+                fontWeight="500"
+                fontFamily="Plus Jakarta Sans"
+                maxW={{ md: "70%" }}
+                lineHeight="1.15"
+              >
+                What drives ER Communications?
+              </Heading>
+              <Text
+                fontSize={{ base: "sm", md: "lg" }}
+                color="rgba(255,255,255,0.6)"
+                maxW={{ md: "30%" }}
+                lineHeight="1.7"
+              >
+                Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
+                that align with each client&apos;s business objectives.
+              </Text>
+            </Flex>
+
+            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
+              {features.map((feature, idx) => (
+                <GridItem key={idx}>
+                  <Box
+                    bg="rgba(255,255,255,0.06)"
+                    borderRadius="20px"
+                    p={{ base: 6, md: 10 }}
+                    h="full"
+                    _hover={{ bg: "rgba(255,255,255,0.09)" }}
+                    transition="background 0.2s"
+                  >
+                    <HStack align="flex-start" spacing={5}>
+                      <Flex
+                        w="58px"
+                        h="58px"
+                        borderRadius="full"
+                        bg="#2563EB"
+                        align="center"
+                        justify="center"
+                        flexShrink={0}
+                      >
+                        <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
+                      </Flex>
+                      <VStack align="flex-start" spacing={2}>
+                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color="#fff">
+                          {feature.title}
+                        </Text>
+                        <Text
+                          fontSize={{ base: "sm", md: "lg" }}
+                          color="rgba(255,255,255,0.85)"
+                          lineHeight="1.7"
+                        >
+                          {feature.desc}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                  </Box>
+                </GridItem>
+              ))}
+            </Grid>
+          </Container>
         </Box>
 
-        <style jsx global>{`
-          @keyframes floatParticle {
-            0% {
-              transform: translate(0, 0);
-            }
-            50% {
-              transform: translate(9px, -10px);
-            }
-            100% {
-              transform: translate(-9px, 8px);
-            }
-          }
-        `}</style>
-        <Container maxW="4xl" position="relative" zIndex={1}>
-          <VStack spacing={20} align="center">
-            {/* Title */}
-            <VStack spacing={4} textAlign="center">
-              <Heading
-                fontSize={{ base: "xl", md: "5xl" }}
-                fontWeight="600"
-                color="#fff"
-                fontFamily="Plus Jakarta Sans"
-              >
-                Timeline
-              </Heading>
-              <Text fontSize={{ base: "sm", md: "lg" }} color="rgba(255,255,255,0.6)" lineHeight="1.8" maxW="600px">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.
-              </Text>
-            </VStack>
-
-            {/* Vertical Timeline Centered */}
-            <Box position="relative" w="full" maxW="8xl" mx="auto">
-              {/* Central Line */}
+        {/* ── Timeline Section ── */}
+        <Box
+          py={{ base: 20, md: 32 }}
+          position="relative"
+          overflow="hidden"
+        >
+          <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
+            {particles.map((p, i) => (
               <Box
+                key={i}
                 position="absolute"
-                left={{ base: '3%', md: '50%' }}
-                top="0"
-                bottom="0"
-                w="3px"
-                rounded="full"
-                bg="rgba(255,255,255,0.5)"
-                transform="translateX(-50%)"
+                top={p.top}
+                left={p.left}
+                w={p.size}
+                h={p.size}
+                borderRadius="full"
+                bg={p.color}
+                opacity={p.opacity}
+                sx={{
+                  animation: `${p.duration} ease-in-out infinite alternate`,
+                  animationName: "floatParticle",
+                  animationDelay: p.delay,
+                }}
               />
-
-              <VStack spacing={{ base: 10, md: 16 }} align="stretch" w="full" position="relative">
-                {timelineItems.map((item, idx) => {
-                  const isRight = idx % 2 === 0; // genap (0,2,...) -> kanan; ganjil -> kiri
-                  return (
-                    <Flex key={idx} w="full" justify={{ base: 'start', md: 'center'}} position="relative">
-                      {/* Dot */}
-                      <Box
-                        position="absolute"
-                        left={{ base: '3%', md: '50%' }}
-                        top="12px"
-                        w={{ base: '12px', md: '20px'}}
-                        h={{ base: '12px', md: '20px'}}
-                        borderRadius="full"
-                        bg="white"
-                        transform="translateX(-50%)"
-                        zIndex={2}
-                      />
-
-                      {/* Content Left or Right */}
-                      <Box
-                        w={{ base: 'full', md: "50%" }}
-                        ml={isRight ? { base: '0', md: "50%" } : { base: '0', md: "-50%" }}
-                        pl={isRight ? { base: '40px', md: 10 } : '40px'}
-                        pr={isRight ? 0 : { base: 0, md: 10 }}
-                      >
-                        <VStack
-                          align={isRight ? "flex-start" : {base: 'flex-start', md: "flex-end"}}
-                          spacing={1}
-                          textAlign={isRight ? "left" : {base: 'left', md: "right"}}
-                        >
-                          <Text
-                            fontSize={{ base: "20px", md: "2xl" }}
-                            fontWeight="700"
-                            color="#fff"
-                            fontFamily="Plus Jakarta Sans"
-                          >
-                            {item.year}
-                          </Text>
-                          <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color="#fff">
-                            {item.title}
-                          </Text>
-                          <Text
-                            fontSize={{ base: "sm", md: "lg" }}
-                            color="rgba(255,255,255,0.85)"
-                            lineHeight="1.6"
-                          >
-                            {item.desc}
-                          </Text>
-                        </VStack>
-                      </Box>
-                    </Flex>
-                  );
-                })}
-              </VStack>
-            </Box>
-          </VStack>
-        </Container>
-      </Box>
-
-      {/* ── 2x2 Services/Portfolio Grid ── */}
-      <Box bg="#05060A" pb={{ base: 20, md: 32 }}>
-        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={{ base: 4, md: 6 }}>
-            {gridServices.map((service, idx) => (
-              <GridItem key={idx}>
-                <Box
-                  position="relative"
-                  borderRadius="27px"
-                  overflow="hidden"
-                  h={{ base: "250px", md: "350px", lg: "420px" }}
-                  _hover={{ transform: "scale(1.02)" }}
-                  transition="transform 0.3s ease"
-                  cursor="pointer"
-                >
-                  <Image
-                    src={service.img}
-                    alt={service.title}
-                    w="full"
-                    h="full"
-                    objectFit="cover"
-                  />
-                  {/* Overlay gradient */}
-                  <Box
-                    position="absolute"
-                    top={0} left={0} right={0} bottom={0}
-                    bg="linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0) 100%)"
-                  />
-                  {/* Title */}
-                  <Heading
-                    as="h3"
-                    position="absolute"
-                    bottom={{ base: 6, md: 8 }}
-                    left={{ base: 6, md: 8 }}
-                    color="white"
-                    fontSize={{ base: "28px", md: "39px", lg: "42px" }}
-                    fontWeight="700"
-                    fontFamily="Plus Jakarta Sans"
-                  >
-                    {service.title}
-                  </Heading>
-                </Box>
-              </GridItem>
             ))}
-          </Grid>
-        </Container>
+          </Box>
+
+          <style jsx global>{`
+            @keyframes floatParticle {
+              0% {
+                transform: translate(0, 0);
+              }
+              50% {
+                transform: translate(9px, -10px);
+              }
+              100% {
+                transform: translate(-9px, 8px);
+              }
+            }
+          `}</style>
+          <Container maxW="4xl" position="relative" zIndex={1}>
+            <VStack spacing={20} align="center">
+              {/* Title */}
+              <VStack spacing={4} textAlign="center">
+                <Heading
+                  fontSize={{ base: "xl", md: "5xl" }}
+                  fontWeight="600"
+                  color="#fff"
+                  fontFamily="Plus Jakarta Sans"
+                >
+                  Timeline
+                </Heading>
+                <Text fontSize={{ base: "sm", md: "lg" }} color="rgba(255,255,255,0.6)" lineHeight="1.8" maxW="600px">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.
+                </Text>
+              </VStack>
+
+              {/* Vertical Timeline Centered */}
+              <Box position="relative" w="full" maxW="8xl" mx="auto">
+                {/* Central Line */}
+                <Box
+                  position="absolute"
+                  left={{ base: '3%', md: '50%' }}
+                  top="0"
+                  bottom="0"
+                  w="3px"
+                  rounded="full"
+                  bg="rgba(255,255,255,0.5)"
+                  transform="translateX(-50%)"
+                />
+
+                <VStack spacing={{ base: 10, md: 16 }} align="stretch" w="full" position="relative">
+                  {timelineItems.map((item, idx) => {
+                    const isRight = idx % 2 === 0; // genap (0,2,...) -> kanan; ganjil -> kiri
+                    return (
+                      <Flex key={idx} w="full" justify={{ base: 'start', md: 'center'}} position="relative">
+                        {/* Dot */}
+                        <Box
+                          position="absolute"
+                          left={{ base: '3%', md: '50%' }}
+                          top="12px"
+                          w={{ base: '12px', md: '20px'}}
+                          h={{ base: '12px', md: '20px'}}
+                          borderRadius="full"
+                          bg="white"
+                          transform="translateX(-50%)"
+                          zIndex={2}
+                        />
+
+                        {/* Content Left or Right */}
+                        <Box
+                          w={{ base: 'full', md: "50%" }}
+                          ml={isRight ? { base: '0', md: "50%" } : { base: '0', md: "-50%" }}
+                          pl={isRight ? { base: '40px', md: 10 } : '40px'}
+                          pr={isRight ? 0 : { base: 0, md: 10 }}
+                        >
+                          <VStack
+                            align={isRight ? "flex-start" : {base: 'flex-start', md: "flex-end"}}
+                            spacing={1}
+                            textAlign={isRight ? "left" : {base: 'left', md: "right"}}
+                          >
+                            <Text
+                              fontSize={{ base: "20px", md: "2xl" }}
+                              fontWeight="700"
+                              color="#fff"
+                              fontFamily="Plus Jakarta Sans"
+                            >
+                              {item.year}
+                            </Text>
+                            <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color="#fff">
+                              {item.title}
+                            </Text>
+                            <Text
+                              fontSize={{ base: "sm", md: "lg" }}
+                              color="rgba(255,255,255,0.85)"
+                              lineHeight="1.6"
+                            >
+                              {item.desc}
+                            </Text>
+                          </VStack>
+                        </Box>
+                      </Flex>
+                    );
+                  })}
+                </VStack>
+              </Box>
+            </VStack>
+          </Container>
+        </Box>
       </Box>
+
+      <ServicesListSection />
 
       {/* ── Additional Sections ── */}
       <TimelineSection />

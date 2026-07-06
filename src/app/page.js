@@ -10,6 +10,7 @@ import TeamSection from "@/components/TeamSection";
 import PortfolioSection from "@/components/PortfolioSection";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
+import QuoteCarousel from "@/components/QuoteCarousel";
 
 export default function HomePage() {
   return (
@@ -19,6 +20,7 @@ export default function HomePage() {
       <HeadlineSection />
       <MediaCarousel />
       <TimelineSection />
+      <QuoteCarousel />
       <PartnersSection />
       <TeamSection />
       <PortfolioSection />

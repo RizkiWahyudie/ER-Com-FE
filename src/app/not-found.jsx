@@ -85,7 +85,7 @@ export default function NotFound() {
                 </Button>
                 <Button
                   as={NextLink}
-                  href="/contact"
+                  href="/#contact"
                   bg="transparent"
                   color="#4A80F6"
                   border="1px solid #4A80F6"

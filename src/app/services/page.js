@@ -1,5 +1,4 @@
-"use client";
-
+import { Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
 import ServicesHeroSection from "@/components/ServicesHeroSection";
@@ -10,7 +9,9 @@ export default function ServicesPage() {
     <>
       <Navbar />
       <ServicesHeroSection />
-      <ServicesListSection />
+      <Suspense fallback={null}>
+        <ServicesListSection />
+      </Suspense>
       <FooterSection />
     </>
   );

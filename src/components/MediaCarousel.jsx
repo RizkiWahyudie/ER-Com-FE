@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Container,
@@ -17,51 +18,52 @@ const slidesData = [
   {
     tag: "Media Relation",
     imgs: [
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
     ],
   },
   {
-    tag: "Media Relation",
-    imgs: [
-      "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?w=300&h=300&fit=crop",
-    ],
-  },
-  {
-    tag: "Media Relation",
+    tag: "Social & Digital",
     imgs: [
       "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1573164713988-8665fc963095?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=300&h=300&fit=crop",
     ],
   },
   {
-    tag: "Media Relation",
+    tag: "Media Event",
+    imgs: [
+      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop",
+    ],
+  },
+  {
+    tag: "Brand & Strategic",
     imgs: [
       "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=300&h=300&fit=crop",
     ],
   },
   {
-    tag: "Media Relation",
+    tag: "International Event",
     imgs: [
-      "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop",
       "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=300&h=300&fit=crop",
     ],
   },
 ];
 
 export default function MediaCarousel() {
+  const router = useRouter();
   const [idx, setIdx] = useState(0);
   const [perView, setPerView] = useState(3);
 
@@ -75,6 +77,10 @@ export default function MediaCarousel() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleSlideClick = (categoryTitle) => {
+    router.push(`/services?cat=${encodeURIComponent(categoryTitle)}`);
+  };
 
   const pages = Math.max(1, slidesData.length - perView + 1);
   const handlePrev = () => setIdx((idx - 1 + pages) % pages);
@@ -100,7 +106,7 @@ export default function MediaCarousel() {
                   bg={`
                         radial-gradient(circle at 50% 0%,
                         rgba(0, 37, 85, 0.8) 0%,
-                        rgba(0, 19, 44, 0.4) 30%,
+                        rgba(0, 13, 44, 0.4) 30%,
                         rgba(2, 91, 207, 0) 70%
                         ),
                         #030712
@@ -108,6 +114,14 @@ export default function MediaCarousel() {
                   borderRadius="18px"
                   p={4}
                   border="1px solid rgba(255, 255, 255, 0.1)"
+                  cursor="pointer"
+                  onClick={() => handleSlideClick(slide.tag)}
+                  transition="transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease"
+                  _hover={{
+                    transform: "translateY(-6px)",
+                    borderColor: "rgba(2, 91, 207, 0.4)",
+                    boxShadow: "0 12px 30px rgba(2, 91, 207, 0.15)",
+                  }}
                 >
                   {/* Image Grid 2x2 */}
                   <Box

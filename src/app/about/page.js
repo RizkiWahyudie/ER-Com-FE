@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import {
   Box,
   Container,
@@ -477,7 +478,9 @@ export default function AboutPage() {
         </Box>
       </Box>
 
-      <ServicesListSection />
+      <Suspense fallback={null}>
+        <ServicesListSection />
+      </Suspense>
 
       {/* ── Additional Sections ── */}
       <TimelineSection />

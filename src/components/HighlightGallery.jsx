@@ -684,7 +684,7 @@ export default function HighlightGallery() {
           w="max-content"
           py={1.5}
           sx={{
-            animation: "marqueeScroll 60s linear infinite",
+            animation: "marqueeScroll 90s linear infinite",
             animationPlayState: isPaused ? "paused" : "running",
           }}
         >
@@ -761,7 +761,7 @@ export default function HighlightGallery() {
           py={1.5}
           mt={3}
           sx={{
-            animation: "marqueeScroll 60s linear infinite reverse",
+            animation: "marqueeScroll 90s linear infinite reverse",
             animationPlayState: isPaused ? "paused" : "running",
           }}
         >

@@ -59,13 +59,13 @@ export default function ContactSection() {
             transform: "translate(0%, 0%) scale(1) rotate(0deg)",
           },
           "25%": {
-            transform: "translate(5%, -3%) scale(1.05) rotate(3deg)",
+            transform: "translate(3%, -2%) scale(1.01) rotate(1deg)",
           },
           "50%": {
-            transform: "translate(-3%, 5%) scale(1.1) rotate(-2deg)",
+            transform: "translate(-2%, 3%) scale(1.02) rotate(-1deg)",
           },
           "75%": {
-            transform: "translate(-5%, -2%) scale(1.03) rotate(4deg)",
+            transform: "translate(-3%, -2%) scale(1.01) rotate(1.5deg)",
           },
           "100%": {
             transform: "translate(0%, 0%) scale(1) rotate(0deg)",
@@ -73,16 +73,16 @@ export default function ContactSection() {
         },
         "@keyframes blobMove2": {
           "0%": {
-            transform: "translate(0%, 0%) scale(1.1) rotate(0deg)",
+            transform: "translate(0%, 0%) scale(1.01) rotate(0deg)",
           },
           "33%": {
-            transform: "translate(-6%, 4%) scale(1.15) rotate(-4deg)",
+            transform: "translate(-4%, 3%) scale(1.02) rotate(-1.5deg)",
           },
           "66%": {
-            transform: "translate(4%, -5%) scale(1.05) rotate(5deg)",
+            transform: "translate(3%, -3%) scale(1.01) rotate(2deg)",
           },
           "100%": {
-            transform: "translate(0%, 0%) scale(1.1) rotate(0deg)",
+            transform: "translate(0%, 0%) scale(1.01) rotate(0deg)",
           },
         },
       }}
@@ -90,11 +90,11 @@ export default function ContactSection() {
       {/* Animated blob layer 1 — primary */}
       <Box
         position="absolute"
-        top="-15%"
-        left="-10%"
-        w="120%"
-        h="130%"
-        bgImage="url('/assets/contact/contact-bg.png')"
+        top="-5%"
+        left="-5%"
+        w="110%"
+        h="110%"
+        bgImage="url('/assets/contact/contact-bg-2.png')"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"
@@ -106,10 +106,10 @@ export default function ContactSection() {
       {/* Animated blob layer 2 — secondary for depth */}
       <Box
         position="absolute"
-        top="-5%"
-        left="-5%"
-        w="110%"
-        h="115%"
+        top="-4%"
+        left="-4%"
+        w="108%"
+        h="108%"
         bgImage="url('/assets/contact/contact-bg.png')"
         bgSize="cover"
         bgPosition="center"

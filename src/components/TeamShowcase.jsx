@@ -95,9 +95,9 @@ export default function TeamShowcase() {
           <Box
             position="relative"
             w="full"
-            h={{ base: "400px", sm: "480px", md: "600px", xl:"80vh" }}
+            h={{ base: "400px", sm: "480px", md: "600px", xl:"100vh" }}
             display="flex"
-            alignItems="flex-end"
+            alignItems="start"
             justifyContent="center"
           >
             {teamData.map((member, idx) => {

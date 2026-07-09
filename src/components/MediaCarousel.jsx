@@ -92,7 +92,7 @@ export default function MediaCarousel() {
       <Container maxW="7xl" px={{ base: 6, md: 0 }} mx="auto">
         <VStack spacing={7} align="stretch">
           {/* Carousel Track */}
-          <Box overflow="hidden" w="full">
+          <Box overflow="hidden" w="full" py={5}>
             <Flex
               gap={{ base: 6, md: 4 }}
               transform={`translateX(calc(-${idx * slideWidth}% - ${idx * 24}px))`}

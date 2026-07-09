@@ -3,7 +3,7 @@
 import { Box, Container, VStack, Heading, Text } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import TeamShowcase from "@/components/TeamShowcase";
-import TeamSection from "@/components/TeamSection";
+import TeamDetail from "@/components/TeamDetail";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 
@@ -113,8 +113,8 @@ export default function TeamPage() {
         <TeamShowcase />
       </Box>
 
-      {/* ── Team Section (Reused from Home) ── */}
-      <TeamSection teamHome={0} />
+      {/* ── Team Detail Grid Section ── */}
+      <TeamDetail />
 
       {/* ── Contact ── */}
       <ContactSection />

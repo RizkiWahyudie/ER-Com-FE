@@ -1,319 +1,283 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   Container,
   VStack,
   HStack,
-  Grid,
   Heading,
   Text,
   Button,
   Image,
   Flex,
-  Icon,
-  Divider
+  Grid,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { FaArrowUp, FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 
 const teamMembers = [
   {
     name: "Ingga Mawardy",
-    role: "Founder & CEO",
-    img: "/assets/team/team-1.png",
+    role: "Technology Law Associate",
+    img: "/assets/team/team-card-pp-1.png",
+    bgImg: "/assets/team/team-card-bg-1.png",
   },
   {
-    name: "Sarah Putri",
-    role: "Creative Director",
-    img: "/assets/team/team-2.png",
+    name: "Sandra Monte",
+    role: "Social Media Specialist",
+    img: "/assets/team/team-card-pp-2.png",
+    bgImg: "/assets/team/team-card-bg-2.png",
   },
   {
-    name: "Andi Wijaya",
-    role: "Lead Strategist",
-    img: "/assets/team/team-3.png",
+    name: "Anton Samuel",
+    role: "Head of IT",
+    img: "/assets/team/team-card-pp-3.png",
+    bgImg: "/assets/team/team-card-bg-3.png",
   },
   {
-    name: "Rina Kartika",
-    role: "Account Manager",
-    img: "/assets/team/team-1.png",
+    name: "Luke Ernser",
+    role: "iOS Developer",
+    img: "/assets/team/team-card-pp-4.png",
+    bgImg: "/assets/team/team-card-bg-4.png",
   },
   {
-    name: "Budi Santoso",
-    role: "Senior PR Manager",
-    img: "/assets/team/team-2.png",
+    name: "Maryann Olson",
+    role: "Android Developer",
+    img: "/assets/team/team-card-pp-5.png",
+    bgImg: "/assets/team/team-card-bg-5.png",
+  },
+  {
+    name: "Vanessa Waters",
+    role: "System Engineer",
+    img: "/assets/team/team-card-pp-6.png",
+    bgImg: "/assets/team/team-card-bg-6.png",
+  },
+  {
+    name: "Robert Martin",
+    role: "Account Executive",
+    img: "/assets/team/team-card-pp-7.png",
+    bgImg: "/assets/team/team-card-bg-7.png",
+  },
+  {
+    name: "Angga Febri",
+    role: "Designer",
+    img: "/assets/team/team-card-pp-8.png",
+    bgImg: "/assets/team/team-card-bg-8.png",
   },
 ];
 
 export default function TeamSection({ teamHome = 1 }) {
-  const [activeTab, setActiveTab] = useState("Teams");
   const [selectedIdx, setSelectedIdx] = useState(0);
   const selected = teamMembers[selectedIdx];
 
-  const prevIdx =
-  (selectedIdx - 1 + teamMembers.length) % teamMembers.length;
+  // Get current active and next 2 members for the preview carousel on the right
+  const getPreviewMembers = () => {
+    const preview = [];
+    for (let i = 0; i < 2; i++) {
+      const idx = (selectedIdx + i) % teamMembers.length;
+      preview.push({ ...teamMembers[idx], originalIdx: idx });
+    }
+    return preview;
+  };
 
-  const nextIdx =
-  (selectedIdx + 1) % teamMembers.length;
-
-  const [showScrollTop, setShowScrollTop] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const previewMembers = getPreviewMembers();
 
   return (
-    <Box
-      w="full"
-      bg="linear-gradient(180deg, var(--background) 0%, #0c1426 50%, var(--background) 100%)"
-      py={{ base: 20, md: 20 }}
-      position="relative"
-    >
-      <Container maxW="8xl" px={{ base: 6, md: 6 }} mx="auto">
-        <VStack spacing={{ base: 12, md: 16 }} align="stretch">
+    <VStack bg="#030712" gap={{ base: 4, lg: 8 }}>
+      <Box
+        w="full"
+        position="relative"
+        py={{ base: 16, md: 0 }}
+        overflow="hidden"
+        bgImage={`url('${selected.bgImg}')`}
+        bgSize="cover"
+        bgPosition="center"
+        transition="background-image 0.6s ease-in-out"
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        h={{ lg: '80vh' }}
+      >
+        {/* Dark Overlay Layer */}
+        <Box
+          position="absolute"
+          inset={0}
+          background="linear-gradient(to right, rgba(5,6,10,0.98) 0%, rgba(5,6,10,0.85) 45%, rgba(5,6,10,0.4) 100%)"
+          zIndex={0}
+        />
 
-          {/* Main Content */}
-          <Grid
-            templateColumns={{ base: "1fr", md: "1fr 1fr" }}
-            gap={{ base: 8, md: 15 }}
+        <Container maxW="8xl" px={{ base: 6, md: 8 }} position="relative" zIndex={1}>
+          <Flex
+            gap={{ base: 12, lg: 16 }}
             alignItems="center"
-            maxW="8xl"
-            mx="auto"
-            w="full"
+            flexDirection={{ base: "column", lg: "row" }}
+            justifyContent="space-between"
           >
-            {/* Team Photo */}
-            <Flex justify="center" position="relative" h="auto">
-              <VStack gap={{ base: 6, md: 10 }} align="center">
-                <Box
-                  position="relative"
-                  w={{ base: "100%", md: "880px" }}
-                  maxW="880px"
-                  h={{ base: "250px", md: "620px" }}
+            {/* Left Column - Team Info */}
+            <VStack align="flex-start" spacing={6} maxW="xl" flex={{ lg: "40%" }}>
+              <VStack align="flex-start" spacing={4}>
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "2xl", md: "4xl", lg: "5xl" }}
+                  fontWeight="500"
+                  color="#fff"
+                  fontFamily="Plus Jakarta Sans"
+                  lineHeight="1.2"
                 >
-                  {teamMembers.map((member, idx) => {
-                    const isActive = idx === selectedIdx;
-                    const isPrev = idx === prevIdx;
-                    const isNext = idx === nextIdx;
+                  See And Explore<br />
+                  More About Our<br />
+                  Amazing Team.
+                </Heading>
+                <Text
+                  fontSize={{ base: "sm", md: "md" }}
+                  color="rgba(255,255,255,0.7)"
+                  lineHeight="1.7"
+                >
+                  Get to know the experts behind ER Communications and the people driving every successful communication strategy.
+                </Text>
+              </VStack>
 
+              {/* Accent Line */}
+              <Box w="120px" h="2.5px" bg="#006adb" />
+
+              {/* Selected Member Info */}
+              <VStack align="flex-start" spacing={2}>
+                <Heading
+                  as="h3"
+                  fontSize={{ base: "2xl", md: "4xl" }}
+                  color="#006adb"
+                  fontWeight="700"
+                  fontFamily="Plus Jakarta Sans"
+                >
+                  {selected.name}
+                </Heading>
+                <Text
+                  fontSize={{ base: "sm", md: "md" }}
+                  color="rgba(255,255,255,0.8)"
+                  fontWeight="500"
+                >
+                  as {selected.role}
+                </Text>
+              </VStack>
+
+              {/* Contact Button */}
+              <Button
+                bg="#006adb"
+                color="#fff"
+                borderRadius="full"
+                px={8}
+                py={6}
+                fontSize="sm"
+                fontWeight="600"
+                _hover={{
+                  bg: "#0056b3",
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 20px rgba(0, 106, 219, 0.4)",
+                }}
+                transition="all 0.2s"
+              >
+                Contact
+              </Button>
+            </VStack>
+
+            {/* Right Column - Carousel Cards Stack */}
+            <Flex
+              w="full"
+              align="center"
+              justify={{ base: "center", lg: "flex-start" }}
+              position="relative"
+              flex={{ lg: "60%" }}
+            >
+              <VStack gap={{ base: 4, lg: 8 }}>
+                <HStack spacing={{ base: 4, md: 6 }} align="center" overflow="visible">
+                  {previewMembers.map((member, i) => {
+                    const isActive = i === 0;
                     return (
                       <Box
-                        key={idx}
-                        position="absolute"
-                        left="50%"
-                        top="50%"
-                        transform={{
-                          base: `translate(-50%, -50%) ${
-                            isActive
-                              ? "translateX(0) scale(1)"
-                              : isPrev
-                              ? "translateX(-55px) scale(.8)"
-                              : isNext
-                              ? "translateX(55px) scale(.8)"
-                              : "scale(.6)"
-                          }`,
-                          md: `translate(-50%, -50%) ${
-                            isActive
-                              ? "translateX(0) scale(1)"
-                              : isPrev
-                              ? "translateX(-190px) scale(.82)"
-                              : isNext
-                              ? "translateX(190px) scale(.82)"
-                              : "scale(.6)"
-                          }`,
+                        key={member.originalIdx}
+                        position="relative"
+                        borderRadius="24px"
+                        overflow="hidden"
+                        w={{
+                          base: isActive ? "220px" : "110px",
+                          sm: isActive ? "280px" : "150px",
+                          md: isActive ? "320px" : "200px",
+                          lg: isActive ? "380px" : "292px",
                         }}
-                        opacity={isActive ? 1 : isPrev || isNext ? 0.35 : 0}
-                        filter={isActive ? "blur(0)" : "blur(6px)"}
-                        zIndex={isActive ? 3 : isPrev || isNext ? 2 : 0}
-                        transition="all .55s cubic-bezier(.22,1,.36,1)"
+                        h={{
+                          base: isActive ? "280px" : "140px",
+                          sm: isActive ? "340px" : "190px",
+                          md: isActive ? "380px" : "240px",
+                          lg: isActive ? "500px" : "346px",
+                        }}
+                        border={isActive ? "4px solid #fff" : "none"}
+                        boxShadow={isActive ? "0 20px 40px rgba(0,0,0,0.5)" : "none"}
+                        cursor="pointer"
+                        onClick={() => setSelectedIdx(member.originalIdx)}
+                        transition="all 0.5s cubic-bezier(0.22, 1, 0.36, 1)"
+                        opacity={isActive ? 1 : 0.65}
+                        _hover={{
+                          opacity: 1,
+                          transform: isActive ? "none" : "scale(1.05)",
+                        }}
                       >
                         <Image
                           src={member.img}
-                          w={{
-                            base: "240px",
-                            sm: "300px",
-                            md: "880px",
-                          }}
-                          h={{
-                            base: "240px",
-                            sm: "380px",
-                            md: "620px",
-                          }}
+                          alt={member.name}
+                          w="full"
+                          h="full"
                           objectFit="cover"
-                          borderRadius={{
-                            base: "120px 120px 0 0",
-                            md: "220px 220px 0 0",
-                          }}
                         />
                       </Box>
                     );
                   })}
-                </Box>
-
-                {/* Avatar */}
-                <HStack justify="center" spacing={3.5}>
-                  {teamMembers.map((member, idx) => (
+                </HStack>
+                {/* Dots Indicator */}
+                <HStack spacing={2.5}>
+                  {teamMembers.map((_, idx) => (
                     <Box
                       key={idx}
-                      w={{ base: "50px", md: "64px", xl: "90px" }}
-                      h={{ base: "50px", md: "64px", xl: "90px" }}
+                      w={idx === selectedIdx ? "20px" : "7px"}
+                      h="7px"
                       borderRadius="full"
-                      overflow="hidden"
+                      bg={idx === selectedIdx ? "#fff" : "rgba(255, 255, 255, 0.35)"}
                       cursor="pointer"
+                      transition="all 0.3s ease"
                       onClick={() => setSelectedIdx(idx)}
-                    >
-                      <Image
-                        src={member.img}
-                        w="100%"
-                        h="100%"
-                        objectFit="cover"
-                      />
-                    </Box>
+                    />
                   ))}
                 </HStack>
               </VStack>
-              
-
-              {/* Photo Navigation */}
-              <Button
-                position="absolute"
-                left={{ base: "0px", md: "20px", xl: "195px" }}
-                top="50%"
-                transform="translateY(-50%)"
-                w={{ base: "42px", md: "48px" }}
-                h={{ base: "42px", md: "48px" }}
-                borderRadius="full"
-                bg="transparent"
-                color="#fff"
-                border="1px solid white"
-                fontSize={{ base: "2xl", md: "xl" }}
-                zIndex={5}
-                _hover={{ transform: "translateY(-50%) scale(1.08)" }}
-                onClick={() => setSelectedIdx((selectedIdx - 1 + teamMembers.length) % teamMembers.length)}
-              >
-                <FaArrowLeft fontSize={{ base: "2xl", md: "xl" }} />
-              </Button>
-
-              <Button
-                position="absolute"
-                right={{ base: "0px", md: "20px", xl: "195px" }}
-                top="50%"
-                transform="translateY(-50%)"
-                w={{ base: "42px", md: "48px" }}
-                h={{ base: "42px", md: "48px" }}
-                borderRadius="full"
-                bg="transparent"
-                color="#fff"
-                border="1px solid white"
-                fontSize={{ base: "md", md: "xl" }}
-                zIndex={5}
-                _hover={{ transform: "translateY(-50%) scale(1.08)" }}
-                onClick={() => setSelectedIdx((selectedIdx + 1) % teamMembers.length)}
-              >
-                <FaArrowRight fontSize={{ base: "md", md: "xl" }} />
-              </Button>
             </Flex>
-
-            {/* Team Info */}
-            <VStack align={{ base: "center", md: "flex-start" }} spacing={6} textAlign={{ base: "center", md: "left" }}>
-              <Heading size={{ base: "lg", md: "3xl" }} color="#fff" lineHeight="1.2" fontWeight={400}>
-                Meet the People Behind Every Great Project.
-              </Heading>
-              <Text fontSize={{ base: "sm", md: "lg" }} color="#c4c1c1">
-                A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.
-              </Text>
-              <Box my={{ base: 3, md: 6 }}></Box>
-              <Box>
-                <Divider borderColor="var(--primary)" borderWidth="1.5px" mb={3} />
-                <Heading as="h2" size="xl" color="var(--primary)" mb={1}>
-                  {selected.name}
-                </Heading>
-                <Text fontSize={{ base: "sm", md: "md" }} color="#c4c1c1">
-                  {selected.role}
-                </Text> 
-              </Box>
-              {teamHome == 0 ? null : (
-                <Link href="/team">
-                  <Button
-                    size="sm"
-                    px={{ base: 4, md: 6 }}
-                    py={{ base: 1.5, md: 6 }}
-                    mt={{ base: 3, md: 6 }}
-                    borderRadius="50px"
-                    bg="transparent"
-                    color="white"
-                    border="1px solid white"
-                    fontSize={{ base: "xs", md: "md" }}
-                    fontWeight="500"
-                    _hover={{ bg: "white", color: "black" }}
-                  >
-                    <HStack spacing={2}>
-                      <Text>View All</Text>
-                      <FaArrowRight size={14} />
-                    </HStack>
-                  </Button>
-                </Link>
-              )}
-            </VStack>
-          </Grid>
-        </VStack>
-      </Container>
-
-      {/* WhatsApp Float */}
-      {/* <Flex
-        position="fixed"
-        right={6}
-        bottom={6}
-        w="58px"
-        h="58px"
-        borderRadius="full"
-        bg="#22c55e"
-        align="center"
-        justify="center"
-        boxShadow="0 10px 30px rgba(34, 197, 94, 0.5)"
-        zIndex={60}
-        as="a"
-        href="https://wa.me/6281234567890"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Icon as={FaWhatsapp} color="#fff" w={7} h={7} />
-      </Flex> */}
-
-      {showScrollTop && (
-        <Flex
-          position="fixed"
-          right={6}
-          bottom={6}
-          w={{ base: "24px", lg: "58px" }}
-          h={{ base: "24px", lg: "58px" }}
-          borderRadius="full"
-          bg="rgba(1, 1, 1, 0.5)"
-          p={{ base: 5, lg: 0 }}
-          align="center"
-          justify="center"  
-          cursor="pointer"
-          zIndex={60}
-          boxShadow="sm"
-          transition="0.2s"
-          _hover={{
-            transform: "translateY(-8px)",
-          }}
-          onClick={() =>
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
-            })
-          }
-        >
-          <Icon as={FaArrowUp} color="white" boxSize={{ base: 4, lg: 5 }} />
-        </Flex>
-      )}
-    </Box>
+          </Flex>
+        </Container>
+      </Box>
+      <VStack spacing={6} align="center">
+        {/* View All Button */}
+        {teamHome === 1 && (
+          <Link href="/team">
+            <Button
+              size="sm"
+              px={{ base: 4, md: 6 }}
+              py={{ base: 1.5, md: 6 }}
+              borderRadius="50px"
+              bg="transparent"
+              color="white"
+              border="2px solid white"
+              fontSize={{ base: "xs", md: "md" }}
+              fontWeight="500"
+              _hover={{ bg: "white", color: "black" }}
+            >
+              <HStack spacing={2}>
+                <Text>View All</Text>
+                <FaArrowRight size={14} />
+              </HStack>
+            </Button>
+          </Link>
+        )}
+      </VStack>
+    </VStack>
   );
 }

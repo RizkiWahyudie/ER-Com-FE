@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 
 const portfolioImages = [
@@ -29,6 +29,7 @@ const portfolioImages = [
 export default function PortfolioSection() {
   const itemsPerView = useBreakpointValue({ base: 2, md: 3 }) ?? 3;
   const [index, setIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   const maxIndex = useMemo(
     () => Math.max(0, portfolioImages.length - itemsPerView),
@@ -37,6 +38,19 @@ export default function PortfolioSection() {
 
   // clamp index kalau breakpoint berubah (misal resize dari desktop ke mobile)
   const safeIndex = Math.min(index, maxIndex);
+
+  useEffect(() => {
+    if (isHovered || maxIndex <= 0) return;
+    const interval = setInterval(() => {
+      setIndex((prev) => {
+        if (prev >= maxIndex) {
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [index, maxIndex, isHovered]);
 
   const handlePrev = () => setIndex((prev) => Math.max(0, prev - 1));
   const handleNext = () => setIndex((prev) => Math.min(maxIndex, prev + 1));
@@ -47,7 +61,13 @@ export default function PortfolioSection() {
   const itemWidthPercent = 100 / itemsPerView;
 
   return (
-    <Box w="full" bg="#05060a" py={{ base: 20, md: 20 }}>
+    <Box
+      w="full"
+      bg="#05060a"
+      py={{ base: 20, md: 20 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={{ base: 4, md: 8 }} align="center">
           {/* Title */}

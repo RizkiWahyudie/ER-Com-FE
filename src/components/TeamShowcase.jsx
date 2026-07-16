@@ -95,7 +95,7 @@ export default function TeamShowcase() {
           <Box
             position="relative"
             w="full"
-            h={{ base: "400px", sm: "480px", md: "600px", xl:"100vh" }}
+            h={{ base: "400px", sm: "480px", md: "600px", xl:"120vh", "2xl":"95vh" }}
             display="flex"
             alignItems="start"
             justifyContent="center"

@@ -1,51 +1,93 @@
 "use client";
 
-import { Box, Container, Flex, Heading, Text, VStack, Grid, GridItem, Image } from "@chakra-ui/react";
+import { useState } from "react";
+import {
+  Box,
+  Container,
+  Flex,
+  Heading,
+  Text,
+  VStack,
+  HStack,
+  Grid,
+  GridItem,
+  Image,
+  Button,
+  IconButton,
+  Icon,
+  useDisclosure,
+} from "@chakra-ui/react";
+import { FaAddressCard } from "react-icons/fa";
+import ContactCardModal from "@/components/ContactCardModal";
 
 const teamData = [
   {
     name: "Ingga Mawardy",
     role: "Technology Law Associate",
     img: "/assets/team/team-card-pp-1.png",
+    whatsapp: "+62 813-2345-6789",
+    email: "hello@ingga-ercomm.com",
   },
   {
     name: "Sandra Monte",
     role: "Social Media Specialist",
     img: "/assets/team/team-card-pp-2.png",
+    whatsapp: "+62 813-2345-6790",
+    email: "sandra@ercomm.com",
   },
   {
     name: "Anton Samuel",
     role: "Head of IT",
     img: "/assets/team/team-card-pp-3.png",
+    whatsapp: "+62 813-2345-6791",
+    email: "anton@ercomm.com",
   },
   {
     name: "Luke Ernser",
     role: "iOS Developer",
     img: "/assets/team/team-card-pp-4.png",
+    whatsapp: "+62 813-2345-6792",
+    email: "luke@ercomm.com",
   },
   {
     name: "Maryann Olson",
     role: "Android Developer",
     img: "/assets/team/team-card-pp-5.png",
+    whatsapp: "+62 813-2345-6793",
+    email: "maryann@ercomm.com",
   },
   {
     name: "Vanessa Waters",
     role: "System Engineer",
     img: "/assets/team/team-card-pp-6.png",
+    whatsapp: "+62 813-2345-6794",
+    email: "vanessa@ercomm.com",
   },
   {
     name: "Robert Martin",
     role: "Account Executive",
     img: "/assets/team/team-card-pp-7.png",
+    whatsapp: "+62 813-2345-6795",
+    email: "robert@ercomm.com",
   },
   {
     name: "Angga Febri",
     role: "Designer",
     img: "/assets/team/team-card-pp-8.png",
+    whatsapp: "+62 813-2345-6796",
+    email: "angga@ercomm.com",
   },
 ];
 
 export default function TeamDetail() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedMember, setSelectedMember] = useState(null);
+
+  const handleOpenContact = (member) => {
+    setSelectedMember(member);
+    onOpen();
+  };
+
   return (
     <Box bg="#05060a" py={{ base: 12, md: 20 }} overflow="hidden" position="relative">
       <Image src="/assets/media/media-shape.svg" alt="background" position="absolute" display={{ base: "none", lg: "block" }} top={20} right={0} zIndex={0} />
@@ -107,7 +149,7 @@ export default function TeamDetail() {
                 {/* Profile Image Container */}
                 <Box
                   w="full"
-                  h={{ base: "280px", sm: "300px", md: "344" }}
+                  h={{ base: "280px", sm: "300px", md: "344px" }}
                   borderRadius="15px"
                   overflow="hidden"
                   position="relative"
@@ -125,36 +167,81 @@ export default function TeamDetail() {
                     objectFit="cover"
                     fallbackSrc="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop"
                   />
+
+                  {/* Hover Overlay with Contact Button (Desktop/Tablet Only) */}
+                  <Flex
+                    position="absolute"
+                    inset={0}
+                    bg="rgba(5, 6, 10, 0.6)"
+                    backdropFilter="blur(4px)"
+                    align="center"
+                    justify="center"
+                    opacity={0}
+                    visibility="hidden"
+                    transition="all 0.3s ease"
+                    _groupHover={{
+                      opacity: 1,
+                      visibility: "visible",
+                    }}
+                    display={{ base: "none", md: "flex" }}
+                  >
+                    <Button
+                      bg="#006adb"
+                      color="white"
+                      borderRadius="full"
+                      px={6}
+                      py={4}
+                      fontSize="xs"
+                      fontWeight="600"
+                      _hover={{ bg: "#0056b3", transform: "scale(1.05)" }}
+                      transition="all 0.2s"
+                      onClick={() => handleOpenContact(member)}
+                    >
+                      Contact
+                    </Button>
+                  </Flex>
                 </Box>
 
-                {/* Name Badge */}
-                <Box
-                  px={4}
-                  py={1.5}
-                  borderRadius="full"
-                  border="1.5px solid #006adbff"
-                  bg="transparent"
-                  display="inline-block"
-                  transition="all 0.2s"
-                  _groupHover={{
-                    borderColor: "#006adbff",
-                    bg: "rgba(2, 91, 207, 0.08)",
-                  }}
-                >
-                  <Text
-                    fontSize={{ base: "sm", md: "md" }}
-                    fontWeight="600"
-                    color="#006adbff"
-                    textTransform="uppercase"
-                    letterSpacing="1px"
-                    fontFamily="Plus Jakarta Sans"
+                {/* Name Badge and Mobile Trigger */}
+                <HStack justify="space-between" w="full" align="center">
+                  <Box
+                    px={4}
+                    py={1.5}
+                    borderRadius="full"
+                    border="1.5px solid #006adbff"
+                    bg="transparent"
+                    display="inline-block"
+                    transition="all 0.2s"
                     _groupHover={{
-                      color: "#006adbff",
+                      borderColor: "#006adbff",
+                      bg: "rgba(2, 91, 207, 0.08)",
                     }}
                   >
-                    {member.name}
-                  </Text>
-                </Box>
+                    <Text
+                      fontSize={{ base: "sm", md: "md" }}
+                      fontWeight="600"
+                      color="#006adbff"
+                      textTransform="uppercase"
+                      letterSpacing="1px"
+                      fontFamily="Plus Jakarta Sans"
+                    >
+                      {member.name}
+                    </Text>
+                  </Box>
+
+                  {/* Mobile Contact Icon */}
+                  <IconButton
+                    aria-label="Contact Member"
+                    icon={<Icon as={FaAddressCard} />}
+                    variant="ghost"
+                    color="#006adb"
+                    fontSize="xl"
+                    display={{ base: "flex", md: "none" }}
+                    onClick={() => handleOpenContact(member)}
+                    _hover={{ bg: "rgba(2, 91, 207, 0.1)" }}
+                    _active={{ bg: "rgba(2, 91, 207, 0.2)" }}
+                  />
+                </HStack>
 
                 {/* Role */}
                 <Text
@@ -171,6 +258,13 @@ export default function TeamDetail() {
           ))}
         </Grid>
       </Container>
+
+      {/* Reusable Contact Card Modal */}
+      <ContactCardModal
+        isOpen={isOpen}
+        onClose={onClose}
+        member={selectedMember}
+      />
     </Box>
   );
 }

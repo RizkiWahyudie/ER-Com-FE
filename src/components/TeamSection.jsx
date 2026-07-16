@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -12,9 +12,12 @@ import {
   Image,
   Flex,
   Grid,
+  useDisclosure,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
+import ContactCardModal from "@/components/ContactCardModal";
+
 
 const teamMembers = [
   {
@@ -22,54 +25,80 @@ const teamMembers = [
     role: "Technology Law Associate",
     img: "/assets/team/team-card-pp-1.png",
     bgImg: "/assets/team/team-card-bg-1.png",
+    whatsapp: "+62 813-2345-6789",
+    email: "hello@ingga-ercomm.com",
   },
   {
     name: "Sandra Monte",
     role: "Social Media Specialist",
     img: "/assets/team/team-card-pp-2.png",
     bgImg: "/assets/team/team-card-bg-2.png",
+    whatsapp: "+62 813-2345-6790",
+    email: "sandra@ercomm.com",
   },
   {
     name: "Anton Samuel",
     role: "Head of IT",
     img: "/assets/team/team-card-pp-3.png",
     bgImg: "/assets/team/team-card-bg-3.png",
+    whatsapp: "+62 813-2345-6791",
+    email: "anton@ercomm.com",
   },
   {
     name: "Luke Ernser",
     role: "iOS Developer",
     img: "/assets/team/team-card-pp-4.png",
     bgImg: "/assets/team/team-card-bg-4.png",
+    whatsapp: "+62 813-2345-6792",
+    email: "luke@ercomm.com",
   },
   {
     name: "Maryann Olson",
     role: "Android Developer",
     img: "/assets/team/team-card-pp-5.png",
     bgImg: "/assets/team/team-card-bg-5.png",
+    whatsapp: "+62 813-2345-6793",
+    email: "maryann@ercomm.com",
   },
   {
     name: "Vanessa Waters",
     role: "System Engineer",
     img: "/assets/team/team-card-pp-6.png",
     bgImg: "/assets/team/team-card-bg-6.png",
+    whatsapp: "+62 813-2345-6794",
+    email: "vanessa@ercomm.com",
   },
   {
     name: "Robert Martin",
     role: "Account Executive",
     img: "/assets/team/team-card-pp-7.png",
     bgImg: "/assets/team/team-card-bg-7.png",
+    whatsapp: "+62 813-2345-6795",
+    email: "robert@ercomm.com",
   },
   {
     name: "Angga Febri",
     role: "Designer",
     img: "/assets/team/team-card-pp-8.png",
     bgImg: "/assets/team/team-card-bg-8.png",
+    whatsapp: "+62 813-2345-6796",
+    email: "angga@ercomm.com",
   },
 ];
 
 export default function TeamSection({ teamHome = 1 }) {
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   const selected = teamMembers[selectedIdx];
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    if (isHovered || isOpen) return;
+    const interval = setInterval(() => {
+      setSelectedIdx((prevIdx) => (prevIdx + 1) % teamMembers.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [selectedIdx, isHovered, isOpen]);
 
   // Get current active and next 2 members for the preview carousel on the right
   const getPreviewMembers = () => {
@@ -84,7 +113,12 @@ export default function TeamSection({ teamHome = 1 }) {
   const previewMembers = getPreviewMembers();
 
   return (
-    <VStack bg="#030712" gap={{ base: 4, lg: 8 }}>
+    <VStack
+      bg="#030712"
+      gap={{ base: 4, lg: 8 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Box
         w="full"
         position="relative"
@@ -171,6 +205,7 @@ export default function TeamSection({ teamHome = 1 }) {
                 py={6}
                 fontSize="sm"
                 fontWeight="600"
+                onClick={onOpen}
                 _hover={{
                   bg: "#0056b3",
                   transform: "translateY(-2px)",
@@ -278,6 +313,9 @@ export default function TeamSection({ teamHome = 1 }) {
           </Link>
         )}
       </VStack>
+
+      {/* Contact Card Modal */}
+      <ContactCardModal isOpen={isOpen} onClose={onClose} member={selected} />
     </VStack>
   );
 }

@@ -16,8 +16,8 @@ export default function TeamPage() {
         top="-100px"
         left="50%"
         transform="translateX(-50%)"
-        w="1200px"
-        h="800px"
+        w={{ base: "100%", md: "1200px" }}
+        h={{ base: "100%", md: "800px" }}
         style={{
           background:
             "radial-gradient(ellipse at center, rgba(216, 98, 29, 0.3) 0%, transparent 60%)",

@@ -66,6 +66,7 @@ export default function MediaCarousel() {
   const router = useRouter();
   const [idx, setIdx] = useState(0);
   const [perView, setPerView] = useState(3);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -78,17 +79,32 @@ export default function MediaCarousel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const pages = Math.max(1, slidesData.length - perView + 1);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const interval = setInterval(() => {
+      setIdx((prev) => (prev + 1) % pages);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [idx, pages, isHovered]);
+
   const handleSlideClick = (categoryTitle) => {
     router.push(`/services?cat=${encodeURIComponent(categoryTitle)}`);
   };
 
-  const pages = Math.max(1, slidesData.length - perView + 1);
   const handlePrev = () => setIdx((idx - 1 + pages) % pages);
   const handleNext = () => setIdx((idx + 1) % pages);
   const slideWidth = 100 / perView;
 
   return (
-    <Box w="full" bg="var(--background)" py={{ base: 12, md: 16 }}>
+    <Box
+      w="full"
+      bg="var(--background)"
+      py={{ base: 12, md: 16 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <Container maxW="7xl" px={{ base: 6, md: 0 }} mx="auto">
         <VStack spacing={7} align="stretch">
           {/* Carousel Track */}

@@ -39,18 +39,26 @@ export default function PortfolioSection() {
   // clamp index kalau breakpoint berubah (misal resize dari desktop ke mobile)
   const safeIndex = Math.min(index, maxIndex);
 
+  // useEffect(() => {
+  //   if (isHovered || maxIndex <= 0) return;
+  //   const interval = setInterval(() => {
+  //     setIndex((prev) => {
+  //       if (prev >= maxIndex) {
+  //         return 0;
+  //       }
+  //       return prev + 1;
+  //     });
+  //   }, 3000);
+  //   return () => clearInterval(interval);
+  // }, [index, maxIndex, isHovered]);
+
   useEffect(() => {
-    if (isHovered || maxIndex <= 0) return;
+    if (maxIndex <= 0) return;
     const interval = setInterval(() => {
-      setIndex((prev) => {
-        if (prev >= maxIndex) {
-          return 0;
-        }
-        return prev + 1;
-      });
+      setIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
     }, 3000);
     return () => clearInterval(interval);
-  }, [index, maxIndex, isHovered]);
+  }, [maxIndex]);
 
   const handlePrev = () => setIndex((prev) => Math.max(0, prev - 1));
   const handleNext = () => setIndex((prev) => Math.min(maxIndex, prev + 1));
@@ -65,8 +73,8 @@ export default function PortfolioSection() {
       w="full"
       bg="#05060a"
       py={{ base: 20, md: 20 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      // onMouseEnter={() => setIsHovered(true)}
+      // onMouseLeave={() => setIsHovered(false)}
     >
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={{ base: 4, md: 8 }} align="center">

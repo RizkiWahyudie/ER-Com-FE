@@ -9,6 +9,7 @@ import {
   Box,
   Container,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
@@ -81,6 +82,17 @@ export default function QuoteCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
+  const bgColor = useColorModeValue("#f7f8fc", "#05060A");
+  const cardBg = useColorModeValue("rgba(0, 0, 0, 0.03)", "rgba(255, 255, 255, 0.02)");
+  const cardBorder = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255, 255, 255, 0.08)");
+  const cardHoverBorder = useColorModeValue("rgba(33, 150, 243, 0.4)", "rgba(33, 150, 243, 0.4)");
+  const cardHoverBg = useColorModeValue("rgba(0,0,0,0.05)", "rgba(255, 255, 255, 0.04)");
+  const quoteColor = useColorModeValue("rgba(0,0,0,0.75)", "rgba(255, 255, 255, 0.85)");
+  const nameColor = useColorModeValue("#1a202c", "#fff");
+  const roleColor = useColorModeValue("#718096", "#8b93a7");
+  const dotInactive = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255, 255, 255, 0.3)");
+  const navBg = useColorModeValue("rgba(240,240,255,0.9)", "rgba(10,15,25,0.85)");
+
   const maxIndex = useMemo(
     () => Math.max(0, testimonials.length - itemsPerView),
     [itemsPerView]
@@ -119,7 +131,7 @@ export default function QuoteCarousel() {
   return (
     <Box
       w="full"
-      bgColor="#05060A"
+      bgColor={bgColor}
       py={{ base: 12, md: 20 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -146,7 +158,7 @@ export default function QuoteCarousel() {
             <Circle
               size="40px"
               fontSize="md"
-              bg="rgba(10,15,25,0.85)"
+              bg={navBg}
               border="1.5px solid #2196f3"
               color="#2196f3"
               position="absolute"
@@ -170,7 +182,7 @@ export default function QuoteCarousel() {
             <Circle
               size="40px"
               fontSize="md"
-              bg="rgba(10,15,25,0.85)"
+              bg={navBg}
               border="1.5px solid #2196f3"
               color="#2196f3"
               position="absolute"
@@ -203,29 +215,29 @@ export default function QuoteCarousel() {
                   px={3}
                 >
                   <Box
-                    bg="rgba(255, 255, 255, 0.02)"
+                    bg={cardBg}
                     borderRadius="18px"
                     p={{ base: 6, md: 8 }}
-                    border="1px solid rgba(255, 255, 255, 0.08)"
+                    border={`1px solid ${cardBorder}`}
                     h="full"
                     minH={{ base: "220px", md: "245px" }}
                     display="flex"
                     flexDirection="column"
                     justifyContent="space-between"
-                    boxShadow="0 8px 32px 0 rgba(0, 0, 0, 0.37)"
+                    boxShadow="0 8px 32px 0 rgba(0, 0, 0, 0.1)"
                     transition="all 0.3s ease"
                     _hover={{
                       transform: "translateY(-6px)",
-                      borderColor: "rgba(33, 150, 243, 0.4)",
+                      borderColor: cardHoverBorder,
                       boxShadow: "0 12px 30px rgba(33, 150, 243, 0.15)",
-                      bg: "rgba(255, 255, 255, 0.04)",
+                      bg: cardHoverBg,
                     }}
                   >
                     {/* Quote Text */}
                     <Text
                       fontSize={{ base: "sm", md: "md" }}
                       lineHeight="1.6"
-                      color="rgba(255, 255, 255, 0.85)"
+                      color={quoteColor}
                       mb={6}
                       fontFamily="Plus Jakarta Sans"
                     >
@@ -244,10 +256,10 @@ export default function QuoteCarousel() {
                         {getInitials(testimonial.name)}
                       </Circle>
                       <VStack spacing={0} align="flex-start">
-                        <Text fontWeight="700" color="#fff" fontSize="sm">
+                        <Text fontWeight="700" color={nameColor} fontSize="sm">
                           {testimonial.name}
                         </Text>
-                        <Text color="#8b93a7" fontSize="xs">
+                        <Text color={roleColor} fontSize="xs">
                           {testimonial.role}
                         </Text>
                       </VStack>

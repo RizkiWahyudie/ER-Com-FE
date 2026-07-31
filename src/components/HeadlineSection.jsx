@@ -8,12 +8,20 @@ import {
   Text,
   Image,
   Button,
-  HStack
+  HStack,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
 export default function HeadlineSection() {
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "#e3e4e6");
+  const btnColor = useColorModeValue("#1a202c", "white");
+  const btnBorder = useColorModeValue("#1a202c", "white");
+  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnHoverColor = useColorModeValue("white", "black");
+
   return (
     <Box w="full" bg="var(--background)" position="relative" id="aboutus">
       <Image
@@ -37,19 +45,19 @@ export default function HeadlineSection() {
             letterSpacing="-0.5px"
             fontFamily="Plus Jakarta Sans"
             textAlign={{ base: 'start', md: 'center' }}
-            color="#fff"
+            color={headingColor}
           >
             About ER Communications
           </Heading>
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
-            color="#e3e4e6"
+            color={textColor}
             maxW="6xl"
             lineHeight="1.6"
             textAlign={{ base: 'start', md: 'center' }}
           >
-            ER Communication (Effective & Responsibility) is one of
-            Indonesia’s pioneer PR agencies with over 57 years of experience.
+            ER Communication (Effective &amp; Responsibility) is one of
+            Indonesia's pioneer PR agencies with over 57 years of experience.
             ER Communication is a communications consultancy specializing in
             corporate communications, crisis and issues management and
             marketing communications. It provides strategic counseling on top
@@ -62,11 +70,11 @@ export default function HeadlineSection() {
               py={{ base: 1.5, md: 6 }}
               borderRadius="50px"
               bg="transparent"
-              color="white"
-              border="2px solid white"
+              color={btnColor}
+              border={`2px solid ${btnBorder}`}
               fontSize={{ base: "xs", md: "md" }}
               fontWeight="500"
-              _hover={{ bg: "white", color: "black" }}
+              _hover={{ bg: btnHoverBg, color: btnHoverColor }}
             >
               <HStack spacing={2}>
                 <Text>View All</Text>
@@ -83,7 +91,7 @@ export default function HeadlineSection() {
             lineHeight="1.15"
             letterSpacing="-0.5px"
             fontFamily="Plus Jakarta Sans"
-            color="#fff"
+            color={headingColor}
           >
             We're the pioneer of the
             <br />
@@ -91,7 +99,7 @@ export default function HeadlineSection() {
           </Heading>
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
-            color="#e3e4e6"
+            color={textColor}
             maxW="480px"
             lineHeight="1.6"
           >
@@ -105,11 +113,11 @@ export default function HeadlineSection() {
               py={{ base: 1.5, md: 6 }}
               borderRadius="50px"
               bg="transparent"
-              color="white"
-              border="2px solid white"
+              color={btnColor}
+              border={`2px solid ${btnBorder}`}
               fontSize={{ base: "xs", md: "md" }}
               fontWeight="500"
-              _hover={{ bg: "white", color: "black" }}
+              _hover={{ bg: btnHoverBg, color: btnHoverColor }}
             >
               <HStack spacing={2}>
                 <Text>View All</Text>

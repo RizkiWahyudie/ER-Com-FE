@@ -11,6 +11,7 @@ import {
   Button,
   Flex,
   Icon,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FaPlay, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
@@ -68,6 +69,14 @@ export default function MediaCarousel() {
   const [perView, setPerView] = useState(3);
   const [isHovered, setIsHovered] = useState(false);
 
+  const cardBg = useColorModeValue(
+    "radial-gradient(circle at 50% 0%, rgba(0,37,85,0.06) 0%, rgba(0,13,44,0.03) 30%, rgba(2,91,207,0) 70%), #f0f4fa",
+    "radial-gradient(circle at 50% 0%, rgba(0,37,85,0.8) 0%, rgba(0,13,44,0.4) 30%, rgba(2,91,207,0) 70%), #030712"
+  );
+  const cardBorder = useColorModeValue("rgba(0,0,0,0.1)", "rgba(255,255,255,0.1)");
+  const tagColor = useColorModeValue("#1a202c", "#fff");
+  const dotInactive = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255,255,255,1)");
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 520) setPerView(1);
@@ -119,17 +128,10 @@ export default function MediaCarousel() {
                   key={slideIdx}
                   flex={`0 0 calc(${slideWidth}% - ${(perView - 1) * 6}px)`}
                   minW={`calc(${slideWidth}% - ${(perView - 1) * 6}px)`}
-                  bg={`
-                        radial-gradient(circle at 50% 0%,
-                        rgba(0, 37, 85, 0.8) 0%,
-                        rgba(0, 13, 44, 0.4) 30%,
-                        rgba(2, 91, 207, 0) 70%
-                        ),
-                        #030712
-                    `}
+                  bg={cardBg}
                   borderRadius="18px"
                   p={4}
-                  border="1px solid rgba(255, 255, 255, 0.1)"
+                  border={`1px solid ${cardBorder}`}
                   cursor="pointer"
                   onClick={() => handleSlideClick(slide.tag)}
                   transition="transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease"
@@ -184,7 +186,7 @@ export default function MediaCarousel() {
                   <Heading
                     as="h3"
                     size="sm"
-                    color="#fff"
+                    color={tagColor}
                     fontSize={{ base: "16px", md: "18px", lg: "32px" }}
                     fontWeight="400"
                     textAlign="center"
@@ -250,7 +252,7 @@ export default function MediaCarousel() {
                   w={i === idx ? "24px" : {  base: "8px", lg: "12px" }}
                   h={{ base: "8px", lg: "12px" }}
                   borderRadius={i === idx ? "5px" : "full"}
-                  bg={i === idx ? "#025BCF" : "rgba(255, 255, 255, 1)"}
+                  bg={i === idx ? "#025BCF" : dotInactive}
                   cursor="pointer"
                   transition="all 0.2s"
                   onClick={() => setIdx(i)}

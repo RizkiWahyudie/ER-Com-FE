@@ -21,6 +21,7 @@ import { HamburgerIcon } from "@chakra-ui/icons";
 import { FaWhatsapp } from "react-icons/fa";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -135,6 +136,14 @@ export default function Navbar() {
           </Flex>
         </Flex>
       </Box>
+
+      {/* Theme Toggle (Outside Navbar Shape) */}
+      <ThemeToggle 
+        position="absolute"
+        right={{ base: 4, md: 8, xl: 12 }}
+        top="50%"
+        transform="translateY(-50%)"
+      />
 
       {/* Mobile Menu Drawer */}
       <Drawer isOpen={isOpen} placement="top" onClose={onClose}>

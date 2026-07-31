@@ -9,6 +9,7 @@ import {
   Heading,
   Image,
   Flex,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useMemo } from "react";
@@ -58,25 +59,12 @@ const timelineItems = [
   },
 ];
 
-
-
-// keyframes untuk dot oren yang "floating"
 const floatDot = keyframes`
-  0% {
-    transform: translateY(0) scale(1);
-    opacity: 0.4;
-  }
-  50% {
-    transform: translateY(-14px) scale(1.15);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.4;
-  }
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(-14px) scale(1.15); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 0.4; }
 `;
 
-// generate posisi dot secara random tiap kali komponen mount (reload halaman)
 function generateDots(count) {
   return Array.from({ length: count }).map((_, i) => ({
     id: i,
@@ -88,10 +76,14 @@ function generateDots(count) {
   }));
 }
 
-
-
 export default function TimelineSection() {
   const dots = useMemo(() => generateDots(14), []);
+
+  const yearColor = useColorModeValue("#1a202c", "#fff");
+  const titleColor = useColorModeValue("#2d3748", "#f0f0f0");
+  const descColor = useColorModeValue("#718096", "#a0a0a0");
+  const introYearColor = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255, 255, 255, 0.5)");
+  const introTextColor = useColorModeValue("#2d3748", "#ffffff");
 
   return (
     <Box
@@ -132,12 +124,12 @@ export default function TimelineSection() {
             <Text
               fontSize={{ base: "lg", md: "xl" }}
               fontWeight="bold"
-              color="rgba(255, 255, 255, 0.5)"
+              color={introYearColor}
             >
               2026
             </Text>
             <Text
-              color="#ffffff"
+              color={introTextColor}
               maxW="680px"
               fontSize={{ base: "lg", md: "2xl" }}
               lineHeight={{ lg: "32px" }}
@@ -175,16 +167,16 @@ export default function TimelineSection() {
                   as="div"
                   fontSize={{ base: "38px", lg: "68px" }}
                   fontWeight="700"
-                  color="#fff"
+                  color={yearColor}
                   fontFamily="Plus Jakarta Sans"
                 >
                   {item.year}
                 </Heading>
                 <VStack spacing={0} align="start">
-                  <Text fontSize={{ base: "lg", lg: "2xl" }} color="#f0f0f0">
+                  <Text fontSize={{ base: "lg", lg: "2xl" }} color={titleColor}>
                     {item.title}
                   </Text>
-                  <Text fontSize={{ base: "sm", lg: "md" }} color="#a0a0a0">
+                  <Text fontSize={{ base: "sm", lg: "md" }} color={descColor}>
                     {item.desc}
                   </Text>
                 </VStack>
@@ -213,7 +205,7 @@ export default function TimelineSection() {
                     ))}
                   </HStack>
 
-                  {/* Shape connector kanan foto, selang-seling per index */}
+                  {/* Shape connector */}
                   <Image
                     src={
                       idx % 2 === 0
@@ -223,11 +215,7 @@ export default function TimelineSection() {
                     alt="shape connector"
                     flex={1}
                     ml={-5}
-                    mt={
-                      idx % 2 === 0
-                        ? "-30px"
-                        : "30px"
-                    }
+                    mt={idx % 2 === 0 ? "-30px" : "30px"}
                     display={{ base: "none", md: "block" }}
                     zIndex={0}
                   />

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Container, Grid, Heading, Text, VStack, Icon, HStack, Image, Button } from "@chakra-ui/react";
+import { Box, Container, Grid, Heading, Text, VStack, Icon, HStack, Image, Button, useColorModeValue } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { FaArrowRight } from "react-icons/fa";
 import { useMemo } from "react";
@@ -97,6 +97,14 @@ export default function PartnersSection() {
   const colA = useMemo(() => partners.slice(0, half), [half]);
   const colB = useMemo(() => partners.slice(half), [half]);
 
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#718096", "#bab9c4");
+  const statColor = useColorModeValue("#1a202c", "#ffffff");
+  const btnColor = useColorModeValue("#1a202c", "white");
+  const btnBorder = useColorModeValue("#1a202c", "white");
+  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnHoverColor = useColorModeValue("white", "black");
+
   return (
     <Box
       w="full"
@@ -119,11 +127,11 @@ export default function PartnersSection() {
               fontWeight="500"
               lineHeight="1.15"
               fontFamily="Plus Jakarta Sans"
-              color="#fff"
+              color={headingColor}
             >
               Partnering with Brands that Lead with Impact.
             </Heading>
-            <Text fontSize={{ base: "sm", md: "lg" }} color="#bab9c4" lineHeight="1.6">
+            <Text fontSize={{ base: "sm", md: "lg" }} color={textColor} lineHeight="1.6">
               Companies are leveraging our platform to bring transparency to their work.
             </Text>
             <Link href="/clients">
@@ -133,12 +141,12 @@ export default function PartnersSection() {
                 py={{ base: 1.5, md: 6 }}
                 borderRadius="50px"
                 bg="transparent"
-                color="white"
-                border="1px solid white"
+                color={btnColor}
+                border={`1px solid ${btnBorder}`}
                 mb={{ base: 2, md: 6 }}
                 fontSize={{ base: "xs", md: "md" }}
                 fontWeight="500"
-                _hover={{ bg: "white", color: "black" }}
+                _hover={{ bg: btnHoverBg, color: btnHoverColor }}
               >
                 <HStack spacing={2}>
                   <Text>View All</Text>
@@ -155,7 +163,7 @@ export default function PartnersSection() {
                   rounded="full"
                   transform="rotate(-45deg)"
                 />
-                <Text fontSize={{ base: "sm", md: "3xl" }} color="#ffffff" fontWeight="600">
+                <Text fontSize={{ base: "sm", md: "3xl" }} color={statColor} fontWeight="600">
                   65% attendance rate
                 </Text>
               </HStack>

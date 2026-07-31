@@ -1,17 +1,23 @@
 "use client";
 
-import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image } from "@chakra-ui/react";
+import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image, useColorModeValue } from "@chakra-ui/react";
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
 
+  const sectionBg = useColorModeValue("#f0f1f5", "#070810");
+  const borderTop = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.05)");
+  const dividerColor = useColorModeValue("#e0c0bb", "#751f0c");
+  const linkColor = useColorModeValue("#718096", "#BCBCBC");
+  const bottomTextColor = useColorModeValue("#718096", "#cfcfcf");
+
   return (
     <Box
       w="full"
-      bg="#070810"
+      bg={sectionBg}
       py={{ base: 14, md: '50px' }}
-      borderTop="1px solid rgba(255, 255, 255, 0.05)"
+      borderTop={`1px solid ${borderTop}`}
     >
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={8} align={{ md: "stretch" }}>
@@ -34,16 +40,16 @@ export default function FooterSection() {
                 Useful Links
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Media Relations
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Brand Strategy
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Events & Activation
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Digital Campaign
                 </Link>
               </VStack>
@@ -55,16 +61,16 @@ export default function FooterSection() {
                 Help
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   About Us
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Our Team
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Portfolio
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Contact
                 </Link>
               </VStack>
@@ -76,13 +82,13 @@ export default function FooterSection() {
                 Connect With Us
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Privacy Policy
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Terms of Service
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color="#BCBCBC" _hover={{ color: "#C73818" }}>
+                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Cookie Policy
                 </Link>
               </VStack>
@@ -90,7 +96,7 @@ export default function FooterSection() {
           </Grid>
 
           {/* Divider */}
-          <Box h="1px" bg="#751f0c" />
+          <Box h="1px" bg={dividerColor} />
 
           {/* Bottom Footer */}
           <Flex
@@ -100,7 +106,7 @@ export default function FooterSection() {
             gap={4}
             py={4}
             fontSize={{ base: "xs", md: "md" }}
-            color="#cfcfcf"
+            color={bottomTextColor}
           >
             <Text textAlign={{ base: "center", md: "left" }}>
               © {currentYear} All Right Reserved.

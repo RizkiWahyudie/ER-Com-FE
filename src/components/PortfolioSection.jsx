@@ -11,6 +11,7 @@ import {
   Image,
   Circle,
   useBreakpointValue,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -30,6 +31,14 @@ export default function PortfolioSection() {
   const itemsPerView = useBreakpointValue({ base: 2, md: 3 }) ?? 3;
   const [index, setIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+
+  const sectionBg = useColorModeValue("#f7f8fc", "#05060a");
+  const headingColor = useColorModeValue("#1a202c", "#e4e4e4");
+  const btnColor = useColorModeValue("#1a202c", "white");
+  const btnBorder = useColorModeValue("#1a202c", "white");
+  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnHoverColor = useColorModeValue("white", "black");
+  const navBtnBg = useColorModeValue("rgba(0,0,0,0.08)", "rgba(10,15,25,0.85)");
 
   const maxIndex = useMemo(
     () => Math.max(0, portfolioImages.length - itemsPerView),
@@ -71,10 +80,8 @@ export default function PortfolioSection() {
   return (
     <Box
       w="full"
-      bg="#05060a"
+      bg={sectionBg}
       py={{ base: 20, md: 20 }}
-      // onMouseEnter={() => setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
     >
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={{ base: 4, md: 8 }} align="center">
@@ -84,7 +91,7 @@ export default function PortfolioSection() {
             textAlign="center"
             fontSize={{ base: "2xl", md: "5xl" }}
             fontWeight="500"
-            color="#e4e4e4"
+            color={headingColor}
             fontFamily="Plus Jakarta Sans"
           >
             See our Portfolio and More
@@ -97,7 +104,7 @@ export default function PortfolioSection() {
               <Circle
                 size={{ base: "36px", md: "44px" }}
                 fontSize={{ base: "lg", md: "2xl" }}
-                bg="rgba(10,15,25,0.85)"
+                bg={navBtnBg}
                 border="1.5px solid #2196f3"
                 color="#2196f3"
                 position="absolute"
@@ -121,7 +128,7 @@ export default function PortfolioSection() {
               <Circle
                 size={{ base: "36px", md: "44px" }}
                 fontSize={{ base: "lg", md: "2xl" }}
-                bg="rgba(10,15,25,0.85)"
+                bg={navBtnBg}
                 border="1.5px solid #2196f3"
                 color="#2196f3"
                 position="absolute"
@@ -186,11 +193,11 @@ export default function PortfolioSection() {
               py={{ base: 1.5, md: 6 }}
               borderRadius="50px"
               bg="transparent"
-              color="white"
-              border="1px solid white"
+              color={btnColor}
+              border={`1px solid ${btnBorder}`}
               fontSize={{ base: "xs", md: "md" }}
               fontWeight="500"
-              _hover={{ bg: "white", color: "black" }}
+              _hover={{ bg: btnHoverBg, color: btnHoverColor }}
             >
               <HStack spacing={2}>
                 <Text>View All</Text>

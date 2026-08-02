@@ -26,13 +26,15 @@ const FALLBACK_HERO = {
     "delivering impactful communication solutions for leading companies.",
 };
 
+const EMPLOYMENT_TYPES = ["Full time", "Part time", "Internship", "Freelance"];
+
 const FALLBACK_JOBS = [
-  { slug: "marketing-team", title: "Marketing Team", employmentType: "Full time" },
-  { slug: "public-relations", title: "Public Relations", employmentType: "Full time" },
-  { slug: "content-creator", title: "Content Creator", employmentType: "Full time" },
-  { slug: "media-relations", title: "Media Relations", employmentType: "Full time" },
-  { slug: "corporate-communications", title: "Corporate Communications", employmentType: "Full time" },
-  { slug: "digital-strategy", title: "Digital Strategy", employmentType: "Full time" },
+  { slug: "marketing-team", title: "Marketing Team" },
+  { slug: "public-relations", title: "Public Relations" },
+  { slug: "content-creator", title: "Content Creator" },
+  { slug: "media-relations", title: "Media Relations" },
+  { slug: "corporate-communications", title: "Corporate Communications" },
+  { slug: "digital-strategy", title: "Digital Strategy" },
 ];
 
 export default function CareerPage() {
@@ -54,6 +56,7 @@ export default function CareerPage() {
   const dropzoneBorderDefault = useColorModeValue("#cbd5e1", "rgba(29, 78, 216, 0.6)");
   const headingText = useColorModeValue("#3C87F9", "#fff");
   const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
+  const noticeBg = useColorModeValue("rgba(59,130,246,0.08)", "rgba(59,130,246,0.12)");
 
   const fieldStyle = {
     h: { base: "50px", md: "56px" },
@@ -93,8 +96,13 @@ export default function CareerPage() {
   };
   const [hero, setHero] = useState(FALLBACK_HERO);
   const [jobs, setJobs] = useState(FALLBACK_JOBS);
+  // FALLBACK_JOBS are placeholder options only — their slugs don't exist in
+  // the backend, so applying against them always fails. Only allow
+  // submission once real openings come back from the API.
+  const [hasOpenPositions, setHasOpenPositions] = useState(false);
   const [form, setForm] = useState({
     jobSlug: FALLBACK_JOBS[0].slug,
+    employmentType: EMPLOYMENT_TYPES[0],
     fullName: "",
     email: "",
     phone: "",
@@ -105,6 +113,7 @@ export default function CareerPage() {
     getCareers().then((apiJobs) => {
       if (apiJobs.length > 0) {
         setJobs(apiJobs);
+        setHasOpenPositions(true);
         setForm((prev) => ({ ...prev, jobSlug: apiJobs[0].slug }));
       }
     });
@@ -113,8 +122,6 @@ export default function CareerPage() {
       if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
     });
   }, []);
-
-  const selectedJob = jobs.find((job) => job.slug === form.jobSlug) ?? jobs[0];
 
   const [errors, setErrors] = useState({});
   const [isDragActive, setIsDragActive] = useState(false);
@@ -163,6 +170,18 @@ export default function CareerPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!hasOpenPositions) {
+      toast({
+        title: "Belum Ada Lowongan Dibuka",
+        description: "Saat ini belum ada posisi yang dibuka. Silakan cek kembali nanti.",
+        status: "info",
+        duration: 4000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+      return;
+    }
 
     // Validation
     const tempErrors = {};
@@ -222,6 +241,7 @@ export default function CareerPage() {
       // Clear form
       setForm({
         jobSlug: jobs[0]?.slug ?? "",
+        employmentType: EMPLOYMENT_TYPES[0],
         fullName: "",
         email: "",
         phone: "",
@@ -230,9 +250,12 @@ export default function CareerPage() {
       setResumeFile(null);
       setErrors({});
     } catch (err) {
+      const isBackendInternalError = /No query results for model/i.test(err.message ?? "");
       toast({
         title: "Gagal Mengirim",
-        description: err.message || "Terjadi kesalahan, silakan coba lagi.",
+        description: isBackendInternalError
+          ? "Posisi yang dipilih sudah tidak tersedia. Silakan pilih posisi lain."
+          : err.message || "Terjadi kesalahan, silakan coba lagi.",
         status: "error",
         duration: 4000,
         isClosable: true,
@@ -345,6 +368,22 @@ export default function CareerPage() {
         zIndex={1}
         py={{ base: 20, md: 28 }}
       >
+        {!hasOpenPositions && (
+          <Box
+            mb={6}
+            px={5}
+            py={4}
+            borderRadius="16px"
+            bg={noticeBg}
+            border="1px solid rgba(59,130,246,0.35)"
+          >
+            <Text fontSize={{ base: "sm", md: "md" }} color={textColor} fontWeight="500">
+              Belum ada lowongan yang dibuka saat ini. Kamu tetap bisa mengisi form di bawah,
+              tapi pengiriman lamaran baru bisa dilakukan setelah ada posisi yang tersedia.
+            </Text>
+          </Box>
+        )}
+
         {/* ── Form ── */}
         <VStack as="form" onSubmit={handleSubmit} spacing={{ base: 5, md: 6 }} align="stretch">
           {/* Position + Employment type */}
@@ -367,15 +406,18 @@ export default function CareerPage() {
 
             <Box flex={1}>
               <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
-                Employment type
+                Employment type *
               </Text>
-              <Input
-                isReadOnly
-                value={selectedJob?.employmentType ?? ""}
-                {...fieldStyle}
-                cursor="default"
-                _hover={{}}
-              />
+              <Select
+                name="employmentType"
+                value={form.employmentType}
+                onChange={handleChange}
+                {...selectStyle}
+              >
+                {EMPLOYMENT_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </Select>
             </Box>
           </Flex>
 

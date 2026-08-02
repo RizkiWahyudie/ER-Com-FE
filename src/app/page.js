@@ -31,9 +31,13 @@ export default async function HomePage() {
   try {
     const items = await apiGet("/about-section4-items");
     if (Array.isArray(items) && items.length > 0) {
-      timelineIntro = items
+      const firstItem = items
         .filter((item) => item.is_active !== false)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0] ?? null;
+      timelineIntro = firstItem && {
+        ...firstItem,
+        description: firstItem.description?.replace(/<[^>]*>/g, "").trim() ?? "",
+      };
     }
   } catch {
     timelineIntro = null;

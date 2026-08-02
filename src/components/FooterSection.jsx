@@ -2,12 +2,12 @@
 
 import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image, useColorModeValue } from "@chakra-ui/react";
 import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
+import ThemeToggle from "./ThemeToggle";
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
 
-  const sectionBg = useColorModeValue("#f0f1f5", "#070810");
-  const borderTop = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.05)");
+  const sectionBg = useColorModeValue("rgba(0, 60, 255, 0.075)", "#070810");
   const dividerColor = useColorModeValue("#e0c0bb", "#751f0c");
   const linkColor = useColorModeValue("#718096", "#BCBCBC");
   const bottomTextColor = useColorModeValue("#718096", "#cfcfcf");
@@ -17,7 +17,6 @@ export default function FooterSection() {
       w="full"
       bg={sectionBg}
       py={{ base: 14, md: '50px' }}
-      borderTop={`1px solid ${borderTop}`}
     >
       <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
         <VStack spacing={8} align={{ md: "stretch" }}>
@@ -163,6 +162,11 @@ export default function FooterSection() {
                 <Icon as={FaInstagram} fontSize="lg" />
               </Box>
             </HStack>
+
+            {/* Theme Toggle (Mobile view only - below social media) */}
+            <Box display={{ base: "block", md: "none" }} mt={2}>
+              <ThemeToggle />
+            </Box>
           </Flex>
         </VStack>
       </Container>

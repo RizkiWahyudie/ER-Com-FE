@@ -15,6 +15,7 @@ import {
   Portal,
   HStack,
   VStack,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   FaArrowRight,
@@ -1351,6 +1352,14 @@ export default function ServicesListSection() {
   const [popupData, setPopupData] = useState(null);
   const containerRef = useRef(null);
 
+  const pageBg = useColorModeValue("#fff", "#05060a");
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "rgba(255,255,255,0.7)");
+  const backBtnBorder = useColorModeValue("rgba(0,0,0,0.15)", "rgba(255,255,255,0.15)");
+  const backBtnBg = useColorModeValue("rgba(0,0,0,0.04)", "rgba(255,255,255,0.04)");
+  const backBtnHoverBg = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.12)");
+  const backBtnHoverBorder = useColorModeValue("rgba(0,0,0,0.3)", "rgba(255,255,255,0.3)");
+
   const searchParams = useSearchParams();
   const catParam = searchParams.get("cat");
   const hasInitialized = useRef(false);
@@ -1432,7 +1441,7 @@ export default function ServicesListSection() {
   };
 
   return (
-    <Box w="full" bg="#05060a" pb={{ base: 20, md: 32 }} ref={containerRef}>
+    <Box w="full" bg={pageBg} pb={{ base: 20, md: 32 }} ref={containerRef}>
       <style>{animationStyles}</style>
       <Container maxW="7xl" px={{ base: 4, md: 6 }} mx="auto">
 
@@ -1457,26 +1466,26 @@ export default function ServicesListSection() {
                 w={{ base: "36px", md: "42px" }}
                 h={{ base: "36px", md: "42px" }}
                 borderRadius="full"
-                border="1px solid rgba(255,255,255,0.15)"
-                bg="rgba(255,255,255,0.04)"
+                border={`1px solid ${backBtnBorder}`}
+                bg={backBtnBg}
                 backdropFilter="blur(8px)"
                 align="center"
                 justify="center"
                 transition="all 0.3s ease"
                 _groupHover={{
-                  bg: "rgba(255,255,255,0.12)",
-                  borderColor: "rgba(255,255,255,0.3)",
+                  bg: backBtnHoverBg,
+                  borderColor: backBtnHoverBorder,
                   transform: "translateX(-3px)",
                 }}
               >
-                <Icon as={FaArrowLeft} color="rgba(255,255,255,0.7)" boxSize={3.5} />
+                <Icon as={FaArrowLeft} color={textColor} boxSize={3.5} />
               </Flex>
               <Text
                 fontSize={{ base: "13px", md: "14px" }}
-                color="rgba(255,255,255,0.5)"
+                color={textColor}
                 fontWeight="500"
                 transition="color 0.2s"
-                _groupHover={{ color: "rgba(255,255,255,0.8)" }}
+                _groupHover={{ color: headingColor }}
               >
                 Back
               </Text>
@@ -1486,7 +1495,7 @@ export default function ServicesListSection() {
             <Heading
               as="h2"
               fontSize={{ base: "2xl", md: "4xl" }}
-              color="#fff"
+              color={headingColor}
               fontWeight="700"
               fontFamily="Plus Jakarta Sans"
               textAlign="center"

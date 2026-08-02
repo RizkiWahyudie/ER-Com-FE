@@ -1,11 +1,14 @@
 "use client";
 
-import { Box, Flex, Heading, Text, Button, Image, HStack, Container, SimpleGrid } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, Button, Image, HStack, Container, SimpleGrid, useColorModeValue } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
 import NextLink from "next/link";
 
 export default function NotFound() {
+  const bgColor = useColorModeValue("#fff", "#070810");
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
   return (
     <>
       <Navbar />
@@ -13,7 +16,7 @@ export default function NotFound() {
         position="relative"
         w="full"
         minH="100vh"
-        bg="#070810"
+        bg={bgColor}
         display="flex"
         alignItems="center"
         pt={{ base: 32, md: 24 }}
@@ -52,7 +55,7 @@ export default function NotFound() {
               <Heading
                 as="h1"
                 fontSize={{ base: "5xl", md: "7xl", lg: "84px" }}
-                color="white"
+                color={headingText}
                 fontWeight="700"
                 lineHeight="1.1"
                 fontFamily="Plus Jakarta Sans, sans-serif"
@@ -63,7 +66,7 @@ export default function NotFound() {
                 found.
               </Heading>
               
-              <Text fontSize={{ base: "md", md: "18px" }} color="#BCBCBC" maxW="420px" lineHeight="1.6">
+              <Text fontSize={{ base: "md", md: "18px" }} color={subHeadingText} maxW="420px" lineHeight="1.6">
                 It seems you are lost, if your journey feels this way too, contact us or try again.
               </Text>
               

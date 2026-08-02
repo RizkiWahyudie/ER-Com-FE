@@ -7,9 +7,13 @@ import {
   Heading,
   Text,
   HStack,
+  useColorMode
 } from "@chakra-ui/react";
 
 export default function HeroSection() {
+  const { colorMode } = useColorMode();
+  const overlay = colorMode === "light" ? "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)" : "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )";
+  const bnw = colorMode === "light" ? "#000" : "#fff"
   return (
     <Box
       position="relative"
@@ -27,7 +31,7 @@ export default function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        backgroundImage="url('/assets/hero/hero-bg-new.png')"
+        backgroundImage=  "url('/assets/hero/hero-bg-new.png')"
         backgroundSize="cover"
         backgroundPosition="center"
         // filter="brightness(0.55) saturate(0.85)"
@@ -41,15 +45,7 @@ export default function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        background="radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(
-          180deg,
-          rgba(5, 6, 10, 0) 0%,
-          rgba(5, 6, 10, 0.1) 30%,
-          rgba(5, 6, 10, 0.2) 60%,
-          rgba(5, 6, 10, 0.3) 75%,
-          rgba(5, 6, 10, 0.97) 90%,
-          rgba(5, 6, 10, 1) 100%
-        )"
+        background={overlay}
         zIndex={-1}
       />
 
@@ -119,7 +115,7 @@ export default function HeroSection() {
           <Text
             fontSize={{ base: "42px", md: "48px", lg: "52px" }}
             fontWeight="700"
-            color="#fff"
+            color={bnw}
             fontFamily="Plus Jakarta Sans"
           >
             500+
@@ -142,7 +138,7 @@ export default function HeroSection() {
           <Text
             fontSize={{ base: "42px", md: "48px", lg: "52px" }}
             fontWeight="700"
-            color="#fff"
+            color={bnw}
             fontFamily="Plus Jakarta Sans"
           >
             57+

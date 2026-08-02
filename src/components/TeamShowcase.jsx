@@ -8,6 +8,7 @@ import {
   HStack,
   Text,
   Image,
+  useColorModeValue,
 } from "@chakra-ui/react";
 
 const teamData = [
@@ -48,6 +49,13 @@ export default function TeamShowcase() {
     if (diff < -Math.floor(total / 2)) diff += total;
     return diff;
   };
+
+  const dotInactive = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255,255,255,0.85)");
+  const dotHover = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255,255,255,0.45)");
+  const textNameColor = useColorModeValue("rgba(2, 91, 207, 1)", "rgba(2, 91, 207, 1)");
+  const textRoleColor = useColorModeValue("rgba(107, 107, 107, 1)", "rgba(107, 107, 107, 1)");
+  const badgeBg = useColorModeValue("linear(to-r, #FFFFFF 0%, #eeeeeeff 50%, #b1b1b1ff 100%)", "linear(to-r, #FFFFFF 0%, #eeeeeeff 50%, #b1b1b1ff 100%)");
+  const bgGradient = useColorModeValue("linear(to-t, #f7f8fc, transparent)", "linear(to-t, #070708ff, transparent)");
 
   return (
     <Box
@@ -163,7 +171,7 @@ export default function TeamShowcase() {
               left="0"
               right="0"
               h="130px"
-              bgGradient="linear(to-t, #070708ff, transparent)"
+              bgGradient={bgGradient}
               pointerEvents="none"
               zIndex={11}
             />
@@ -173,7 +181,7 @@ export default function TeamShowcase() {
           <Box position="relative" zIndex={12} mt="-100px">
             <VStack spacing={{ base: 6, md: 12 }}>
               <Box
-                bgGradient="linear(to-r, #FFFFFF 0%, #eeeeeeff 50%, #b1b1b1ff 100%)"
+                bgGradient={badgeBg}
                 backdropFilter="blur(24px)"
                 borderRadius="full"
                 px={7}
@@ -181,7 +189,7 @@ export default function TeamShowcase() {
                 textAlign="center"
               >
                 <Text
-                  color="rgba(2, 91, 207, 1)"
+                  color={textNameColor}
                   fontWeight="700"
                   fontSize={{ base: "md", md: "xl" }}
                   lineHeight="1.3"
@@ -189,7 +197,7 @@ export default function TeamShowcase() {
                   {teamData[activeIndex].name}
                 </Text>
                 <Text
-                  color="rgba(107, 107, 107, 1)"
+                  color={textRoleColor}
                   fontSize={{ base: "xs", md: "md" }}
                   fontWeight="400"
                 >
@@ -208,7 +216,7 @@ export default function TeamShowcase() {
                     bg={
                       idx === activeIndex
                         ? "rgba(2, 91, 207, 1)"
-                        : "rgba(255,255,255,0.85)"
+                        : dotInactive
                     }
                     cursor="pointer"
                     transition="all 0.35s ease"
@@ -217,7 +225,7 @@ export default function TeamShowcase() {
                       bg:
                         idx === activeIndex
                           ? "linear-gradient(135deg, #3b82f6, #60a5fa)"
-                          : "rgba(255,255,255,0.45)",
+                          : dotHover,
                     }}
                   />
                 ))}

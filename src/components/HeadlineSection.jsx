@@ -17,9 +17,9 @@ import { FaArrowRight } from "react-icons/fa";
 export default function HeadlineSection() {
   const headingColor = useColorModeValue("#1a202c", "#fff");
   const textColor = useColorModeValue("#4a5568", "#e3e4e6");
-  const btnColor = useColorModeValue("#1a202c", "white");
-  const btnBorder = useColorModeValue("#1a202c", "white");
-  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnColor = useColorModeValue("#025BCF", "white");
+  const btnBorder = useColorModeValue("#025BCF", "white");
+  const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
 
   return (

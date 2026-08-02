@@ -82,11 +82,12 @@ export default function QuoteCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const bgColor = useColorModeValue("#f7f8fc", "#05060A");
-  const cardBg = useColorModeValue("rgba(0, 0, 0, 0.03)", "rgba(255, 255, 255, 0.02)");
-  const cardBorder = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255, 255, 255, 0.08)");
+  const bgColor = useColorModeValue("#fff", "#05060A");
+  const cardBg = useColorModeValue("rgba(0, 0, 0, 0)", "rgba(255, 255, 255, 0.02)");
+  const cardBorder = useColorModeValue("rgba(33, 150, 243,0.08)", "rgba(255, 255, 255, 0.08)");
+  const cardBoxShadow = useColorModeValue("0 4px 16px 0 rgba(33, 150, 243, 0.1)", "0 8px 32px 0 rgba(0, 0, 0, 0.1)");
   const cardHoverBorder = useColorModeValue("rgba(33, 150, 243, 0.4)", "rgba(33, 150, 243, 0.4)");
-  const cardHoverBg = useColorModeValue("rgba(0,0,0,0.05)", "rgba(255, 255, 255, 0.04)");
+  const cardHoverBg = useColorModeValue("rgba(0,0,0,0)", "rgba(255, 255, 255, 0.04)");
   const quoteColor = useColorModeValue("rgba(0,0,0,0.75)", "rgba(255, 255, 255, 0.85)");
   const nameColor = useColorModeValue("#1a202c", "#fff");
   const roleColor = useColorModeValue("#718096", "#8b93a7");
@@ -202,7 +203,7 @@ export default function QuoteCarousel() {
           )}
 
           {/* Carousel Track */}
-          <Box overflow="hidden" w="full" py={5}>
+          <Box overflow="hidden" w="full" py={5} px={2}>
             <Flex
               transform={`translateX(-${safeIndex * (100 / itemsPerView)}%)`}
               transition="transform 0.5s ease"
@@ -224,7 +225,7 @@ export default function QuoteCarousel() {
                     display="flex"
                     flexDirection="column"
                     justifyContent="space-between"
-                    boxShadow="0 8px 32px 0 rgba(0, 0, 0, 0.1)"
+                    boxShadow={cardBoxShadow}
                     transition="all 0.3s ease"
                     _hover={{
                       transform: "translateY(-6px)",

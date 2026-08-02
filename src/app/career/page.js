@@ -13,6 +13,7 @@ import {
   Flex,
   Select,
   useToast,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
@@ -28,45 +29,62 @@ const positions = [
 
 const employmentTypes = ["Full time", "Part time", "Internship", "Freelance"];
 
-const fieldStyle = {
-  h: { base: "50px", md: "56px" },
-  px: 6,
-  borderRadius: "full",
-  bg: "rgba(0,0,0,0.6)",
-  border: "1.5px solid #1d4ed8",
-  color: "white",
-  fontSize: { base: "14px", md: "15px" },
-  _placeholder: { color: "rgba(255,255,255,0.35)" },
-  _hover: { border: "1.5px solid #3b82f6" },
-  _focus: { border: "1.5px solid #60a5fa", boxShadow: "0 0 0 1px #3b82f6" },
-};
-
-const selectStyle = {
-  h: { base: "50px", md: "56px" },
-  borderRadius: "full",
-  bg: "rgba(0,0,0,0.6)",
-  border: "1.5px solid #1d4ed8",
-  color: "white",
-  fontSize: { base: "14px", md: "15px" },
-  _hover: { border: "1.5px solid #3b82f6", cursor: "pointer" },
-  _focus: { border: "1.5px solid #60a5fa", boxShadow: "0 0 0 1px #3b82f6" },
-  iconColor: "#3b82f6",
-  iconSize: "16px",
-  sx: {
-    appearance: "none",
-    WebkitAppearance: "none",
-    MozAppearance: "none",
-    option: { bg: "#0a0f1e", color: "white" },
-    "& + .chakra-select__icon-wrapper": {
-      right: "20px",
-      color: "#3b82f6",
-      pointerEvents: "none",
-    },
-  },
-};
-
 export default function CareerPage() {
   const toast = useToast();
+  
+  const pageBg = useColorModeValue("#f7f8fc", "#05060A");
+  const fieldBg = useColorModeValue("#fff", "rgba(0,0,0,0.6)");
+  const fieldBorder = useColorModeValue("#cbd5e1", "#1d4ed8");
+  const fieldHoverBorder = useColorModeValue("#94a3b8", "#3b82f6");
+  const fieldFocusBorder = useColorModeValue("#3b82f6", "#60a5fa");
+  const fieldColor = useColorModeValue("#1e293b", "white");
+  const fieldPlaceholder = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255,255,255,0.35)");
+  const labelColor = useColorModeValue("#1e40af", "#3b82f6");
+  const textColor = useColorModeValue("#1e293b", "#fff");
+  const subtextColor = useColorModeValue("#64748b", "rgba(255,255,255,0.45)");
+  const selectOptionBg = useColorModeValue("#fff", "#0a0f1e");
+  const selectOptionColor = useColorModeValue("#000", "white");
+  const dropzoneBgDefault = useColorModeValue("#fff", "rgba(0, 0, 0, 0.4)");
+  const dropzoneBorderDefault = useColorModeValue("#cbd5e1", "rgba(29, 78, 216, 0.6)");
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
+
+  const fieldStyle = {
+    h: { base: "50px", md: "56px" },
+    px: 6,
+    borderRadius: "full",
+    bg: fieldBg,
+    border: `1.5px solid ${fieldBorder}`,
+    color: fieldColor,
+    fontSize: { base: "14px", md: "15px" },
+    _placeholder: { color: fieldPlaceholder },
+    _hover: { border: `1.5px solid ${fieldHoverBorder}` },
+    _focus: { border: `1.5px solid ${fieldFocusBorder}`, boxShadow: `0 0 0 1px ${fieldHoverBorder}` },
+  };
+
+  const selectStyle = {
+    h: { base: "50px", md: "56px" },
+    borderRadius: "full",
+    bg: fieldBg,
+    border: `1.5px solid ${fieldBorder}`,
+    color: fieldColor,
+    fontSize: { base: "14px", md: "15px" },
+    _hover: { border: `1.5px solid ${fieldHoverBorder}`, cursor: "pointer" },
+    _focus: { border: `1.5px solid ${fieldFocusBorder}`, boxShadow: `0 0 0 1px ${fieldHoverBorder}` },
+    iconColor: "#3b82f6",
+    iconSize: "16px",
+    sx: {
+      appearance: "none",
+      WebkitAppearance: "none",
+      MozAppearance: "none",
+      option: { bg: selectOptionBg, color: selectOptionColor },
+      "& + .chakra-select__icon-wrapper": {
+        right: "20px",
+        color: "#3b82f6",
+        pointerEvents: "none",
+      },
+    },
+  };
   const [form, setForm] = useState({
     position: "Marketing Team",
     employmentType: "Full time",
@@ -182,7 +200,7 @@ export default function CareerPage() {
   return (
     <Box
       position="relative"
-      bg="#05060A"
+      bg={pageBg}
     >
       {/* Blue glow — top center */}
       <Box
@@ -248,7 +266,7 @@ export default function CareerPage() {
             <Heading
               as="h1"
               fontSize={{ base: "52px", md: "72px", xl: "90px" }}
-              color="#fff"
+              color={headingText}
               fontWeight="700"
               lineHeight="1.05"
               letterSpacing="-1.8px"
@@ -260,7 +278,7 @@ export default function CareerPage() {
 
             <Text
               fontSize={{ base: "18px", md: "110px", xl: "19px" }}
-              color="#ffffff"
+              color={subHeadingText}
               maxW="2xl"
               lineHeight="1.6"
               opacity={0.85}
@@ -284,7 +302,7 @@ export default function CareerPage() {
           {/* Position + Employment type */}
           <Flex gap={5} direction={{ base: "column", md: "row" }}>
             <Box flex={1}>
-              <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
                 Position applying for *
               </Text>
               <Select
@@ -300,7 +318,7 @@ export default function CareerPage() {
             </Box>
 
             <Box flex={1}>
-              <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+              <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
                 Employment type *
               </Text>
               <Select
@@ -318,7 +336,7 @@ export default function CareerPage() {
 
           {/* Full Name */}
           <Box>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
               Full name *
             </Text>
             <Input
@@ -327,8 +345,8 @@ export default function CareerPage() {
               value={form.fullName}
               onChange={handleChange}
               {...fieldStyle}
-              borderColor={errors.fullName ? "#E53E3E" : "#1d4ed8"}
-              _hover={{ borderColor: errors.fullName ? "#E53E3E" : "#3b82f6" }}
+              borderColor={errors.fullName ? "#E53E3E" : fieldBorder}
+              _hover={{ borderColor: errors.fullName ? "#E53E3E" : fieldHoverBorder }}
             />
             {errors.fullName && (
               <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
@@ -339,7 +357,7 @@ export default function CareerPage() {
 
           {/* Email */}
           <Box>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
               Email *
             </Text>
             <Input
@@ -349,8 +367,8 @@ export default function CareerPage() {
               value={form.email}
               onChange={handleChange}
               {...fieldStyle}
-              borderColor={errors.email ? "#E53E3E" : "#1d4ed8"}
-              _hover={{ borderColor: errors.email ? "#E53E3E" : "#3b82f6" }}
+              borderColor={errors.email ? "#E53E3E" : fieldBorder}
+              _hover={{ borderColor: errors.email ? "#E53E3E" : fieldHoverBorder }}
             />
             {errors.email && (
               <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
@@ -361,7 +379,7 @@ export default function CareerPage() {
 
           {/* Phone */}
           <Box>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
               Phone number *
             </Text>
             <Input
@@ -371,8 +389,8 @@ export default function CareerPage() {
               value={form.phone}
               onChange={handleChange}
               {...fieldStyle}
-              borderColor={errors.phone ? "#E53E3E" : "#1d4ed8"}
-              _hover={{ borderColor: errors.phone ? "#E53E3E" : "#3b82f6" }}
+              borderColor={errors.phone ? "#E53E3E" : fieldBorder}
+              _hover={{ borderColor: errors.phone ? "#E53E3E" : fieldHoverBorder }}
             />
             {errors.phone && (
               <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
@@ -383,7 +401,7 @@ export default function CareerPage() {
 
           {/* Address */}
           <Box>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
               Address *
             </Text>
             <Input
@@ -392,8 +410,8 @@ export default function CareerPage() {
               value={form.address}
               onChange={handleChange}
               {...fieldStyle}
-              borderColor={errors.address ? "#E53E3E" : "#1d4ed8"}
-              _hover={{ borderColor: errors.address ? "#E53E3E" : "#3b82f6" }}
+              borderColor={errors.address ? "#E53E3E" : fieldBorder}
+              _hover={{ borderColor: errors.address ? "#E53E3E" : fieldHoverBorder }}
             />
             {errors.address && (
               <Text color="#E53E3E" fontSize="xs" mt={1.5} pl={4}>
@@ -403,7 +421,7 @@ export default function CareerPage() {
           </Box>
 
           <Box>
-            <Text fontSize={{ base: 'sm', md: 'md' }} color="#3b82f6" fontWeight="500" mb={2}>
+            <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
               Upload Resume / CV *
             </Text>
 
@@ -425,7 +443,7 @@ export default function CareerPage() {
               px={{ base: 6, md: 10 }}
               py={6}
               borderRadius={{ base: "20px", md: "35px" }}
-              bg={isDragActive ? "rgba(29, 78, 216, 0.08)" : "rgba(0, 0, 0, 0.4)"}
+              bg={isDragActive ? "rgba(29, 78, 216, 0.08)" : dropzoneBgDefault}
               border="2px dashed"
               borderColor={resumeFile
                 ? "#10B981"
@@ -433,7 +451,7 @@ export default function CareerPage() {
                   ? "#E53E3E"
                   : isDragActive
                     ? "#3b82f6"
-                    : "rgba(29, 78, 216, 0.6)"}
+                    : dropzoneBorderDefault}
               transition="all 0.25s ease"
               _hover={{
                 borderColor: resumeFile ? "#10B981" : errors.resumeFile ? "#E53E3E" : "#3b82f6",
@@ -479,22 +497,22 @@ export default function CareerPage() {
 
                 {resumeFile ? (
                   <VStack spacing={1}>
-                    <Text fontSize="15px" fontWeight="600" color="#fff">
+                    <Text fontSize="15px" fontWeight="600" color={textColor}>
                       {resumeFile.name}
                     </Text>
-                    <Text fontSize="12px" color="rgba(255,255,255,0.45)">
+                    <Text fontSize="12px" color={subtextColor}>
                       {(resumeFile.size / 1024).toFixed(0)} KB — Ready to send
                     </Text>
                   </VStack>
                 ) : (
                   <VStack spacing={1}>
-                    <Text fontSize="14px" fontWeight="500" color="rgba(255,255,255,0.75)">
+                    <Text fontSize="14px" fontWeight="500" color={textColor}>
                       <Text as="span" color={errors.resumeFile ? "#E53E3E" : "#3B82F6"} fontWeight="600" textDecoration="underline" _hover={{ color: errors.resumeFile ? "#fc8181" : "#60a5fa" }}>
                         Click here
                       </Text>{" "}
                       to upload your file or drag.
                     </Text>
-                    <Text fontSize="12px" color="rgba(255,255,255,0.45)">
+                    <Text fontSize="12px" color={subtextColor}>
                       Supported Format: PDF, DOC, DOCX (10mb max)
                     </Text>
                   </VStack>
@@ -533,9 +551,9 @@ export default function CareerPage() {
               Send Application
             </Button>
 
-            <Text fontSize={{ base: "sm", md: "md" }} color="rgba(255,255,255,0.5)" lineHeight="1.6">
+            <Text fontSize={{ base: "sm", md: "md" }} color={subtextColor} lineHeight="1.6">
               By clicking{" "}
-              <Text as="span" fontWeight="700" color="rgba(255,255,255,0.8)">
+              <Text as="span" fontWeight="700" color={textColor}>
                 Send application
               </Text>
               , you agree to our User Agreement, Privacy Policy, and Cookie Policy.

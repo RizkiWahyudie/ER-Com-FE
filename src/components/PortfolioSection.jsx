@@ -32,11 +32,11 @@ export default function PortfolioSection() {
   const [index, setIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const sectionBg = useColorModeValue("#f7f8fc", "#05060a");
+  const sectionBg = useColorModeValue("#fff", "#030712");
   const headingColor = useColorModeValue("#1a202c", "#e4e4e4");
-  const btnColor = useColorModeValue("#1a202c", "white");
-  const btnBorder = useColorModeValue("#1a202c", "white");
-  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnColor = useColorModeValue("#025BCF", "white");
+  const btnBorder = useColorModeValue("#025BCF", "white");
+  const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
   const navBtnBg = useColorModeValue("rgba(0,0,0,0.08)", "rgba(10,15,25,0.85)");
 

@@ -100,9 +100,9 @@ export default function PartnersSection() {
   const headingColor = useColorModeValue("#1a202c", "#fff");
   const textColor = useColorModeValue("#718096", "#bab9c4");
   const statColor = useColorModeValue("#1a202c", "#ffffff");
-  const btnColor = useColorModeValue("#1a202c", "white");
-  const btnBorder = useColorModeValue("#1a202c", "white");
-  const btnHoverBg = useColorModeValue("#1a202c", "white");
+  const btnColor = useColorModeValue("#025BCF", "white");
+  const btnBorder = useColorModeValue("#025BCF", "white");
+  const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
 
   return (

@@ -12,6 +12,7 @@ import {
   Flex,
   SimpleGrid,
   Avatar,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -204,6 +205,25 @@ export default function HighlightPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [page, setPage] = useState(1);
 
+  const pageBg = useColorModeValue("#fff", "#05060A");
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "rgba(255,255,255,0.75)");
+  const tabActiveBg = useColorModeValue("#1e293b", "#fff");
+  const tabActiveColor = useColorModeValue("#fff", "#000");
+  const tabInactiveBorder = useColorModeValue("rgba(0,0,0,0.35)", "rgba(255,255,255,0.35)");
+  const tabInactiveColor = useColorModeValue("rgba(0,0,0,0.75)", "rgba(255,255,255,0.75)");
+  const tabHoverBorder = useColorModeValue("#1e293b", "#fff");
+  const emptyTextColor = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255,255,255,0.3)");
+  const pageBtnBg = useColorModeValue("rgba(0,0,0,0.05)", "rgba(255,255,255,0.1)");
+  const pageBtnColor = useColorModeValue("#1e293b", "white");
+  const pageBtnHoverBg = useColorModeValue("rgba(0,0,0,0.1)", "#025BCF");
+  const pageBtnActiveBg = useColorModeValue("#1e293b", "white");
+  const pageBtnActiveColor = useColorModeValue("white", "#025BCF");
+  const pageBtnInactiveBorder = useColorModeValue("rgba(0,0,0,0.3)", "rgba(255,255,255,0.55)");
+
+  const overlay = useColorModeValue("radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)", "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )");
+  const bnw = useColorModeValue("#000", "#fff");
+
   const filtered =
     activeCategory === "All"
       ? allProjects
@@ -221,7 +241,7 @@ export default function HighlightPage() {
   return (
     <Box
       position="relative"
-      bg="#05060A"
+      bg={pageBg}
     >
       <Navbar />
 
@@ -242,10 +262,9 @@ export default function HighlightPage() {
         <Box
           position="absolute"
           top={0} left={0} right={0} bottom={0}
-          background="linear-gradient(180deg, rgba(5,6,10,0.5) 0%, rgba(5,6,10,0.3) 40%, rgba(5,6,10,0.85) 80%, rgba(5,6,10,1) 100%)"
+          background={overlay}
           zIndex={0}
         />
-
         {/* Heading */}
         <Container
           maxW="4xl"
@@ -306,7 +325,7 @@ export default function HighlightPage() {
             <Text
               fontSize={{ base: "42px", md: "48px", lg: "52px" }}
               fontWeight="700"
-              color="#fff"
+              color={bnw}
               fontFamily="Plus Jakarta Sans"
             >
               500+
@@ -325,7 +344,7 @@ export default function HighlightPage() {
             <Text
               fontSize={{ base: "42px", md: "48px", lg: "52px" }}
               fontWeight="700"
-              color="#fff"
+              color={bnw}
               fontFamily="Plus Jakarta Sans"
             >
               57+
@@ -353,7 +372,7 @@ export default function HighlightPage() {
                 as="h2"
                 fontSize={{ base: "2xl", md: "4xl", lg: "6xl" }}
                 fontWeight="500"
-                color="#fff"
+                color={headingColor}
                 fontFamily="Plus Jakarta Sans"
                 lineHeight="1.15"
               >
@@ -362,7 +381,7 @@ export default function HighlightPage() {
               </Heading>
               <Text
                 fontSize={{ base: "sm", md: "md" }}
-                color="rgba(255,255,255,0.75)"
+                color={textColor}
                 lineHeight="1.7"
                 maxW="2xl"
               >
@@ -395,13 +414,13 @@ export default function HighlightPage() {
                   py={2}
                   borderRadius="full"
                   border="1px solid"
-                  borderColor={isActive ? "#fff" : "rgba(255,255,255,0.35)"}
-                  bg={isActive ? "#fff" : "transparent"}
-                  color={isActive ? "#000" : "rgba(255,255,255,0.75)"}
+                  borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
+                  bg={isActive ? tabActiveBg : "transparent"}
+                  color={isActive ? tabActiveColor : tabInactiveColor}
                   fontSize={{ base: "13px", md: "14px" }}
                   fontWeight={isActive ? "600" : "400"}
                   transition="all 0.2s"
-                  _hover={{ borderColor: "#fff", color: isActive ? "#000" : "#fff" }}
+                  _hover={{ borderColor: tabHoverBorder, color: isActive ? tabActiveColor : tabHoverBorder }}
                 >
                   {cat}
                 </Box>
@@ -417,7 +436,7 @@ export default function HighlightPage() {
               ))}
             </SimpleGrid>
           ) : (
-            <Text textAlign="center" color="rgba(255,255,255,0.3)" py={16} fontSize="15px">
+            <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
               No projects in this category yet.
             </Text>
           )}
@@ -430,13 +449,13 @@ export default function HighlightPage() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 w="36px" h="36px"
                 borderRadius="full"
-                bg="rgb(255, 255, 255, 0.1)"
-                color="white"
+                bg={pageBtnBg}
+                color={pageBtnColor}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
                 fontSize={{ base: 'sm', md: 'md' }}
-                _hover={{ bg: "#025BCF" }}
+                _hover={{ bg: pageBtnHoverBg, color: "white" }}
                 transition="all 0.2s"
               >
                 <IoIosArrowBack />
@@ -452,17 +471,21 @@ export default function HighlightPage() {
                     onClick={() => setPage(p)}
                     w="36px" h="36px"
                     borderRadius="full"
-                    bg={isActive ? "white" : "transparent"}
+                    bg={isActive ? pageBtnActiveBg : "transparent"}
                     border="1px solid"
-                    borderColor={isActive ? "white" : "rgba(255,255,255,0.55)"}
-                    color={isActive ? "#025BCF" : "rgba(255,255,255,0.75)"}
+                    borderColor={isActive ? pageBtnActiveBg : pageBtnInactiveBorder}
+                    color={isActive ? pageBtnActiveColor : tabInactiveColor}
                     fontSize={{ base: 'sm', md: 'lg' }}
                     fontWeight={isActive ? "700" : "400"}
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                     transition="all 0.2s"
-                    _hover={{ bg: isActive ? "#025BCF" : "rgba(255,255,255,0.08)", color: isActive ? "white" : "rgba(255,255,255,0.75)", borderColor: isActive ? "#025BCF" : "rgba(255,255,255,0.75)" }}
+                    _hover={{ 
+                      bg: isActive ? pageBtnHoverBg : pageBtnBg, 
+                      color: isActive ? "white" : tabInactiveColor, 
+                      borderColor: isActive ? pageBtnHoverBg : tabInactiveColor 
+                    }}
                   >
                     {p}
                   </Box>

@@ -1,12 +1,15 @@
 "use client";
 
-import { Box, Container, VStack, Heading, Text } from "@chakra-ui/react";
+import { Box, Container, VStack, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 
 export default function ServicesHeroSection() {
+  const overlay = useColorModeValue("#fff", "#05060a");
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
   return (
     <Box
       w="full"
-      bg="#05060a"
+      bg={overlay}
       backgroundImage="radial-gradient(ellipse 700px 500px at 50% 30%, rgba(255, 87, 34, 0.25), transparent 65%)"
       pt={{ base: 32, md: 40 }}
       pb={{ base: 12, md: 16 }}
@@ -30,7 +33,7 @@ export default function ServicesHeroSection() {
           <Heading
             as="h1"
             fontSize={{ base: "42px", md: "56px", lg: "64px" }}
-            color="#fff"
+            color={headingText}
             fontWeight="700"
             lineHeight="1.15"
             letterSpacing="-1px"
@@ -41,7 +44,7 @@ export default function ServicesHeroSection() {
           </Heading>
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
-            color="#a0aab8"
+            color={subHeadingText}
             maxW="2xl"
             lineHeight="1.6"
           >

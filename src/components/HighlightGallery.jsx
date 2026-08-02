@@ -12,6 +12,7 @@ import {
   Flex,
   Icon,
   Portal,
+  useColorModeValue
 } from "@chakra-ui/react";
 import {
   FaPlay,
@@ -502,8 +503,13 @@ export default function HighlightGallery() {
   // Duplicate photos for seamless marquee
   const marqueePhotos = [...galleryPhotos, ...galleryPhotos];
 
+  const overlay = useColorModeValue("radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)", "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )");
+  const bnw = useColorModeValue("#000", "#fff");
+  const sectionBg = useColorModeValue("#fff", "#05060A");
+  const subHeading = useColorModeValue("#000", "rgba(255,255,255,0.7)");
+
   return (
-    <Box bg="#05060A" py={{ base: 12, md: 20 }} overflow="hidden">
+    <Box bg={sectionBg} py={{ base: 12, md: 20 }} overflow="hidden">
       {/* ── Section Heading ── */}
       <Container maxW="7xl" px={{ base: 6, md: 8 }}>
         <VStack spacing={4} align="center" textAlign="center" mb={{ base: 10, md: 16 }}>
@@ -511,7 +517,7 @@ export default function HighlightGallery() {
             as="h2"
             fontSize={{ base: "2xl", md: "4xl", lg: "6xl" }}
             fontWeight="500"
-            color="#fff"
+            color={bnw}
             fontFamily="Plus Jakarta Sans"
             lineHeight="1.15"
           >
@@ -521,7 +527,7 @@ export default function HighlightGallery() {
           </Heading>
           <Text
             fontSize={{ base: "sm", md: "lg" }}
-            color="rgba(255,255,255,0.7)"
+            color={subHeading}
             lineHeight="1.7"
             maxW="xl"
           >

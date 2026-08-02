@@ -16,6 +16,7 @@ import {
   IconButton,
   Icon,
   useDisclosure,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { FaAddressCard } from "react-icons/fa";
 import ContactCardModal from "@/components/ContactCardModal";
@@ -83,13 +84,20 @@ export default function TeamDetail() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMember, setSelectedMember] = useState(null);
 
+  const sectionBg = useColorModeValue("#f7f8fc", "#05060a");
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "rgba(255,255,255,0.75)");
+  const pillBorder = useColorModeValue("5px solid #1a202c", "5px solid #fff");
+  const nameBorder = useColorModeValue("1.5px solid #006adbff", "1.5px solid #006adbff");
+  const nameColor = useColorModeValue("#006adbff", "#006adbff");
+
   const handleOpenContact = (member) => {
     setSelectedMember(member);
     onOpen();
   };
 
   return (
-    <Box bg="#05060a" py={{ base: 12, md: 20 }} overflow="hidden" position="relative">
+    <Box bg={sectionBg} py={{ base: 12, md: 20 }} overflow="hidden" position="relative">
       <Image src="/assets/media/media-shape.svg" alt="background" position="absolute" display={{ base: "none", lg: "block" }} top={20} right={0} zIndex={0} />
       <Container maxW="7xl" px={{ base: 6, md: 8 }} mx="auto">
         {/* Section Header with shape */}
@@ -104,7 +112,7 @@ export default function TeamDetail() {
               as="h2"
               fontSize={{ base: "2xl", md: "4xl", lg: "6xl" }}
               fontWeight="500"
-              color="#fff"
+              color={headingColor}
               fontFamily="Plus Jakarta Sans"
               lineHeight="1.15"
             >
@@ -113,7 +121,7 @@ export default function TeamDetail() {
             </Heading>
             <Text
               fontSize={{ base: "sm", md: "md" }}
-              color="rgba(255,255,255,0.75)"
+              color={textColor}
               lineHeight="1.7"
               maxW="2xl"
             >
@@ -123,7 +131,7 @@ export default function TeamDetail() {
 
           {/* Outline Pill Shape */}
           <Box
-            border="5px solid #fff"
+            border={pillBorder}
             borderRadius="full"
             w={{ base: "140px", md: "200px", lg: "300px" }}
             h={{ base: "60px", md: "80px", lg: "100px" }}
@@ -208,7 +216,7 @@ export default function TeamDetail() {
                     px={4}
                     py={1.5}
                     borderRadius="full"
-                    border="1.5px solid #006adbff"
+                    border={nameBorder}
                     bg="transparent"
                     display="inline-block"
                     transition="all 0.2s"
@@ -220,7 +228,7 @@ export default function TeamDetail() {
                     <Text
                       fontSize={{ base: "sm", md: "md" }}
                       fontWeight="600"
-                      color="#006adbff"
+                      color={nameColor}
                       textTransform="uppercase"
                       letterSpacing="1px"
                       fontFamily="Plus Jakarta Sans"
@@ -246,7 +254,7 @@ export default function TeamDetail() {
                 {/* Role */}
                 <Text
                   fontSize={{ base: "xs", md: "sm" }}
-                  color="rgba(255,255,255,0.75)"
+                  color={textColor}
                   fontWeight="400"
                   fontFamily="Plus Jakarta Sans"
                   mt="-8px"

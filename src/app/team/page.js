@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Container, VStack, Heading, Text } from "@chakra-ui/react";
+import { Box, Container, VStack, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import TeamShowcase from "@/components/TeamShowcase";
 import TeamDetail from "@/components/TeamDetail";
@@ -8,8 +8,13 @@ import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 
 export default function TeamPage() {
+  const pageBg = useColorModeValue("#f7f8fc", "#05060A");
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
+  
   return (
-    <Box position="relative" bg="#05060A">
+    <Box position="relative" bg={pageBg}>
+      <Box position="relative" bg={pageBg}>
       {/* Orange glow — top center (matches career page) */}
       <Box
         position="absolute"
@@ -83,7 +88,7 @@ export default function TeamPage() {
             <Heading
               as="h1"
               fontSize={{ base: "42px", md: "72px", xl: "90px" }}
-              color="#fff"
+              color={headingText}
               fontWeight="700"
               lineHeight="1.05"
               letterSpacing="-1.8px"
@@ -96,7 +101,7 @@ export default function TeamPage() {
 
             <Text
               fontSize={{ base: "16px", md: "19px" }}
-              color="#ffffff"
+              color={subHeadingText}
               maxW="2xl"
               lineHeight="1.6"
               opacity={0.85}
@@ -106,6 +111,7 @@ export default function TeamPage() {
             </Text>
           </VStack>
         </Container>
+      </Box>
       </Box>
 
       {/* ── Team Showcase (Interactive Carousel) ── */}

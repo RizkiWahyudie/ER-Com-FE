@@ -1,4 +1,7 @@
-import { Box, Container, VStack, Heading, Text } from "@chakra-ui/react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Box, Container, VStack, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import TeamShowcase from "@/components/TeamShowcase";
 import TeamDetail from "@/components/TeamDetail";
@@ -10,11 +13,23 @@ const FALLBACK_HERO_HEADLINE = "Meet The People Behind Great Project.";
 const FALLBACK_HERO_SUBTEXT =
   "A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.";
 
-export default async function TeamPage() {
-  const { settings, members } = await getTeamSection();
+export default function TeamPage() {
+  const [settings, setSettings] = useState(null);
+  const [members, setMembers] = useState([]);
+
+  useEffect(() => {
+    getTeamSection().then((data) => {
+      setSettings(data.settings);
+      setMembers(data.members);
+    });
+  }, []);
+
+  const pageBg = useColorModeValue("#f7f8fc", "#05060A");
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
 
   return (
-    <Box position="relative" bg="#05060A">
+    <Box position="relative" bg={pageBg}>
       {/* Orange glow — top center (matches career page) */}
       <Box
         position="absolute"
@@ -88,7 +103,7 @@ export default async function TeamPage() {
             <Heading
               as="h1"
               fontSize={{ base: "42px", md: "72px", xl: "90px" }}
-              color="#fff"
+              color={headingText}
               fontWeight="700"
               lineHeight="1.05"
               letterSpacing="-1.8px"
@@ -99,7 +114,7 @@ export default async function TeamPage() {
 
             <Text
               fontSize={{ base: "16px", md: "19px" }}
-              color="#ffffff"
+              color={subHeadingText}
               maxW="2xl"
               lineHeight="1.6"
               opacity={0.85}

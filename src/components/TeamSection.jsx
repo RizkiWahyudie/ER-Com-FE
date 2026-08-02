@@ -11,7 +11,7 @@ import {
   Button,
   Image,
   Flex,
-  Grid,
+  useColorModeValue,
   useDisclosure,
 } from "@chakra-ui/react";
 import Link from "next/link";
@@ -109,6 +109,11 @@ export default function TeamSection({ teamHome = 1, members }) {
   const [isHovered, setIsHovered] = useState(false);
   const selected = teamMembers[selectedIdx];
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const bgBtn = useColorModeValue("#fff", "#030712");
+  const btnColor = useColorModeValue("#025BCF", "white");
+  const btnBorder = useColorModeValue("#025BCF", "white");
+  const btnHoverBg = useColorModeValue("#025BCF", "white");
+  const btnHoverColor = useColorModeValue("white", "black");
 
   useEffect(() => {
     if (isHovered || isOpen) return;
@@ -132,10 +137,10 @@ export default function TeamSection({ teamHome = 1, members }) {
 
   return (
     <VStack
-      bg="#030712"
       gap={{ base: 4, lg: 8 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      background={bgBtn}
     >
       <Box
         w="full"
@@ -307,7 +312,7 @@ export default function TeamSection({ teamHome = 1, members }) {
           </Flex>
         </Container>
       </Box>
-      <VStack spacing={6} align="center">
+      <VStack spacing={6} align="center" background={bgBtn} w="full">
         {/* View All Button */}
         {teamHome === 1 && (
           <Link href="/team">
@@ -317,11 +322,11 @@ export default function TeamSection({ teamHome = 1, members }) {
               py={{ base: 1.5, md: 6 }}
               borderRadius="50px"
               bg="transparent"
-              color="white"
-              border="2px solid white"
+              color={btnColor}
+              border={`2px solid ${btnBorder}`}
               fontSize={{ base: "xs", md: "md" }}
               fontWeight="500"
-              _hover={{ bg: "white", color: "black" }}
+              _hover={{ bg: btnHoverBg, color: btnHoverColor }}
             >
               <HStack spacing={2}>
                 <Text>View All</Text>

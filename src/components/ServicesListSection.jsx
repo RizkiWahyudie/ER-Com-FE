@@ -15,6 +15,7 @@ import {
   Portal,
   HStack,
   VStack,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import {
   FaArrowRight,
@@ -32,6 +33,7 @@ import { getServicesListSection } from "@/lib/api";
 const FALLBACK_SERVICES_DATA = [
   {
     title: "Media Relation",
+    desc: "Has extensive media relations and is easily accessible to our client, we continue to strengthen our communication network with our clients",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&h=600&fit=crop",
     colSpan: 1,
     photoCount: 24,
@@ -315,6 +317,7 @@ const FALLBACK_SERVICES_DATA = [
   },
   {
     title: "Social & Digital",
+    desc: "Comprehensive digital campaigns, social media management, content creation, and KOL strategic partnerships.",
     image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=900&h=600&fit=crop",
     colSpan: 1,
     photoCount: 30,
@@ -460,6 +463,7 @@ const FALLBACK_SERVICES_DATA = [
   },
   {
     title: "Media Event",
+    desc: "Planning and execution of corporate events, press conferences, exhibitions, product launches, and gala dinners.",
     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&h=600&fit=crop",
     colSpan: 1,
     photoCount: 36,
@@ -613,6 +617,7 @@ const FALLBACK_SERVICES_DATA = [
   },
   {
     title: "Brand & Strategic",
+    desc: "Strategic brand activation, corporate communications, and CSR programs to elevate brand reputation.",
     image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=600&fit=crop",
     colSpan: 1,
     photoCount: 22,
@@ -723,6 +728,7 @@ const FALLBACK_SERVICES_DATA = [
   },
   {
     title: "International Event",
+    desc: "Global conference management, trade expos, summits, and international delegation visits.",
     image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=1600&h=600&fit=crop",
     colSpan: 2,
     photoCount: 28,
@@ -1241,33 +1247,102 @@ function GalleryPopup({ title, photoCount, videoCount, media, onClose }) {
   );
 }
 
-// ─── Collage Card ────────────────────────────────────────────────────
-function CollageCard({ item, index, isLevel1, onClick }) {
+// Helper to split items array into chunks (rows)
+const chunkArray = (arr, chunkSize = 2) => {
+  const results = [];
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    results.push(arr.slice(i, i + chunkSize));
+  }
+  return results;
+};
+
+// ─── Service Row (Manages Card Expansion on Hover) ────────────────────
+function ServiceRow({ items, isLevel1, onCardClick, startIndex, animKey }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  const isSingle = items.length === 1;
+
   return (
-    <GridItem
-      colSpan={{ base: 1, md: isLevel1 ? (item.colSpan || 1) : 1 }}
+    <Flex
+      w="full"
+      flexDir={{ base: "column", md: "row" }}
+      gap={{ base: 4, md: 5 }}
+      mb={{ base: 4, md: 5 }}
+    >
+      {items.map((item, idx) => {
+        const globalIdx = startIndex + idx;
+        const isHovered = hoveredIdx === idx;
+
+        // Calculate flex expansion ratio
+        let flexRatio = "1 1 0%";
+        if (!isSingle) {
+          if (hoveredIdx !== null) {
+            flexRatio = isHovered ? "1.8 1 0%" : "0.7 1 0%";
+          }
+        }
+
+        return (
+          <CollageCard
+            key={`${animKey}-${globalIdx}`}
+            item={item}
+            index={globalIdx}
+            isLevel1={isLevel1}
+            isSingle={isSingle}
+            isHovered={isHovered}
+            flexRatio={flexRatio}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            onClick={() => onCardClick(globalIdx)}
+          />
+        );
+      })}
+    </Flex>
+  );
+}
+
+// ─── Collage Card ────────────────────────────────────────────────────
+function CollageCard({
+  item,
+  index,
+  isLevel1,
+  isSingle,
+  isHovered,
+  flexRatio,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}) {
+  const defaultDesc = `Explore ${item.title} portfolio, press coverage, and media documentation.`;
+  const descriptionText = item.desc || item.description || defaultDesc;
+
+  return (
+    <Box
+      flex={{ base: "none", md: isSingle ? "1 1 0%" : flexRatio }}
+      w={{ base: "full", md: "auto" }}
       position="relative"
-      borderRadius={{ base: "16px", md: "20px" }}
+      borderRadius={{ base: "16px", md: "24px" }}
       overflow="hidden"
-      h={{ base: "220px", md: isLevel1 ? (item.colSpan === 2 ? "320px" : "380px") : "280px" }}
+      h={{ base: "260px", md: isLevel1 ? "380px" : "320px" }}
       bgImage={`url('${item.image}')`}
       bgSize="cover"
       bgPos="center"
-      transition="transform 0.4s ease, box-shadow 0.4s ease"
+      cursor="pointer"
+      role="group"
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      transition="flex 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s ease, box-shadow 0.4s ease"
       _hover={{
-        transform: "translateY(-6px)",
+        transform: "translateY(-4px)",
         boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
         "& > .card-overlay": {
-          background: "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.15) 100%)",
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%)",
         },
         "& .card-play": {
           transform: "scale(1.12)",
           bg: "rgba(255,255,255,0.3)",
         },
       }}
-      cursor="pointer"
-      role="group"
-      onClick={onClick}
       style={{
         animation: `slsFadeInUp 500ms ease ${index * 80}ms both`,
       }}
@@ -1277,51 +1352,69 @@ function CollageCard({ item, index, isLevel1, onClick }) {
         className="card-overlay"
         position="absolute"
         inset={0}
-        background="linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.05) 45%, rgba(0,0,0,0.25) 100%)"
+        background="linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.2) 100%)"
         transition="background 0.4s ease"
       />
 
-      {/* Play Button */}
-      <Flex position="absolute" inset={0} align="center" justify="center" zIndex={2}>
-        <Flex
-          className="card-play"
-          w={{ base: "44px", md: "56px" }}
-          h={{ base: "44px", md: "56px" }}
-          borderRadius="full"
-          bg="rgba(255,255,255,0.18)"
-          backdropFilter="blur(8px)"
-          border="2px solid rgba(255,255,255,0.25)"
-          align="center"
-          justify="center"
-          transition="all 0.3s ease"
+      {/* Title + Subheading + Stats Container */}
+      <Box
+        position="absolute"
+        bottom={0}
+        left={0}
+        right={0}
+        p={{ base: 4, md: 6 }}
+        zIndex={2}
+      >
+        <Box
+          bg={isHovered ? "rgba(255, 255, 255, 0.18)" : "transparent"}
+          backdropFilter={isHovered ? "blur(16px)" : "none"}
+          borderRadius={isHovered ? { base: "16px", md: "20px" } : "0px"}
+          boxShadow={isHovered ? "0 8px 32px 0 rgba(0, 0, 0, 0.2)" : "none"}
+          p={isHovered ? { base: 4, md: 5 } : 0}
+          maxW={{ base: "full", md: isHovered ? "92%" : "100%" }}
+          transition="all 0.4s cubic-bezier(0.25, 1, 0.5, 1)"
         >
-          <Icon as={FaPlay} color="#fff" boxSize={{ base: 4, md: 5 }} ml="2px" />
-        </Flex>
-      </Flex>
+          <Heading
+            as="h3"
+            fontSize={{ base: "22px", md: isLevel1 ? "32px" : "24px", lg: isHovered ? "28px" : "40px" }}
+            color="white"
+            fontWeight="700"
+            fontFamily="Plus Jakarta Sans"
+            lineHeight="1.15"
+            letterSpacing="0.3px"
+            transition="font-size 0.3s ease"
+          >
+            {item.title}
+          </Heading>
 
-      {/* Title + Stats */}
-      <Box position="absolute" bottom={0} left={0} w="full" p={{ base: 4, md: 6 }} zIndex={2}>
-        <Heading
-          as="h3"
-          fontSize={{ base: "lg", md: isLevel1 ? "2xl" : "xl" }}
-          color="white"
-          fontWeight="700"
-          fontFamily="Plus Jakarta Sans"
-          mb={1.5}
-          textTransform="uppercase"
-          letterSpacing="0.5px"
-        >
-          {item.title}
-        </Heading>
-        <HStack spacing={2}>
-          <Text fontSize={{ base: "11px", md: "12px" }} color="rgba(255,255,255,0.6)" fontWeight="500">
-            {item.photoCount} Foto
-          </Text>
-          <Text fontSize={{ base: "11px", md: "12px" }} color="rgba(255,255,255,0.35)">•</Text>
-          <Text fontSize={{ base: "11px", md: "12px" }} color="rgba(255,255,255,0.6)" fontWeight="500">
-            {item.videoCount} Video
-          </Text>
-        </HStack>
+          {/* Subheading Description (Expands & Fades in smoothly on Hover) */}
+          <Box
+            maxH={isHovered ? "120px" : "0px"}
+            opacity={isHovered ? 1 : 0}
+            overflow="hidden"
+            transition="max-height 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease, margin-top 0.3s ease"
+            mt={isHovered ? 2.5 : 0}
+          >
+            <Text
+              fontSize={{ base: "xs", md: "md" }}
+              color="rgba(255, 255, 255, 0.9)"
+              lineHeight="1.5"
+              fontWeight="400"
+            >
+              {descriptionText}
+            </Text>
+          </Box>
+
+          <HStack spacing={2} mt={isHovered ? 2.5 : 1.5}>
+            <Text fontSize={{ base: "xs", md: "sm" }} color="rgba(255,255,255,0.7)" fontWeight="500">
+              {item.photoCount} Foto
+            </Text>
+            <Text fontSize={{ base: "xs", md: "sm" }} color="rgba(255,255,255,0.4)">•</Text>
+            <Text fontSize={{ base: "xs", md: "sm" }} color="rgba(255,255,255,0.7)" fontWeight="500">
+              {item.videoCount} Video
+            </Text>
+          </HStack>
+        </Box>
       </Box>
 
       {/* Arrow Icon */}
@@ -1349,7 +1442,7 @@ function CollageCard({ item, index, isLevel1, onClick }) {
       >
         <Icon as={FaArrowRight} boxSize={{ base: 3, md: 3.5 }} />
       </Flex>
-    </GridItem>
+    </Box>
   );
 }
 
@@ -1368,6 +1461,14 @@ export default function ServicesListSection() {
   const [animKey, setAnimKey] = useState(0);
   const [popupData, setPopupData] = useState(null);
   const containerRef = useRef(null);
+
+  const pageBg = useColorModeValue("#fff", "#05060a");
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "rgba(255,255,255,0.7)");
+  const backBtnBorder = useColorModeValue("rgba(0,0,0,0.15)", "rgba(255,255,255,0.15)");
+  const backBtnBg = useColorModeValue("rgba(0,0,0,0.04)", "rgba(255,255,255,0.04)");
+  const backBtnHoverBg = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.12)");
+  const backBtnHoverBorder = useColorModeValue("rgba(0,0,0,0.3)", "rgba(255,255,255,0.3)");
 
   const searchParams = useSearchParams();
   const catParam = searchParams.get("cat");
@@ -1450,7 +1551,7 @@ export default function ServicesListSection() {
   };
 
   return (
-    <Box w="full" bg="#05060a" pb={{ base: 20, md: 32 }} ref={containerRef}>
+    <Box w="full" bg={pageBg} pb={{ base: 20, md: 32 }} ref={containerRef}>
       <style>{animationStyles}</style>
       <Container maxW="7xl" px={{ base: 4, md: 6 }} mx="auto">
 
@@ -1475,26 +1576,26 @@ export default function ServicesListSection() {
                 w={{ base: "36px", md: "42px" }}
                 h={{ base: "36px", md: "42px" }}
                 borderRadius="full"
-                border="1px solid rgba(255,255,255,0.15)"
-                bg="rgba(255,255,255,0.04)"
+                border={`1px solid ${backBtnBorder}`}
+                bg={backBtnBg}
                 backdropFilter="blur(8px)"
                 align="center"
                 justify="center"
                 transition="all 0.3s ease"
                 _groupHover={{
-                  bg: "rgba(255,255,255,0.12)",
-                  borderColor: "rgba(255,255,255,0.3)",
+                  bg: backBtnHoverBg,
+                  borderColor: backBtnHoverBorder,
                   transform: "translateX(-3px)",
                 }}
               >
-                <Icon as={FaArrowLeft} color="rgba(255,255,255,0.7)" boxSize={3.5} />
+                <Icon as={FaArrowLeft} color={textColor} boxSize={3.5} />
               </Flex>
               <Text
                 fontSize={{ base: "13px", md: "14px" }}
-                color="rgba(255,255,255,0.5)"
+                color={textColor}
                 fontWeight="500"
                 transition="color 0.2s"
-                _groupHover={{ color: "rgba(255,255,255,0.8)" }}
+                _groupHover={{ color: headingColor }}
               >
                 Back
               </Text>
@@ -1504,7 +1605,7 @@ export default function ServicesListSection() {
             <Heading
               as="h2"
               fontSize={{ base: "2xl", md: "4xl" }}
-              color="#fff"
+              color={headingColor}
               fontWeight="700"
               fontFamily="Plus Jakarta Sans"
               textAlign="center"
@@ -1516,22 +1617,19 @@ export default function ServicesListSection() {
           </Box>
         )}
 
-        {/* Card Grid */}
-        <Grid
-          key={`grid-${animKey}`}
-          templateColumns={getGridColumns()}
-          gap={{ base: 3, md: 5 }}
-        >
-          {currentItems.map((item, idx) => (
-            <CollageCard
-              key={`${animKey}-${idx}`}
-              item={item}
-              index={idx}
+        {/* Card Rows */}
+        <Box key={`grid-${animKey}`} w="full">
+          {chunkArray(currentItems, 2).map((rowItems, rIdx) => (
+            <ServiceRow
+              key={`row-${animKey}-${rIdx}`}
+              items={rowItems}
               isLevel1={currentLevel === 1}
-              onClick={() => handleCardClick(idx)}
+              onCardClick={handleCardClick}
+              startIndex={rIdx * 2}
+              animKey={animKey}
             />
           ))}
-        </Grid>
+        </Box>
       </Container>
 
       {/* Gallery Popup (Level 4) */}

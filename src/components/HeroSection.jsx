@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -5,6 +8,7 @@ import {
   Heading,
   Text,
   HStack,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { apiGet, getStatsSection, sanitizeRichText } from "@/lib/api";
 
@@ -15,15 +19,23 @@ const FALLBACK_SUBHEADLINE =
   "communication solutions. At ER Communication, we share our knowledge to " +
   "strengthen reputation and drive meaningful impact.";
 
-export default async function HeroSection() {
-  let hero = null;
-  try {
-    hero = await apiGet("/sections/hero/home");
-  } catch {
-    hero = null;
-  }
+export default function HeroSection() {
+  const [hero, setHero] = useState(null);
+  const [stats, setStats] = useState([]);
 
-  const stats = await getStatsSection();
+  useEffect(() => {
+    apiGet("/sections/hero/home")
+      .then(setHero)
+      .catch(() => setHero(null));
+
+    getStatsSection().then(setStats);
+  }, []);
+
+  const overlay = useColorModeValue(
+    "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)",
+    "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )"
+  );
+  const bnw = useColorModeValue("#000", "#fff");
 
   return (
     <Box
@@ -56,15 +68,7 @@ export default async function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        background="radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(
-          180deg,
-          rgba(5, 6, 10, 0) 0%,
-          rgba(5, 6, 10, 0.1) 30%,
-          rgba(5, 6, 10, 0.2) 60%,
-          rgba(5, 6, 10, 0.3) 75%,
-          rgba(5, 6, 10, 0.97) 90%,
-          rgba(5, 6, 10, 1) 100%
-        )"
+        background={overlay}
         zIndex={-1}
       />
 
@@ -127,7 +131,7 @@ export default async function HeroSection() {
               <Text
                 fontSize={{ base: "42px", md: "48px", lg: "52px" }}
                 fontWeight="700"
-                color="#fff"
+                color={bnw}
                 fontFamily="Plus Jakarta Sans"
               >
                 {stat.stat_number}

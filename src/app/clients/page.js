@@ -10,6 +10,7 @@ import {
   Image,
   Flex,
   SimpleGrid,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import QuoteCarousel from "@/components/QuoteCarousel";
@@ -36,6 +37,19 @@ const clients = [
 export default function ClientsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
 
+  const pageBg = useColorModeValue("#fff", "#05060A");
+  const tabActiveBg = useColorModeValue("#1e293b", "#fff");
+  const tabActiveColor = useColorModeValue("#fff", "#000");
+  const tabInactiveBorder = useColorModeValue("rgba(0,0,0,0.22)", "rgba(255,255,255,0.22)");
+  const tabInactiveColor = useColorModeValue("rgba(0,0,0,0.65)", "rgba(255,255,255,0.65)");
+  const tabHoverBorder = useColorModeValue("#1e293b", "#fff");
+  const emptyTextColor = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255,255,255,0.3)");
+  const clientImgFilter = useColorModeValue("brightness(0) opacity(0.6)", "brightness(0) invert(1) opacity(0.75)");
+  const clientImgHoverFilter = useColorModeValue("brightness(0) opacity(1)", "brightness(0) invert(1) opacity(1)");
+
+  const headingText = useColorModeValue("#3C87F9", "#fff");
+  const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
+
   const filtered = activeCategory === "All"
     ? clients
     : clients.filter((c) => c.type === activeCategory);
@@ -43,7 +57,7 @@ export default function ClientsPage() {
   return (
     <Box
       position="relative"
-      bg="#05060A"
+      bg={pageBg}
       _before={{
         content: '""',
         position: "fixed",
@@ -106,7 +120,7 @@ export default function ClientsPage() {
             <Heading
               as="h1"
               fontSize={{ base: "52px", md: "72px", xl: "90px" }}
-              color="#fff"
+              color={headingText}
               fontWeight="700"
               lineHeight="1.05"
               letterSpacing="-1.8px"
@@ -118,7 +132,7 @@ export default function ClientsPage() {
 
             <Text
               fontSize={{ base: "18px", md: "110px", xl: "19px" }}
-              color="#ffffff"
+              color={subHeadingText}
               maxW="2xl"
               lineHeight="1.6"
               opacity={0.85}
@@ -145,15 +159,15 @@ export default function ClientsPage() {
                   py={2}
                   borderRadius="full"
                   border="1px solid"
-                  borderColor={isActive ? "#fff" : "rgba(255,255,255,0.22)"}
-                  bg={isActive ? "#fff" : "transparent"}
-                  color={isActive ? "#000" : "rgba(255,255,255,0.65)"}
+                  borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
+                  bg={isActive ? tabActiveBg : "transparent"}
+                  color={isActive ? tabActiveColor : tabInactiveColor}
                   fontSize={{ base: "md", md: "lg" }}
                   fontWeight={isActive ? "600" : "400"}
                   transition="all 0.2s"
                   _hover={{
-                    borderColor: "#fff",
-                    color: isActive ? "#000" : "#fff",
+                    borderColor: tabHoverBorder,
+                    color: isActive ? tabActiveColor : tabHoverBorder,
                   }}
                 >
                   {cat}
@@ -193,17 +207,16 @@ export default function ClientsPage() {
                   maxH={{ base: "60px", md: "140px" }}
                   maxW={{ base: "160px", md: "290px" }}
                   objectFit="contain"
-                  filter="brightness(0) invert(1)"
-                  opacity={0.75}
+                  filter={clientImgFilter}
                   transition="all 0.3s ease"
-                  _hover={{ opacity: 1 }}
+                  _hover={{ filter: clientImgHoverFilter }}
                 />
               </Flex>
             ))}
           </SimpleGrid>
 
           {filtered.length === 0 && (
-            <Text textAlign="center" color="rgba(255,255,255,0.3)" py={16} fontSize="15px">
+            <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
               No clients in this category yet.
             </Text>
           )}

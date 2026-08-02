@@ -15,7 +15,8 @@ import {
   DrawerCloseButton,
   VStack,
   IconButton,
-  Text
+  Text,
+  useColorModeValue
 } from "@chakra-ui/react";
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { FaWhatsapp } from "react-icons/fa";
@@ -26,6 +27,7 @@ import ThemeToggle from "./ThemeToggle";
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const pathname = usePathname();
+  const bgNav = useColorModeValue("rgba(0, 0, 0, 0.3)", "rgba(255, 255, 255, 0.4)")
 
   const navItems = [
     {
@@ -51,7 +53,7 @@ export default function Navbar() {
       py={{  base: 4, md: 6 }}
     >
       <Box
-        bg="rgba(255, 255, 255, 0.4)"
+        bg={bgNav}
         backdropFilter="blur(14px)"
         // border="1px solid rgba(255, 255, 255, 0.03)"
         boxShadow="inset 0 2px 8px rgba(255, 255, 255, 0), inset 0 -2px 8px rgba(255, 255, 255, 0.35)"
@@ -139,8 +141,9 @@ export default function Navbar() {
 
       {/* Theme Toggle (Outside Navbar Shape) */}
       <ThemeToggle 
+        display={{ base: "none", md: "flex" }}
         position="absolute"
-        right={{ base: 4, md: 8, xl: 12 }}
+        right={{ base: 10, md: 8, xl: 12 }}
         top="50%"
         transform="translateY(-50%)"
       />

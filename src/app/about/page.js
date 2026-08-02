@@ -1,4 +1,6 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -11,6 +13,8 @@ import {
   Flex,
   Icon,
   Image,
+  useColorModeValue,
+  useColorMode
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
@@ -22,7 +26,6 @@ import {
   getAboutFeatures,
   getAboutMilestones,
   getAboutSection,
-  getGridServices,
   getHeroSection,
   getStatsSection,
 } from "@/lib/api";
@@ -93,47 +96,46 @@ const FALLBACK_TIMELINE_ITEMS = [
   },
 ];
 
-const FALLBACK_GRID_SERVICES = [
-  {
-    title: "Media Relation",
-    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
-  },
-  {
-    title: "Social & Digital",
-    img: "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=800&q=80",
-  },
-  {
-    title: "Media Event",
-    img: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80",
-  },
-  {
-    title: "Brand & Strategic",
-    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
-  },
-];
+const FALLBACK_FEATURES_WITH_ICONS = FALLBACK_FEATURES.map((feature, idx) => ({
+  ...feature,
+  icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
+}));
 
-export default async function AboutPage() {
-  const apiFeatures = await getAboutFeatures();
-  const features = (apiFeatures.length > 0 ? apiFeatures : FALLBACK_FEATURES).map(
-    (feature, idx) => ({
-      ...feature,
-      icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
-    })
-  );
+export default function AboutPage() {
+  const [features, setFeatures] = useState(FALLBACK_FEATURES_WITH_ICONS);
+  const [timelineSettings, setTimelineSettings] = useState(null);
+  const [timelineItems, setTimelineItems] = useState(FALLBACK_TIMELINE_ITEMS);
+  const [hero, setHero] = useState(FALLBACK_HERO);
+  const [stats, setStats] = useState([]);
+  const [aboutSection, setAboutSection] = useState(FALLBACK_ABOUT_SECTION);
 
-  const { settings: timelineSettings, items: apiTimelineItems } = await getAboutMilestones();
-  const timelineItems = apiTimelineItems.length > 0 ? apiTimelineItems : FALLBACK_TIMELINE_ITEMS;
+  useEffect(() => {
+    getAboutFeatures().then((apiFeatures) => {
+      if (apiFeatures.length > 0) {
+        setFeatures(
+          apiFeatures.map((feature, idx) => ({
+            ...feature,
+            icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
+          }))
+        );
+      }
+    });
 
-  const apiGridServices = await getGridServices();
-  const gridServices = apiGridServices.length > 0 ? apiGridServices : FALLBACK_GRID_SERVICES;
+    getAboutMilestones().then(({ settings, items }) => {
+      setTimelineSettings(settings);
+      if (items.length > 0) setTimelineItems(items);
+    });
 
-  const apiHero = await getHeroSection("about");
-  const hero = apiHero?.headlineLines?.length > 0 ? apiHero : FALLBACK_HERO;
+    getHeroSection("about").then((apiHero) => {
+      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    });
 
-  const stats = await getStatsSection();
+    getStatsSection().then(setStats);
 
-  const apiAboutSection = await getAboutSection();
-  const aboutSection = apiAboutSection?.headline ? apiAboutSection : FALLBACK_ABOUT_SECTION;
+    getAboutSection().then((apiAboutSection) => {
+      if (apiAboutSection?.headline) setAboutSection(apiAboutSection);
+    });
+  }, []);
 
   const particles = [
     { top: "5%", left: "8%", size: "9px", color: "#F97316", opacity: 0.8, duration: "4s", delay: "0s" },
@@ -157,6 +159,19 @@ export default async function AboutPage() {
     { top: "92%", left: "28%", size: "6px", color: "#334155", opacity: 0.7, duration: "4s", delay: "1.5s" },
     { top: "95%", left: "85%", size: "10px", color: "#F97316", opacity: 0.7, duration: "6s", delay: "0.1s" },
   ];
+
+  const bgGradient = useColorModeValue("linear-gradient(180deg, #fff 0%, #fff 100%)", "linear-gradient(180deg, #05060A 0%, #05060A 100%)");
+  const sectionBg = useColorModeValue("#fff", "#05060A");
+  const headingColor = useColorModeValue("#1a202c", "#fff");
+  const textColor = useColorModeValue("#4a5568", "rgba(255,255,255,0.65)");
+  const cardBg = useColorModeValue("rgba(0,0,0,0.03)", "rgba(255,255,255,0.06)");
+  const cardHoverBg = useColorModeValue("rgba(0,0,0,0.06)", "rgba(255,255,255,0.09)");
+  const descColor = useColorModeValue("#718096", "rgba(255,255,255,0.85)");
+  const dotColor = useColorModeValue("#1d4ed8", "white");
+  const lineBg = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255,255,255,0.5)");
+  const overlay = useColorModeValue("radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)", "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )");
+  const bnw = useColorModeValue("#000", "#fff");
+
   return (
     <>
       <Navbar />
@@ -181,7 +196,7 @@ export default async function AboutPage() {
           left={0}
           right={0}
           bottom={0}
-          background="linear-gradient(180deg, rgba(5,6,10,0.3) 0%, rgba(5,6,10,0.2) 40%, rgba(5,6,10,0.75) 75%, rgba(5,6,10,0.98) 100%)"
+          background={overlay}
           zIndex={0}
         />
 
@@ -247,7 +262,7 @@ export default async function AboutPage() {
                 <Text
                   fontSize={{ base: "42px", md: "48px", lg: "52px" }}
                   fontWeight="700"
-                  color="#fff"
+                  color={bnw}
                   fontFamily="Plus Jakarta Sans"
                 >
                   {stat.stat_number}
@@ -259,11 +274,11 @@ export default async function AboutPage() {
       </Box>
 
       {/* ── About ER Communications ── */}
-      <Box py={{ base: 20, md: 28 }} background="linear-gradient(180deg, #05060A 0%, #05060A 100%)">
+      <Box py={{ base: 20, md: 28 }} background={bgGradient}>
         <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
           <Heading
             fontSize={{ base: "2xl", md: "3xl", lg: "6xl" }}
-            color="#fff"
+            color={headingColor}
             fontWeight="400"
             fontFamily="Plus Jakarta Sans"
             mb={8}
@@ -271,7 +286,7 @@ export default async function AboutPage() {
           />
           <Text
             fontSize={{ base: "sm", md: "lg" }}
-            color="rgba(255,255,255,0.65)"
+            color={textColor}
             lineHeight="1.8"
             maxW="4xl"
             mx="auto"
@@ -283,7 +298,7 @@ export default async function AboutPage() {
       <Box
         position="relative"
         overflow="hidden"
-        bg="#05060A"
+        bg={sectionBg}
         _before={{
           content: '""',
           position: "absolute",
@@ -308,7 +323,7 @@ export default async function AboutPage() {
             >
               <Heading
                 fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
-                color="#fff"
+                color={headingColor}
                 fontWeight="500"
                 fontFamily="Plus Jakarta Sans"
                 maxW={{ md: "70%" }}
@@ -318,7 +333,7 @@ export default async function AboutPage() {
               </Heading>
               <Text
                 fontSize={{ base: "sm", md: "lg" }}
-                color="rgba(255,255,255,0.6)"
+                color={textColor}
                 maxW={{ md: "30%" }}
                 lineHeight="1.7"
               >
@@ -331,11 +346,11 @@ export default async function AboutPage() {
               {features.map((feature, idx) => (
                 <GridItem key={idx}>
                   <Box
-                    bg="rgba(255,255,255,0.06)"
+                    bg={cardBg}
                     borderRadius="20px"
                     p={{ base: 6, md: 10 }}
                     h="full"
-                    _hover={{ bg: "rgba(255,255,255,0.09)" }}
+                    _hover={{ bg: cardHoverBg }}
                     transition="background 0.2s"
                   >
                     <HStack align="flex-start" spacing={5}>
@@ -351,12 +366,12 @@ export default async function AboutPage() {
                         <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
                       </Flex>
                       <VStack align="flex-start" spacing={2}>
-                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color="#fff">
+                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color={headingColor}>
                           {feature.title}
                         </Text>
                         <Text
                           fontSize={{ base: "sm", md: "lg" }}
-                          color="rgba(255,255,255,0.85)"
+                          color={descColor}
                           lineHeight="1.7"
                         >
                           {feature.desc}
@@ -411,12 +426,12 @@ export default async function AboutPage() {
                 <Heading
                   fontSize={{ base: "xl", md: "5xl" }}
                   fontWeight="600"
-                  color="#fff"
+                  color={headingColor}
                   fontFamily="Plus Jakarta Sans"
                 >
                   {timelineSettings?.title ?? "Timeline"}
                 </Heading>
-                <Text fontSize={{ base: "sm", md: "lg" }} color="rgba(255,255,255,0.6)" lineHeight="1.8" maxW="600px">
+                <Text fontSize={{ base: "sm", md: "lg" }} color={textColor} lineHeight="1.8" maxW="600px">
                   {timelineSettings?.description ??
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et."}
                 </Text>
@@ -432,7 +447,7 @@ export default async function AboutPage() {
                   bottom="0"
                   w="3px"
                   rounded="full"
-                  bg="rgba(255,255,255,0.5)"
+                  bg={lineBg}
                   transform="translateX(-50%)"
                 />
 
@@ -449,7 +464,7 @@ export default async function AboutPage() {
                           w={{ base: '12px', md: '20px'}}
                           h={{ base: '12px', md: '20px'}}
                           borderRadius="full"
-                          bg="white"
+                          bg={dotColor}
                           transform="translateX(-50%)"
                           zIndex={2}
                         />
@@ -469,17 +484,17 @@ export default async function AboutPage() {
                             <Text
                               fontSize={{ base: "20px", md: "2xl" }}
                               fontWeight="700"
-                              color="#fff"
+                              color={headingColor}
                               fontFamily="Plus Jakarta Sans"
                             >
                               {item.year}
                             </Text>
-                            <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color="#fff">
+                            <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color={headingColor}>
                               {item.title}
                             </Text>
                             <Text
                               fontSize={{ base: "sm", md: "lg" }}
-                              color="rgba(255,255,255,0.85)"
+                              color={descColor}
                               lineHeight="1.6"
                             >
                               {item.desc}

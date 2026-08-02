@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import ChunkErrorReloader from "@/components/ChunkErrorReloader";
 
 const productionUrl = process.env.URL_PRODUCTION || "https://www.er-communication.com";
 
@@ -70,6 +71,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <ChunkErrorReloader />
         <Providers>{children}</Providers>
       </body>
     </html>

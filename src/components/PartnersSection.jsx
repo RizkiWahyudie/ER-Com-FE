@@ -6,7 +6,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { useMemo } from "react";
 import Link from "next/link";
 
-const partners = [
+const FALLBACK_PARTNERS = [
   "/assets/partner/partner-logo-1.png",
   "/assets/partner/partner-logo-2.png",
   "/assets/partner/partner-logo-3.png",
@@ -92,7 +92,8 @@ function LogoColumn({ logos, duration, reverse = false }) {
   );
 }
 
-export default function PartnersSection() {
+export default function PartnersSection({ logos }) {
+  const partners = Array.isArray(logos) && logos.length > 0 ? logos : FALLBACK_PARTNERS;
   const half = Math.ceil(partners.length / 2);
   const colA = useMemo(() => partners.slice(0, half), [half]);
   const colB = useMemo(() => partners.slice(half), [half]);

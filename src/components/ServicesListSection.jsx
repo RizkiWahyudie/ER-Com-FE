@@ -26,9 +26,10 @@ import {
   FaImages,
   FaVideo,
 } from "react-icons/fa";
+import { getServicesListSection } from "@/lib/api";
 
-// ─── Hierarchical Data (4 levels deep) ──────────────────────────────
-const servicesData = [
+// ─── Fallback hierarchical data (used until the API loads / if it fails) ──
+const FALLBACK_SERVICES_DATA = [
   {
     title: "Media Relation",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&h=600&fit=crop",
@@ -964,14 +965,23 @@ function MediaLightbox({ media, index, onClose }) {
               bg="#0a0a0f" pt="56.25%"
               position="relative"
             >
-              <Box
-                as="iframe" key={current}
-                position="absolute" top={0} left={0} w="full" h="full"
-                src={`https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0`}
-                title={`Video ${current + 1}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen border="none"
-              />
+              {item.videoId ? (
+                <Box
+                  as="iframe" key={current}
+                  position="absolute" top={0} left={0} w="full" h="full"
+                  src={`https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0`}
+                  title={`Video ${current + 1}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen border="none"
+                />
+              ) : (
+                <Box
+                  as="video" key={current}
+                  position="absolute" top={0} left={0} w="full" h="full"
+                  src={item.src} poster={item.thumb}
+                  controls autoPlay
+                />
+              )}
             </Box>
           ) : (
             <Box
@@ -1345,6 +1355,14 @@ function CollageCard({ item, index, isLevel1, onClick }) {
 
 // ─── Main Component ──────────────────────────────────────────────────
 export default function ServicesListSection() {
+  const [servicesData, setServicesData] = useState(FALLBACK_SERVICES_DATA);
+
+  useEffect(() => {
+    getServicesListSection().then((data) => {
+      if (data.length > 0) setServicesData(data);
+    });
+  }, []);
+
   // Navigation state: array of selected item indices at each level
   const [path, setPath] = useState([]); // e.g. [0] = Media Relation, [0, 0] = Prescon
   const [animKey, setAnimKey] = useState(0);

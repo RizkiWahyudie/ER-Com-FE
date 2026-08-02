@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -20,6 +20,7 @@ import FooterSection from "@/components/FooterSection";
 import HighlightGallery from "@/components/HighlightGallery";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FaArrowRight } from "react-icons/fa";
+import { getStatsSection } from "@/lib/api";
 
 const categories = [
   "All",
@@ -200,9 +201,19 @@ function ProjectCard({ img, title, desc, author, date, id }) {
   );
 }
 
+const FALLBACK_STATS = [
+  { stat_label: "Clients", stat_number: "500+" },
+  { stat_label: "Achievements", stat_number: "57+" },
+];
+
 export default function HighlightPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [page, setPage] = useState(1);
+  const [stats, setStats] = useState(FALLBACK_STATS);
+
+  useEffect(() => {
+    getStatsSection().then(setStats);
+  }, []);
 
   const filtered =
     activeCategory === "All"
@@ -294,43 +305,29 @@ export default function HighlightPage() {
           zIndex={1}
           pb={{ base: 4, md: 8 }}
         >
-          <VStack spacing={1.5}>
-            <Text
-              fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-              fontWeight="600"
-              color="var(--accent)"
-              textTransform="uppercase"
-            >
-              Clients
-            </Text>
-            <Text
-              fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-              fontWeight="700"
-              color="#fff"
-              fontFamily="Plus Jakarta Sans"
-            >
-              500+
-            </Text>
-          </VStack>
-          <Box w="1px" h="120px" bg="rgba(255,255,255,0.15)" />
-          <VStack spacing={1.5}>
-            <Text
-              fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-              fontWeight="600"
-              color="var(--accent)"
-              textTransform="uppercase"
-            >
-              Achievements
-            </Text>
-            <Text
-              fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-              fontWeight="700"
-              color="#fff"
-              fontFamily="Plus Jakarta Sans"
-            >
-              57+
-            </Text>
-          </VStack>
+          {stats.map((stat, index) => (
+            <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+              {index > 0 && <Box w="1px" h="120px" bg="rgba(255,255,255,0.15)" />}
+              <VStack spacing={1.5}>
+                <Text
+                  fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+                  fontWeight="600"
+                  color="var(--accent)"
+                  textTransform="uppercase"
+                >
+                  {stat.stat_label}
+                </Text>
+                <Text
+                  fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                  fontWeight="700"
+                  color="#fff"
+                  fontFamily="Plus Jakarta Sans"
+                >
+                  {stat.stat_number}
+                </Text>
+              </VStack>
+            </HStack>
+          ))}
         </HStack>
       </Box>
 

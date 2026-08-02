@@ -14,49 +14,50 @@ import {
 import { keyframes } from "@emotion/react";
 import { useMemo } from "react";
 
-const timelineItems = [
+const FALLBACK_TIMELINE_ITEMS = [
   {
     year: "1970",
     title: "Years of establishment",
     desc: "More than 57 years in the field",
-    img: [
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
-    ],
-    up: true,
   },
   {
     year: "500",
     title: "Projects are launched",
     desc: "A lot of projects are done",
-    img: [
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
-    ],
   },
   {
     year: "50",
     title: "Clients are satisfied",
     desc: "These people love us",
-    img: [
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
-    ],
-    up: true,
   },
   {
     year: "12",
     title: "Projects in work",
     desc: "What we do right now",
-    img: [
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=faces",
-    ],
   },
+];
+
+const TIMELINE_IMAGE_POOL = [
+  [
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
+  ],
+  [
+    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
+  ],
+  [
+    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
+  ],
+  [
+    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
+    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=80&h=80&fit=crop&crop=faces",
+  ],
 ];
 
 const floatDot = keyframes`
@@ -76,8 +77,17 @@ function generateDots(count) {
   }));
 }
 
-export default function TimelineSection() {
+const FALLBACK_INTRO_YEAR = "2026";
+const FALLBACK_INTRO_DESCRIPTION =
+  "Whether it's media relations, public communication or brand " +
+  "strategy, we help organizations communicate with clarity, trust, " +
+  "credibility, confidence in a fast-moving world. And the results? " +
+  "The numbers speak for themselves.";
+
+export default function TimelineSection({ intro, items }) {
   const dots = useMemo(() => generateDots(14), []);
+  const timelineItems =
+    Array.isArray(items) && items.length > 0 ? items : FALLBACK_TIMELINE_ITEMS;
 
   const yearColor = useColorModeValue("#1a202c", "#fff");
   const titleColor = useColorModeValue("#2d3748", "#f0f0f0");
@@ -126,7 +136,7 @@ export default function TimelineSection() {
               fontWeight="bold"
               color={introYearColor}
             >
-              2026
+              {intro?.year ?? FALLBACK_INTRO_YEAR}
             </Text>
             <Text
               color={introTextColor}
@@ -134,10 +144,7 @@ export default function TimelineSection() {
               fontSize={{ base: "lg", md: "2xl" }}
               lineHeight={{ lg: "32px" }}
             >
-              Whether it's media relations, public communication or brand
-              strategy, we help organizations communicate with clarity, trust,
-              credibility, confidence in a fast-moving world. And the results?
-              The numbers speak for themselves.
+              {intro?.description ?? FALLBACK_INTRO_DESCRIPTION}
             </Text>
           </HStack>
 
@@ -152,14 +159,17 @@ export default function TimelineSection() {
             px={5}
             flexWrap={{ base: "wrap", md: "nowrap" }}
           >
-            {timelineItems.map((item, idx) => (
+            {timelineItems.map((item, idx) => {
+              const up = idx % 2 === 0;
+              const img = TIMELINE_IMAGE_POOL[idx % TIMELINE_IMAGE_POOL.length];
+              return (
               <VStack
                 key={idx}
                 spacing={4}
                 align="start"
                 textAlign="start"
                 flex={1}
-                transform={item.up ? "translateY(-80px)" : "translateY(0)"}
+                transform={up ? "translateY(-80px)" : "translateY(0)"}
                 position="relative"
                 zIndex={1}
               >
@@ -183,7 +193,7 @@ export default function TimelineSection() {
 
                 <HStack spacing={0} align="center" w="full">
                   <HStack spacing={0} zIndex={1}>
-                    {item.img.map((src, imgIdx) => (
+                    {img.map((src, imgIdx) => (
                       <Box
                         key={imgIdx}
                         w="50px"
@@ -221,7 +231,8 @@ export default function TimelineSection() {
                   />
                 </HStack>
               </VStack>
-            ))}
+              );
+            })}
           </Flex>
         </VStack>
       </Container>

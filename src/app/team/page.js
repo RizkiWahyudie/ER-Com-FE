@@ -1,13 +1,18 @@
-"use client";
-
 import { Box, Container, VStack, Heading, Text } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import TeamShowcase from "@/components/TeamShowcase";
 import TeamDetail from "@/components/TeamDetail";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
+import { getTeamSection } from "@/lib/api";
 
-export default function TeamPage() {
+const FALLBACK_HERO_HEADLINE = "Meet The People Behind Great Project.";
+const FALLBACK_HERO_SUBTEXT =
+  "A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.";
+
+export default async function TeamPage() {
+  const { settings, members } = await getTeamSection();
+
   return (
     <Box position="relative" bg="#05060A">
       {/* Orange glow — top center (matches career page) */}
@@ -89,9 +94,7 @@ export default function TeamPage() {
               letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              Meet The People
-              <br />
-              Behind Great Project.
+              {settings?.headline ?? FALLBACK_HERO_HEADLINE}
             </Heading>
 
             <Text
@@ -101,8 +104,7 @@ export default function TeamPage() {
               lineHeight="1.6"
               opacity={0.85}
             >
-              A team of professionals dedicated to helping company strengthen
-              reputation, and create meaningful connections.
+              {settings?.subtext ?? FALLBACK_HERO_SUBTEXT}
             </Text>
           </VStack>
         </Container>
@@ -110,11 +112,11 @@ export default function TeamPage() {
 
       {/* ── Team Showcase (Interactive Carousel) ── */}
       <Box pb={{ base: 6, md: 20 }}>
-        <TeamShowcase />
+        <TeamShowcase members={members} />
       </Box>
 
       {/* ── Team Detail Grid Section ── */}
-      <TeamDetail />
+      <TeamDetail members={members} />
 
       {/* ── Contact ── */}
       <ContactSection />

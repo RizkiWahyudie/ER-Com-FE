@@ -15,34 +15,55 @@ import {
   HStack,
   useToast
 } from "@chakra-ui/react";
+import { apiPost } from "@/lib/api";
+
+const INITIAL_FORM_DATA = {
+  name: "",
+  business_name: "",
+  email: "",
+  contact_number: "",
+  message: "",
+};
 
 export default function ContactSection() {
   const toast = useToast();
-  const [formData, setFormData] = useState({
-    email: "",
-    message: "",
-    consent: false,
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    toast({
-      title: "Berhasil Dikirim!",
-      description: "Kami akan segera menghubungi Anda.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      position: "bottom-center",
-    });
+    setIsSubmitting(true);
+    try {
+      await apiPost("/contact-messages", formData);
+      toast({
+        title: "Berhasil Dikirim!",
+        description: "Kami akan segera menghubungi Anda.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+      setFormData(INITIAL_FORM_DATA);
+    } catch (err) {
+      toast({
+        title: "Gagal Mengirim",
+        description: err.message ?? "Terjadi kesalahan, silakan coba lagi.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -204,6 +225,10 @@ export default function ContactSection() {
 
               {/* Name */}
               <Input
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                isRequired
                 placeholder="Your Name"
                 h="46px"
                 px={5}
@@ -231,6 +256,9 @@ export default function ContactSection() {
               
               {/* Business */}
               <Input
+                name="business_name"
+                value={formData.business_name}
+                onChange={handleChange}
                 placeholder="Your Business Name"
                 h="46px"
                 px={5}
@@ -258,6 +286,11 @@ export default function ContactSection() {
               
               {/* Email */}
               <Input
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                isRequired
                 placeholder="Your Email"
                 h="46px"
                 px={5}
@@ -285,6 +318,10 @@ export default function ContactSection() {
 
               {/* Phone */}
               <Input
+                name="contact_number"
+                type="tel"
+                value={formData.contact_number}
+                onChange={handleChange}
                 placeholder="Your Contact Number"
                 h="46px"
                 px={5}
@@ -311,6 +348,10 @@ export default function ContactSection() {
               />
 
               <Textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                isRequired
                 placeholder="How can we help?"
                 minH="140px"
                 px={5}
@@ -359,6 +400,8 @@ export default function ContactSection() {
 
                 <Button
                   type="submit"
+                  isLoading={isSubmitting}
+                  loadingText="SENDING"
                   borderRadius="999px"
                   px={8}
                   bgGradient="linear(to-r, #F8F8F8, #63B3ED)"

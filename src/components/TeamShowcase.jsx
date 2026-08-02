@@ -10,7 +10,7 @@ import {
   Image,
 } from "@chakra-ui/react";
 
-const teamData = [
+const FALLBACK_TEAM_DATA = [
   {
     name: "Andi Wijaya",
     role: "Lead Strategist",
@@ -38,8 +38,9 @@ const teamData = [
   },
 ];
 
-export default function TeamShowcase() {
-  const [activeIndex, setActiveIndex] = useState(2); // center by default
+export default function TeamShowcase({ members }) {
+  const teamData = Array.isArray(members) && members.length > 0 ? members : FALLBACK_TEAM_DATA;
+  const [activeIndex, setActiveIndex] = useState(Math.min(2, teamData.length - 1)); // center by default
 
   const getOffset = (idx) => {
     const total = teamData.length;

@@ -19,7 +19,18 @@ import { FaArrowRight } from "react-icons/fa";
 import ContactCardModal from "@/components/ContactCardModal";
 
 
-const teamMembers = [
+const FALLBACK_BG_IMAGES = [
+  "/assets/team/team-card-bg-1.png",
+  "/assets/team/team-card-bg-2.png",
+  "/assets/team/team-card-bg-3.png",
+  "/assets/team/team-card-bg-4.png",
+  "/assets/team/team-card-bg-5.png",
+  "/assets/team/team-card-bg-6.png",
+  "/assets/team/team-card-bg-7.png",
+  "/assets/team/team-card-bg-8.png",
+];
+
+const FALLBACK_TEAM_MEMBERS = [
   {
     name: "Ingga Mawardy",
     role: "Technology Law Associate",
@@ -86,7 +97,14 @@ const teamMembers = [
   },
 ];
 
-export default function TeamSection({ teamHome = 1 }) {
+export default function TeamSection({ teamHome = 1, members }) {
+  const teamMembers =
+    Array.isArray(members) && members.length > 0
+      ? members.map((member, idx) => ({
+          ...member,
+          bgImg: member.img ?? FALLBACK_BG_IMAGES[idx % FALLBACK_BG_IMAGES.length],
+        }))
+      : FALLBACK_TEAM_MEMBERS;
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const selected = teamMembers[selectedIdx];

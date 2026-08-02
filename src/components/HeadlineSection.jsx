@@ -13,8 +13,22 @@ import {
 } from "@chakra-ui/react";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
+import { sanitizeRichText } from "@/lib/api";
 
-export default function HeadlineSection() {
+const FALLBACK_ABOUT_HEADLINE = "About ER Communications";
+const FALLBACK_ABOUT_DESCRIPTION =
+  "ER Communication (Effective &amp; Responsibility) is one of " +
+  "Indonesia's pioneer PR agencies with over 57 years of experience. " +
+  "ER Communication is a communications consultancy specializing in " +
+  "corporate communications, crisis and issues management and " +
+  "marketing communications. It provides strategic counseling on top " +
+  "of services you would expect from a Communication agency.";
+const FALLBACK_SERVICES_HEADLINE = "We're the pioneer of the<br>PR otomotive industry";
+const FALLBACK_SERVICES_SUBTEXT =
+  "Er communication is one of leading agency in Indonesia and we " +
+  "specialize in consumer lifestyle.";
+
+export default function HeadlineSection({ about, servicesSettings }) {
   const headingColor = useColorModeValue("#1a202c", "#fff");
   const textColor = useColorModeValue("#4a5568", "#e3e4e6");
   const btnColor = useColorModeValue("#1a202c", "white");
@@ -46,23 +60,16 @@ export default function HeadlineSection() {
             fontFamily="Plus Jakarta Sans"
             textAlign={{ base: 'start', md: 'center' }}
             color={headingColor}
-          >
-            About ER Communications
-          </Heading>
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(about?.headline) || FALLBACK_ABOUT_HEADLINE }}
+          />
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
             color={textColor}
             maxW="6xl"
             lineHeight="1.6"
             textAlign={{ base: 'start', md: 'center' }}
-          >
-            ER Communication (Effective &amp; Responsibility) is one of
-            Indonesia's pioneer PR agencies with over 57 years of experience.
-            ER Communication is a communications consultancy specializing in
-            corporate communications, crisis and issues management and
-            marketing communications. It provides strategic counseling on top
-            of services you would expect from a Communication agency.
-          </Text>
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(about?.description) || FALLBACK_ABOUT_DESCRIPTION }}
+          />
           <Link href="/about">
             <Button
               size="sm"
@@ -92,20 +99,15 @@ export default function HeadlineSection() {
             letterSpacing="-0.5px"
             fontFamily="Plus Jakarta Sans"
             color={headingColor}
-          >
-            We're the pioneer of the
-            <br />
-            PR otomotive industry
-          </Heading>
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(servicesSettings?.headline) || FALLBACK_SERVICES_HEADLINE }}
+          />
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
             color={textColor}
             maxW="480px"
             lineHeight="1.6"
-          >
-            Er communication is one of leading agency in Indonesia and we
-            specialize in consumer lifestyle.
-          </Text>
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(servicesSettings?.subtext) || FALLBACK_SERVICES_SUBTEXT }}
+          />
           <Link href="/services">
             <Button
               size="sm"

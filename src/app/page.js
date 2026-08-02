@@ -1,5 +1,3 @@
-"use client";
-
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import HeadlineSection from "@/components/HeadlineSection";
@@ -11,19 +9,103 @@ import PortfolioSection from "@/components/PortfolioSection";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 import QuoteCarousel from "@/components/QuoteCarousel";
+import { apiGet, getTeamSection, getPortfolioSection } from "@/lib/api";
 
-export default function HomePage() {
+function stripHtml(html) {
+  return html?.replace(/<[^>]*>/g, "").trim() ?? "";
+}
+
+export default async function HomePage() {
+  let about = null;
+  try {
+    about = await apiGet("/sections/about");
+  } catch {
+    about = null;
+  }
+
+  let servicesSettings = null;
+  try {
+    const services = await apiGet("/sections/services");
+    servicesSettings = services?.settings ?? null;
+  } catch {
+    servicesSettings = null;
+  }
+
+  let timelineIntro = null;
+  try {
+    const items = await apiGet("/about-section4-items");
+    if (Array.isArray(items) && items.length > 0) {
+      timelineIntro = items
+        .filter((item) => item.is_active !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0] ?? null;
+    }
+  } catch {
+    timelineIntro = null;
+  }
+
+  let timelineItems = null;
+  try {
+    const pages = await apiGet("/about-section4-pages");
+    if (Array.isArray(pages) && pages.length > 0) {
+      timelineItems = pages
+        .filter((page) => page.is_active !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((page) => ({
+          year: page.year,
+          title: page.title,
+          desc: page.description,
+        }));
+    }
+  } catch {
+    timelineItems = null;
+  }
+
+  let testimonials = null;
+  try {
+    const data = await apiGet("/sections/testimonials");
+    if (Array.isArray(data) && data.length > 0) {
+      testimonials = data
+        .filter((item) => item.is_active !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((item) => ({
+          quote: stripHtml(item.testimonial_text),
+          name: item.name,
+          role: item.company_role,
+        }));
+    }
+  } catch {
+    testimonials = null;
+  }
+
+  let partnerLogos = null;
+  try {
+    const clients = await apiGet("/clients");
+    const data = clients?.data;
+    if (Array.isArray(data) && data.length > 0) {
+      partnerLogos = data
+        .filter((client) => client.is_active !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((client) => client.logo_image_url)
+        .filter(Boolean);
+    }
+  } catch {
+    partnerLogos = null;
+  }
+
+  const { members: teamMembers } = await getTeamSection();
+  const { images: portfolioImages } = await getPortfolioSection();
+
   return (
     <>
       <Navbar />
       <HeroSection />
-      <HeadlineSection />
+      <HeadlineSection about={about} servicesSettings={servicesSettings} />
       <MediaCarousel />
-      <TimelineSection />
-      <QuoteCarousel />
-      <PartnersSection />
-      <TeamSection />
-      <PortfolioSection />
+      <TimelineSection intro={timelineIntro} items={timelineItems} />
+      <QuoteCarousel testimonials={testimonials} />
+      <PartnersSection logos={partnerLogos} />
+      <TeamSection members={teamMembers} />
+      <PortfolioSection images={portfolioImages} />
       <ContactSection />
       <FooterSection />
     </>

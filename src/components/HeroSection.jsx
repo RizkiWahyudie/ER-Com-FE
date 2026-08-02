@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Box,
   Container,
@@ -8,8 +6,25 @@ import {
   Text,
   HStack,
 } from "@chakra-ui/react";
+import { apiGet, getStatsSection, sanitizeRichText } from "@/lib/api";
 
-export default function HeroSection() {
+const FALLBACK_HEADLINE =
+  'We are Building <span style="color:var(--accent)">Trust</span>.<br/>Driving Impact.';
+const FALLBACK_SUBHEADLINE =
+  "We help businesses communicate with confidence through strategic PR and " +
+  "communication solutions. At ER Communication, we share our knowledge to " +
+  "strengthen reputation and drive meaningful impact.";
+
+export default async function HeroSection() {
+  let hero = null;
+  try {
+    hero = await apiGet("/sections/hero/home");
+  } catch {
+    hero = null;
+  }
+
+  const stats = await getStatsSection();
+
   return (
     <Box
       position="relative"
@@ -27,7 +42,7 @@ export default function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        backgroundImage="url('/assets/hero/hero-bg-new.png')"
+        backgroundImage={`url('${hero?.background_image_url ?? "/assets/hero/hero-bg-new.png"}')`}
         backgroundSize="cover"
         backgroundPosition="center"
         // filter="brightness(0.55) saturate(0.85)"
@@ -71,32 +86,23 @@ export default function HeroSection() {
           {/* Main Heading */}
           <Heading
             as="h1"
-            fontSize={{ base: "58px", sm: "48px", md: "72px", xl: "96px" }}
+            fontSize={{ base: "42px", md: "56px", lg: "64px" }}
             color="#fff"
             fontWeight="700"
-            lineHeight="1.05"
-            letterSpacing="-1.5px"
+            lineHeight="1.15"
+            letterSpacing="-1px"
             fontFamily="Plus Jakarta Sans"
-          >
-            We are Building{" "}
-            <Text as="span" color="var(--accent)">
-              Trust
-            </Text>
-            .<br />
-            Driving Impact.
-          </Heading>
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.headline) || FALLBACK_HEADLINE }}
+          />
 
           {/* Subtitle */}
           <Text
-            fontSize={{ base: "15px", md: "18px", xl: "20px" }}
-            color="#ffffff"
-            maxW="3xl"
-            lineHeight="1.4"
-          >
-            We help businesses communicate with confidence through strategic PR and
-            communication solutions. At ER Communication, we share our knowledge to
-            strengthen reputation and drive meaningful impact.
-          </Text>
+            fontSize={{ base: "sm", md: "16px", lg: "18px" }}
+            color="#a0aab8"
+            maxW="2xl"
+            lineHeight="1.6"
+            dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.subheadline) || FALLBACK_SUBHEADLINE }}
+          />
         </VStack>
       </Container>
       <HStack
@@ -106,48 +112,29 @@ export default function HeroSection() {
         pb={{ base: 4, md: 8 }}
         w={{ xl:"7xl" }}
       >
-        {/* Clients Stat */}
-        <VStack spacing={1.5}>
-          <Text
-            fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-            fontWeight="600"
-            color="var(--accent)"
-            textTransform="uppercase"
-          >
-            Clients
-          </Text>
-          <Text
-            fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-            fontWeight="700"
-            color="#fff"
-            fontFamily="Plus Jakarta Sans"
-          >
-            500+
-          </Text>
-        </VStack>
-
-        {/* Divider */}
-        <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />
-
-        {/* Achievements Stat */}
-        <VStack spacing={1.5}>
-          <Text
-            fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-            fontWeight="600"
-            color="var(--accent)"
-            textTransform="uppercase"
-          >
-            Achievements
-          </Text>
-          <Text
-            fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-            fontWeight="700"
-            color="#fff"
-            fontFamily="Plus Jakarta Sans"
-          >
-            57+
-          </Text>
-        </VStack>
+        {stats.map((stat, index) => (
+          <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+            {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+            <VStack spacing={1.5}>
+              <Text
+                fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+                fontWeight="600"
+                color="var(--accent)"
+                textTransform="uppercase"
+              >
+                {stat.stat_label}
+              </Text>
+              <Text
+                fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                fontWeight="700"
+                color="#fff"
+                fontFamily="Plus Jakarta Sans"
+              >
+                {stat.stat_number}
+              </Text>
+            </VStack>
+          </HStack>
+        ))}
       </HStack>
     </Box>
   );

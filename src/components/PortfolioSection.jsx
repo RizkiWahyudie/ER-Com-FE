@@ -18,7 +18,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 
-const portfolioImages = [
+const FALLBACK_PORTFOLIO_IMAGES = [
   "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=600&fit=crop",
   "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=600&fit=crop",
   "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=600&fit=crop",
@@ -27,7 +27,9 @@ const portfolioImages = [
   "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=600&h=600&fit=crop",
 ];
 
-export default function PortfolioSection() {
+export default function PortfolioSection({ images }) {
+  const portfolioImages =
+    Array.isArray(images) && images.length > 0 ? images : FALLBACK_PORTFOLIO_IMAGES;
   const itemsPerView = useBreakpointValue({ base: 2, md: 3 }) ?? 3;
   const [index, setIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);

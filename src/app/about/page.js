@@ -1,5 +1,3 @@
-"use client";
-
 import { Suspense } from "react";
 import {
   Box,
@@ -20,31 +18,59 @@ import TimelineSection from "@/components/TimelineSection";
 import PartnersSection from "@/components/PartnersSection";
 import ServicesListSection from "@/components/ServicesListSection";
 import ContactSection from "@/components/ContactSection";
+import {
+  getAboutFeatures,
+  getAboutMilestones,
+  getAboutSection,
+  getGridServices,
+  getHeroSection,
+  getStatsSection,
+} from "@/lib/api";
 
-const features = [
+const FALLBACK_ABOUT_SECTION = {
+  headline: "About ER Communications",
+  description:
+    "ER Communication (Effective &amp; Responsibility) is one of Indonesia&apos;s pioneer PR " +
+    "agencies with over 57 years of experience. ER Communication is a communications " +
+    "consultancy specializing in corporate communications, crisis and issues management and " +
+    "marketing communications. It provides strategic counseling on top of services you would " +
+    "expect from a Communication agency.",
+};
+
+const FALLBACK_HERO = {
+  headlineLines: ["Know Us More.", "Get Closer."],
+  subheadline:
+    "We help businesses communicate with confidence through strategic PR and communication solutions. ER Communication partners with brands to strengthen reputation and drive meaningful impact.",
+  backgroundImage: "/assets/bg-about.png",
+};
+
+const FEATURE_ICONS = [
+  "/assets/about/about-icon-1.svg",
+  "/assets/about/about-icon-2.svg",
+  "/assets/about/about-icon-3.svg",
+  "/assets/about/about-icon-4.svg",
+];
+
+const FALLBACK_FEATURES = [
   {
-    icon: "/assets/about/about-icon-1.svg",
     title: "Creative Experience",
     desc: "With decades of industry experience, we deliver communication strategies built on insight, credibility, and proven results.",
   },
   {
-    icon: "/assets/about/about-icon-2.svg",
     title: "Impactful Outreach",
     desc: "We help organizations build, strengthen, and protect their reputation through strategic communication initiatives.",
   },
   {
-    icon: "/assets/about/about-icon-3.svg",
     title: "Client-Centric Approach",
     desc: "Every solution is tailored to align with our clients' objectives, challenges, and long-term business goals.",
   },
   {
-    icon: "/assets/about/about-icon-4.svg",
     title: "Meaningful Engagement",
     desc: "We create impactful connections between brands, stakeholders, media, and communities.",
   },
 ];
 
-const timelineItems = [
+const FALLBACK_TIMELINE_ITEMS = [
   {
     year: "1970",
     title: "Announcement",
@@ -67,7 +93,7 @@ const timelineItems = [
   },
 ];
 
-const gridServices = [
+const FALLBACK_GRID_SERVICES = [
   {
     title: "Media Relation",
     img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
@@ -86,7 +112,29 @@ const gridServices = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const apiFeatures = await getAboutFeatures();
+  const features = (apiFeatures.length > 0 ? apiFeatures : FALLBACK_FEATURES).map(
+    (feature, idx) => ({
+      ...feature,
+      icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
+    })
+  );
+
+  const { settings: timelineSettings, items: apiTimelineItems } = await getAboutMilestones();
+  const timelineItems = apiTimelineItems.length > 0 ? apiTimelineItems : FALLBACK_TIMELINE_ITEMS;
+
+  const apiGridServices = await getGridServices();
+  const gridServices = apiGridServices.length > 0 ? apiGridServices : FALLBACK_GRID_SERVICES;
+
+  const apiHero = await getHeroSection("about");
+  const hero = apiHero?.headlineLines?.length > 0 ? apiHero : FALLBACK_HERO;
+
+  const stats = await getStatsSection();
+
+  const apiAboutSection = await getAboutSection();
+  const aboutSection = apiAboutSection?.headline ? apiAboutSection : FALLBACK_ABOUT_SECTION;
+
   const particles = [
     { top: "5%", left: "8%", size: "9px", color: "#F97316", opacity: 0.8, duration: "4s", delay: "0s" },
     { top: "10%", left: "25%", size: "7px", color: "#334155", opacity: 0.7, duration: "5s", delay: "0.4s" },
@@ -122,7 +170,7 @@ export default function AboutPage() {
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
-        backgroundImage="url('/assets/bg-about.png')"
+        backgroundImage={`url('${hero.backgroundImage}')`}
         backgroundSize="cover"
         backgroundPosition="center"
       >
@@ -156,12 +204,11 @@ export default function AboutPage() {
               letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              Know Us{" "}
-              <Text as="span" color="var(--accent)">
-                More.
-              </Text>
-              <br />
-              Get Closer.
+              {hero.headlineLines.map((line, idx) => (
+                <Text as="span" display="block" key={idx}>
+                  {line}
+                </Text>
+              ))}
             </Heading>
 
             <Text
@@ -171,9 +218,7 @@ export default function AboutPage() {
               lineHeight="1.6"
               opacity={0.85}
             >
-              We help businesses communicate with confidence through strategic PR and
-              communication solutions. ER Communication partners with brands to
-              strengthen reputation and drive meaningful impact.
+              {hero.subheadline}
             </Text>
           </VStack>
         </Container>
@@ -187,45 +232,29 @@ export default function AboutPage() {
           zIndex={1}
           pb={{ base: 4, md: 8 }}
         >
-          <VStack spacing={1.5}>
-            <Text
-              fontSize={{ base: "16px", md: "18px", lg: "27px" }}
-              fontWeight="600"
-              color="var(--accent)"
-              textTransform="uppercase"
-            >
-              Clients
-            </Text>
-            <Text
-              fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-              fontWeight="700"
-              color="#fff"
-              fontFamily="Plus Jakarta Sans"
-            >
-              500+
-            </Text>
-          </VStack>
-
-          <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />
-
-          <VStack spacing={1.5}>
-            <Text
-              fontSize={{ base: "16px", md: "18px", lg: "27px" }}
-              fontWeight="600"
-              color="var(--accent)"
-              textTransform="uppercase"
-            >
-              Achievements
-            </Text>
-            <Text
-              fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-              fontWeight="700"
-              color="#fff"
-              fontFamily="Plus Jakarta Sans"
-            >
-              57+
-            </Text>
-          </VStack>
+          {stats.map((stat, index) => (
+            <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+              {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+              <VStack spacing={1.5}>
+                <Text
+                  fontSize={{ base: "16px", md: "18px", lg: "27px" }}
+                  fontWeight="600"
+                  color="var(--accent)"
+                  textTransform="uppercase"
+                >
+                  {stat.stat_label}
+                </Text>
+                <Text
+                  fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                  fontWeight="700"
+                  color="#fff"
+                  fontFamily="Plus Jakarta Sans"
+                >
+                  {stat.stat_number}
+                </Text>
+              </VStack>
+            </HStack>
+          ))}
         </HStack>
       </Box>
 
@@ -238,22 +267,16 @@ export default function AboutPage() {
             fontWeight="400"
             fontFamily="Plus Jakarta Sans"
             mb={8}
-          >
-            About ER Communications
-          </Heading>
+            dangerouslySetInnerHTML={{ __html: aboutSection.headline }}
+          />
           <Text
             fontSize={{ base: "sm", md: "lg" }}
             color="rgba(255,255,255,0.65)"
             lineHeight="1.8"
             maxW="4xl"
             mx="auto"
-          >
-            ER Communication (Effective &amp; Responsibility) is one of Indonesia&apos;s pioneer PR
-            agencies with over 57 years of experience. ER Communication is a communications
-            consultancy specializing in corporate communications, crisis and issues management and
-            marketing communications. It provides strategic counseling on top of services you would
-            expect from a Communication agency.
-          </Text>
+            dangerouslySetInnerHTML={{ __html: aboutSection.description }}
+          />
         </Container>
       </Box>
 
@@ -352,6 +375,13 @@ export default function AboutPage() {
           py={{ base: 20, md: 32 }}
           position="relative"
           overflow="hidden"
+          sx={{
+            "@keyframes floatParticle": {
+              "0%": { transform: "translate(0, 0)" },
+              "50%": { transform: "translate(9px, -10px)" },
+              "100%": { transform: "translate(-9px, 8px)" },
+            },
+          }}
         >
           <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
             {particles.map((p, i) => (
@@ -374,19 +404,6 @@ export default function AboutPage() {
             ))}
           </Box>
 
-          <style jsx global>{`
-            @keyframes floatParticle {
-              0% {
-                transform: translate(0, 0);
-              }
-              50% {
-                transform: translate(9px, -10px);
-              }
-              100% {
-                transform: translate(-9px, 8px);
-              }
-            }
-          `}</style>
           <Container maxW="4xl" position="relative" zIndex={1}>
             <VStack spacing={20} align="center">
               {/* Title */}
@@ -397,10 +414,11 @@ export default function AboutPage() {
                   color="#fff"
                   fontFamily="Plus Jakarta Sans"
                 >
-                  Timeline
+                  {timelineSettings?.title ?? "Timeline"}
                 </Heading>
                 <Text fontSize={{ base: "sm", md: "lg" }} color="rgba(255,255,255,0.6)" lineHeight="1.8" maxW="600px">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et.
+                  {timelineSettings?.description ??
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et."}
                 </Text>
               </VStack>
 

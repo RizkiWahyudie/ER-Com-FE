@@ -20,7 +20,7 @@ import {
 import { FaAddressCard } from "react-icons/fa";
 import ContactCardModal from "@/components/ContactCardModal";
 
-const teamData = [
+const FALLBACK_TEAM_DATA = [
   {
     name: "Ingga Mawardy",
     role: "Technology Law Associate",
@@ -79,7 +79,8 @@ const teamData = [
   },
 ];
 
-export default function TeamDetail() {
+export default function TeamDetail({ members }) {
+  const teamData = Array.isArray(members) && members.length > 0 ? members : FALLBACK_TEAM_DATA;
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedMember, setSelectedMember] = useState(null);
 

@@ -14,8 +14,8 @@ import {
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
-// Placeholder testimonial data
-const testimonials = [
+// Fallback testimonial data (used when CMS has no active testimonials)
+const FALLBACK_TESTIMONIALS = [
   {
     quote:
       "I imagine we can change the world, one heart, one face or one body at a time. We think outside the lines of our craft.",
@@ -77,7 +77,11 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-export default function QuoteCarousel() {
+export default function QuoteCarousel({ testimonials: testimonialsProp }) {
+  const testimonials =
+    Array.isArray(testimonialsProp) && testimonialsProp.length > 0
+      ? testimonialsProp
+      : FALLBACK_TESTIMONIALS;
   const itemsPerView = useBreakpointValue({ base: 1, md: 2, lg: 3 }) ?? 3;
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);

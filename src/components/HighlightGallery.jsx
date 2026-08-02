@@ -21,9 +21,10 @@ import {
   FaChevronRight,
   FaExpand,
 } from "react-icons/fa";
+import { getHighlightGallery } from "@/lib/api";
 
 // ─── Data ────────────────────────────────────────────────────────────
-const videos = [
+const FALLBACK_VIDEOS = [
   {
     id: "dQw4w9WgXcQ",
     title: "ER Communication — Corporate Highlight",
@@ -46,7 +47,7 @@ const videos = [
   },
 ];
 
-const galleryPhotos = [
+const FALLBACK_GALLERY_PHOTOS = [
   "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&h=400&fit=crop",
   "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&h=400&fit=crop",
@@ -494,6 +495,15 @@ export default function HighlightGallery() {
   const [videoSlide, setVideoSlide] = useState(0);
   const marqueeRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
+  const [videos, setVideos] = useState(FALLBACK_VIDEOS);
+  const [galleryPhotos, setGalleryPhotos] = useState(FALLBACK_GALLERY_PHOTOS);
+
+  useEffect(() => {
+    getHighlightGallery().then(({ photos, videos: apiVideos }) => {
+      if (photos.length > 0) setGalleryPhotos(photos);
+      if (apiVideos.length > 0) setVideos(apiVideos);
+    });
+  }, []);
 
   const prevVideo = () =>
     setVideoSlide((i) => (i - 1 + videos.length) % videos.length);

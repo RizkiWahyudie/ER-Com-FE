@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Box,
   Container,
@@ -17,17 +17,23 @@ import {
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
+import { getCareers, getHeroSection, submitCareerApplication } from "@/lib/api";
 
-const positions = [
-  "Marketing Team",
-  "Public Relations",
-  "Content Creator",
-  "Media Relations",
-  "Corporate Communications",
-  "Digital Strategy",
+const FALLBACK_HERO = {
+  headlineLines: ["Your Next Career", "Starts Here With Us."],
+  subheadline:
+    "Join ER Communications and grow alongside a team dedicated to " +
+    "delivering impactful communication solutions for leading companies.",
+};
+
+const FALLBACK_JOBS = [
+  { slug: "marketing-team", title: "Marketing Team", employmentType: "Full time" },
+  { slug: "public-relations", title: "Public Relations", employmentType: "Full time" },
+  { slug: "content-creator", title: "Content Creator", employmentType: "Full time" },
+  { slug: "media-relations", title: "Media Relations", employmentType: "Full time" },
+  { slug: "corporate-communications", title: "Corporate Communications", employmentType: "Full time" },
+  { slug: "digital-strategy", title: "Digital Strategy", employmentType: "Full time" },
 ];
-
-const employmentTypes = ["Full time", "Part time", "Internship", "Freelance"];
 
 export default function CareerPage() {
   const toast = useToast();
@@ -85,18 +91,35 @@ export default function CareerPage() {
       },
     },
   };
+  const [hero, setHero] = useState(FALLBACK_HERO);
+  const [jobs, setJobs] = useState(FALLBACK_JOBS);
   const [form, setForm] = useState({
-    position: "Marketing Team",
-    employmentType: "Full time",
+    jobSlug: FALLBACK_JOBS[0].slug,
     fullName: "",
     email: "",
     phone: "",
     address: "",
   });
 
+  useEffect(() => {
+    getCareers().then((apiJobs) => {
+      if (apiJobs.length > 0) {
+        setJobs(apiJobs);
+        setForm((prev) => ({ ...prev, jobSlug: apiJobs[0].slug }));
+      }
+    });
+
+    getHeroSection("career").then((apiHero) => {
+      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    });
+  }, []);
+
+  const selectedJob = jobs.find((job) => job.slug === form.jobSlug) ?? jobs[0];
+
   const [errors, setErrors] = useState({});
   const [isDragActive, setIsDragActive] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
@@ -138,11 +161,14 @@ export default function CareerPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validation
     const tempErrors = {};
+    if (!form.jobSlug) {
+      tempErrors.jobSlug = "Posisi wajib dipilih";
+    }
     if (!form.fullName.trim()) {
       tempErrors.fullName = "Nama lengkap wajib diisi";
     }
@@ -174,27 +200,47 @@ export default function CareerPage() {
       return;
     }
 
-    console.log(form, resumeFile);
-    toast({
-      title: "Lamaran Berhasil Dikirim!",
-      description: "Tim kami akan segera meninjau CV Anda.",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      position: "bottom-center",
-    });
+    setIsSubmitting(true);
+    try {
+      await submitCareerApplication(form.jobSlug, {
+        name: form.fullName,
+        email: form.email,
+        phone: form.phone,
+        address: form.address,
+        cv: resumeFile,
+      });
 
-    // Clear form
-    setForm({
-      position: "Marketing Team",
-      employmentType: "Full time",
-      fullName: "",
-      email: "",
-      phone: "",
-      address: "",
-    });
-    setResumeFile(null);
-    setErrors({});
+      toast({
+        title: "Lamaran Berhasil Dikirim!",
+        description: "Tim kami akan segera meninjau CV Anda.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+
+      // Clear form
+      setForm({
+        jobSlug: jobs[0]?.slug ?? "",
+        fullName: "",
+        email: "",
+        phone: "",
+        address: "",
+      });
+      setResumeFile(null);
+      setErrors({});
+    } catch (err) {
+      toast({
+        title: "Gagal Mengirim",
+        description: err.message || "Terjadi kesalahan, silakan coba lagi.",
+        status: "error",
+        duration: 4000,
+        isClosable: true,
+        position: "bottom-center",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -272,8 +318,11 @@ export default function CareerPage() {
               letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              Your Next Career<br />
-              Starts Here With Us.
+              {hero.headlineLines.map((line, idx) => (
+                <Text as="span" display="block" key={idx}>
+                  {line}
+                </Text>
+              ))}
             </Heading>
 
             <Text
@@ -283,8 +332,7 @@ export default function CareerPage() {
               lineHeight="1.6"
               opacity={0.85}
             >
-              Join ER Communications and grow alongside a team dedicated to
-              delivering impactful communication solutions for leading companies.
+              {hero.subheadline}
             </Text>
           </VStack>
         </Container>
@@ -306,31 +354,28 @@ export default function CareerPage() {
                 Position applying for *
               </Text>
               <Select
-                name="position"
-                value={form.position}
+                name="jobSlug"
+                value={form.jobSlug}
                 onChange={handleChange}
                 {...selectStyle}
               >
-                {positions.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                {jobs.map((job) => (
+                  <option key={job.slug} value={job.slug}>{job.title}</option>
                 ))}
               </Select>
             </Box>
 
             <Box flex={1}>
               <Text fontSize={{ base: 'sm', md: 'md' }} color={labelColor} fontWeight="500" mb={2}>
-                Employment type *
+                Employment type
               </Text>
-              <Select
-                name="employmentType"
-                value={form.employmentType}
-                onChange={handleChange}
-                {...selectStyle}
-              >
-                {employmentTypes.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </Select>
+              <Input
+                isReadOnly
+                value={selectedJob?.employmentType ?? ""}
+                {...fieldStyle}
+                cursor="default"
+                _hover={{}}
+              />
             </Box>
           </Flex>
 
@@ -535,6 +580,8 @@ export default function CareerPage() {
           >
             <Button
               type="submit"
+              isLoading={isSubmitting}
+              loadingText="Sending..."
               bg="var(--accent)"
               color="#fff"
               borderRadius="full"

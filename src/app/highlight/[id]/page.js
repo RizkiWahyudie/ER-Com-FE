@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -18,8 +18,9 @@ import { FaArrowLeft, FaClock, FaTag } from "react-icons/fa";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
+import { getBlogPost, getBlogPosts } from "@/lib/api";
 
-const allProjects = [
+const FALLBACK_PROJECTS = [
   {
     id: "0",
     img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=600&fit=crop",
@@ -176,10 +177,34 @@ function RelatedCard({ id, img, title, author, date, category }) {
 }
 
 export default function BlogDetailPage({ params }) {
-  const { id: rawId } = use(params);
-  const id = parseInt(rawId ?? "0");
-  const post = allProjects[id] ?? allProjects[0];
-  const related = allProjects.filter((_, i) => i !== id).slice(0, 3);
+  const { id: slug } = use(params);
+  const [post, setPost] = useState(
+    FALLBACK_PROJECTS.find((p) => p.id === slug) ?? FALLBACK_PROJECTS[0]
+  );
+  const [related, setRelated] = useState(
+    FALLBACK_PROJECTS.filter((p) => p.id !== slug).slice(0, 3)
+  );
+
+  useEffect(() => {
+    getBlogPost(slug).then((apiPost) => {
+      if (apiPost) setPost(apiPost);
+    });
+
+    getBlogPosts().then((apiPosts) => {
+      if (apiPosts.length > 0) {
+        setRelated(apiPosts.filter((p) => p.id !== slug).slice(0, 3));
+      }
+    });
+  }, [slug]);
+
+  const readTime = post.content
+    ? `${Math.max(
+        1,
+        Math.round(
+          post.content.replace(/<[^>]*>/g, " ").trim().split(/\s+/).filter(Boolean).length / 200
+        )
+      )} min read`
+    : post.readTime ?? "5 min read";
 
   return (
     <Box
@@ -282,7 +307,7 @@ export default function BlogDetailPage({ params }) {
               </HStack>
               <HStack spacing={1} color="rgba(255,255,255,0.45)" fontSize="13px">
                 <Icon as={FaClock} w={3} h={3} />
-                <Text>{post.readTime}</Text>
+                <Text>{readTime}</Text>
               </HStack>
               <HStack spacing={1} color="rgba(255,255,255,0.45)" fontSize="13px">
                 <Icon as={FaTag} w={3} h={3} />
@@ -303,17 +328,30 @@ export default function BlogDetailPage({ params }) {
               {post.desc}
             </Text>
 
-            {/* Body paragraphs */}
-            {articleContent.map((para, i) => (
-              <Text
-                key={i}
+            {/* Body content */}
+            {post.content ? (
+              <Box
                 fontSize={{ base: "15px", md: "16px" }}
                 color="rgba(255,255,255,0.6)"
                 lineHeight="1.85"
-              >
-                {para}
-              </Text>
-            ))}
+                sx={{
+                  "& p": { marginBottom: "1em" },
+                  "& a": { color: "#2563EB", textDecoration: "underline" },
+                }}
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            ) : (
+              articleContent.map((para, i) => (
+                <Text
+                  key={i}
+                  fontSize={{ base: "15px", md: "16px" }}
+                  color="rgba(255,255,255,0.6)"
+                  lineHeight="1.85"
+                >
+                  {para}
+                </Text>
+              ))
+            )}
 
             {/* Pull quote */}
             <Box
@@ -333,17 +371,6 @@ export default function BlogDetailPage({ params }) {
                 and drive meaningful impact across every channel.&rdquo;
               </Text>
             </Box>
-
-            {articleContent.slice(0, 2).map((para, i) => (
-              <Text
-                key={`b-${i}`}
-                fontSize={{ base: "15px", md: "16px" }}
-                color="rgba(255,255,255,0.6)"
-                lineHeight="1.85"
-              >
-                {para}
-              </Text>
-            ))}
 
             {/* Divider */}
             <Box h="1px" bg="rgba(255,255,255,0.1)" />

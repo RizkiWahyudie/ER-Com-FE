@@ -32,7 +32,7 @@ import { getServicesListSection } from "@/lib/api";
 // ─── Fallback hierarchical data (used until the API loads / if it fails) ──
 const FALLBACK_SERVICES_DATA = [
   {
-    title: "Media Relation",
+    title: "Media Relation1",
     desc: "Has extensive media relations and is easily accessible to our client, we continue to strengthen our communication network with our clients",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&h=600&fit=crop",
     colSpan: 1,

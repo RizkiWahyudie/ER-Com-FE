@@ -9,11 +9,7 @@ import PortfolioSection from "@/components/PortfolioSection";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 import QuoteCarousel from "@/components/QuoteCarousel";
-import { apiGet, getTeamSection, getPortfolioSection } from "@/lib/api";
-
-function stripHtml(html) {
-  return html?.replace(/<[^>]*>/g, "").trim() ?? "";
-}
+import { apiGet, getTeamSection, getPortfolioSection, getPartnerLogos, getTestimonials } from "@/lib/api";
 
 export default async function HomePage() {
   let about = null;
@@ -60,37 +56,9 @@ export default async function HomePage() {
     timelineItems = null;
   }
 
-  let testimonials = null;
-  try {
-    const data = await apiGet("/sections/testimonials");
-    if (Array.isArray(data) && data.length > 0) {
-      testimonials = data
-        .filter((item) => item.is_active !== false)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map((item) => ({
-          quote: stripHtml(item.testimonial_text),
-          name: item.name,
-          role: item.company_role,
-        }));
-    }
-  } catch {
-    testimonials = null;
-  }
+  const testimonials = await getTestimonials();
 
-  let partnerLogos = null;
-  try {
-    const clients = await apiGet("/clients");
-    const data = clients?.data;
-    if (Array.isArray(data) && data.length > 0) {
-      partnerLogos = data
-        .filter((client) => client.is_active !== false)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map((client) => client.logo_image_url)
-        .filter(Boolean);
-    }
-  } catch {
-    partnerLogos = null;
-  }
+  const partnerLogos = await getPartnerLogos();
 
   const { members: teamMembers } = await getTeamSection();
   const { images: portfolioImages } = await getPortfolioSection();

@@ -45,6 +45,21 @@ export async function apiPost(path, body) {
   return data;
 }
 
+export async function apiPostFormData(path, formData) {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    throw new Error(data?.message ?? `Failed to post ${path}: ${res.status}`);
+  }
+
+  return data;
+}
+
 export async function getAboutFeatures() {
   try {
     const data = await apiGet("/about-sections");
@@ -157,6 +172,58 @@ function mapServiceItem(item) {
   };
 }
 
+function collectCategoryImages(cat, limit = 4) {
+  const images = [];
+  const items = Array.isArray(cat.items)
+    ? cat.items
+        .filter((item) => item.is_active !== false)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    : [];
+
+  for (const item of items) {
+    const itemThumb = toStorageUrl(item.thumbnail);
+    if (itemThumb) images.push(itemThumb);
+    if (images.length >= limit) break;
+
+    const subItems = Array.isArray(item.sub_items)
+      ? item.sub_items
+          .filter((sub) => sub.is_active !== false)
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      : [];
+    for (const sub of subItems) {
+      const subThumb = toStorageUrl(sub.thumbnail);
+      if (subThumb) images.push(subThumb);
+      if (images.length >= limit) break;
+    }
+    if (images.length >= limit) break;
+  }
+
+  if (images.length === 0) {
+    const cover = toStorageUrl(cat.cover_image);
+    if (cover) images.push(cover);
+  }
+
+  return images.slice(0, limit);
+}
+
+export async function getMediaCarouselSlides() {
+  try {
+    const data = await apiGet("/services");
+    const categories = Array.isArray(data?.data) ? data.data : [];
+
+    return categories
+      .filter((cat) => cat.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((cat) => ({
+        tag: cat.name,
+        imgs: collectCategoryImages(cat),
+      }))
+      .filter((slide) => slide.imgs.length > 0);
+  } catch {
+    return [];
+  }
+}
+
 export async function getServicesListSection() {
   try {
     const data = await apiGet("/services");
@@ -226,6 +293,125 @@ export async function getAboutSection() {
   }
 }
 
+export async function getPartnerLogos() {
+  try {
+    const clients = await apiGet("/clients");
+    const data = Array.isArray(clients?.data) ? clients.data : [];
+    return data
+      .filter((client) => client.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((client) => client.logo_image_url)
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+export async function getTestimonials() {
+  try {
+    const testimonials = await apiGet("/testimonials");
+    const data = Array.isArray(testimonials?.data) ? testimonials.data : [];
+    return data
+      .filter((item) => item.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((item) => ({
+        quote: item.testimonial_text?.replace(/<[^>]*>/g, "").trim() ?? "",
+        name: item.name,
+        role: item.company_role,
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function formatBlogDate(dateStr) {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+function mapBlogPost(post) {
+  const plainContent = post.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() ?? "";
+  return {
+    id: post.slug,
+    img: post.cover_image_url,
+    title: post.title,
+    desc: post.excerpt?.trim() || plainContent.slice(0, 180),
+    content: post.content ?? "",
+    author: post.author,
+    date: formatBlogDate(post.published_at),
+    category: post.category?.name ?? "",
+  };
+}
+
+export async function getBlogPosts() {
+  try {
+    const data = await apiGet("/blog");
+    const posts = Array.isArray(data?.data) ? data.data : [];
+    return posts
+      .filter((post) => post.is_published !== false)
+      .map(mapBlogPost)
+      .filter((post) => post.img);
+  } catch {
+    return [];
+  }
+}
+
+export async function getBlogPost(slug) {
+  try {
+    const post = await apiGet(`/blog/${encodeURIComponent(slug)}`);
+    if (!post?.slug) return null;
+    return mapBlogPost(post);
+  } catch {
+    return null;
+  }
+}
+
+export async function getBlogCategories() {
+  try {
+    const data = await apiGet("/blog-categories");
+    const categories = Array.isArray(data) ? data : [];
+    return categories
+      .filter((cat) => cat.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((cat) => cat.name);
+  } catch {
+    return [];
+  }
+}
+
+export async function getClients() {
+  try {
+    const clients = await apiGet("/clients");
+    const data = Array.isArray(clients?.data) ? clients.data : [];
+    return data
+      .filter((client) => client.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((client) => ({
+        src: client.logo_image_url,
+        name: client.name,
+        type: client.category?.name ?? "",
+      }))
+      .filter((client) => client.src);
+  } catch {
+    return [];
+  }
+}
+
+export async function getClientCategories() {
+  try {
+    const data = await apiGet("/client-categories");
+    const categories = Array.isArray(data) ? data : [];
+    return categories
+      .filter((cat) => cat.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((cat) => cat.name);
+  } catch {
+    return [];
+  }
+}
+
 export async function getPortfolioSection() {
   try {
     const data = await apiGet("/portfolio");
@@ -237,6 +423,30 @@ export async function getPortfolioSection() {
     return { images };
   } catch {
     return { images: [] };
+  }
+}
+
+// /portfolio has no video data — these YouTube IDs are placeholders paired
+// with real portfolio thumbnails until the CMS exposes an actual video field.
+const PLACEHOLDER_VIDEO_IDS = ["dQw4w9WgXcQ", "jNQXAC9IVRw", "9bZkp7q19f0", "kJQP7kiw5Fk"];
+
+export async function getHighlightGallery() {
+  try {
+    const data = await apiGet("/portfolio");
+    const items = Array.isArray(data?.data) ? data.data : [];
+    const published = items.filter((item) => item.is_published !== false && item.cover_image_url);
+
+    const photos = published.map((item) => item.cover_image_url);
+
+    const videos = published.map((item, idx) => ({
+      id: PLACEHOLDER_VIDEO_IDS[idx % PLACEHOLDER_VIDEO_IDS.length],
+      title: item.project_title ?? "ER Communication Highlight",
+      thumb: item.cover_image_url,
+    }));
+
+    return { photos, videos };
+  } catch {
+    return { photos: [], videos: [] };
   }
 }
 
@@ -278,4 +488,32 @@ export async function getTeamSection() {
   } catch {
     return { settings: null, members: [] };
   }
+}
+
+export async function getCareers() {
+  try {
+    const data = await apiGet("/careers");
+    const careers = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+    return careers
+      .filter((job) => job.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((job) => ({
+        slug: job.slug,
+        title: job.title,
+        employmentType: job.employment_type ?? "",
+      }))
+      .filter((job) => job.slug && job.title);
+  } catch {
+    return [];
+  }
+}
+
+export async function submitCareerApplication(slug, { name, email, phone, address, cv }) {
+  const formData = new FormData();
+  formData.append("name", name);
+  formData.append("email", email);
+  formData.append("phone", phone);
+  formData.append("address", address);
+  formData.append("cv", cv);
+  return apiPostFormData(`/careers/${encodeURIComponent(slug)}/apply`, formData);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -16,10 +16,18 @@ import Navbar from "@/components/Navbar";
 import QuoteCarousel from "@/components/QuoteCarousel";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
+import { getClientCategories, getClients, getHeroSection, getTestimonials } from "@/lib/api";
 
-const categories = ["All", "Government", "National Corporate", "Multinational Corporate"];
+const FALLBACK_HERO = {
+  headlineLines: ["Trusted by Indonesia's", "Leading Companies"],
+  subheadline:
+    "Companies are ditching legacy platforms for the ability to deliver " +
+    "an engaging experience at every level.",
+};
 
-const clients = [
+const FALLBACK_CATEGORIES = ["Government", "National Corporate", "Multinational Corporate"];
+
+const FALLBACK_CLIENTS = [
   { src: "/assets/partner/partner-logo-1.png",  name: "Partner 1",  type: "Government" },
   { src: "/assets/partner/partner-logo-2.png",  name: "Partner 2",  type: "Government" },
   { src: "/assets/partner/partner-logo-3.png",  name: "Partner 3",  type: "Government" },
@@ -36,6 +44,26 @@ const clients = [
 
 export default function ClientsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
+  const [clients, setClients] = useState(FALLBACK_CLIENTS);
+  const [hero, setHero] = useState(FALLBACK_HERO);
+  const [testimonials, setTestimonials] = useState([]);
+
+  useEffect(() => {
+    getClientCategories().then((apiCategories) => {
+      if (apiCategories.length > 0) setCategories(["All", ...apiCategories]);
+    });
+
+    getClients().then((apiClients) => {
+      if (apiClients.length > 0) setClients(apiClients);
+    });
+
+    getHeroSection("client").then((apiHero) => {
+      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    });
+
+    getTestimonials().then(setTestimonials);
+  }, []);
 
   const pageBg = useColorModeValue("#fff", "#05060A");
   const tabActiveBg = useColorModeValue("#1e293b", "#fff");
@@ -44,8 +72,6 @@ export default function ClientsPage() {
   const tabInactiveColor = useColorModeValue("rgba(0,0,0,0.65)", "rgba(255,255,255,0.65)");
   const tabHoverBorder = useColorModeValue("#1e293b", "#fff");
   const emptyTextColor = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255,255,255,0.3)");
-  const clientImgFilter = useColorModeValue("brightness(0) opacity(0.6)", "brightness(0) invert(1) opacity(0.75)");
-  const clientImgHoverFilter = useColorModeValue("brightness(0) opacity(1)", "brightness(0) invert(1) opacity(1)");
 
   const headingText = useColorModeValue("#3C87F9", "#fff");
   const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
@@ -126,8 +152,11 @@ export default function ClientsPage() {
               letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              Trusted by Indonesia&apos;s<br />
-              Leading Companies
+              {hero.headlineLines.map((line, idx) => (
+                <Text as="span" display="block" key={idx}>
+                  {line}
+                </Text>
+              ))}
             </Heading>
 
             <Text
@@ -137,8 +166,7 @@ export default function ClientsPage() {
               lineHeight="1.6"
               opacity={0.85}
             >
-              Companies are ditching legacy platforms for the ability to deliver
-              an engaging experience at every level.
+              {hero.subheadline}
             </Text>
           </VStack>
         </Container>
@@ -207,9 +235,7 @@ export default function ClientsPage() {
                   maxH={{ base: "60px", md: "140px" }}
                   maxW={{ base: "160px", md: "290px" }}
                   objectFit="contain"
-                  filter={clientImgFilter}
                   transition="all 0.3s ease"
-                  _hover={{ filter: clientImgHoverFilter }}
                 />
               </Flex>
             ))}
@@ -225,7 +251,7 @@ export default function ClientsPage() {
 
       {/* ── Quote Carousel ── */}
       <Box pb={{ base: 12, md: 24 }}>
-        <QuoteCarousel />
+        <QuoteCarousel testimonials={testimonials} />
       </Box>
 
       {/* ── Contact & Footer ── */}

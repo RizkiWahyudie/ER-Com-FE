@@ -1,8 +1,25 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Box, Container, VStack, Heading, Text, useColorModeValue } from "@chakra-ui/react";
+import { getHeroSection } from "@/lib/api";
+
+const FALLBACK_HERO = {
+  headlineLines: ["Explore Our Services for", "Your Company Needs."],
+  subheadline:
+    "Discover how ER Communications helps company build trust, strengthen reputation, " +
+    "and create meaningful connections through strategic communication solutions.",
+};
 
 export default function ServicesHeroSection() {
+  const [hero, setHero] = useState(FALLBACK_HERO);
+
+  useEffect(() => {
+    getHeroSection("service").then((apiHero) => {
+      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    });
+  }, []);
+
   const overlay = useColorModeValue("#fff", "#05060a");
   const headingText = useColorModeValue("#3C87F9", "#fff");
   const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
@@ -39,8 +56,11 @@ export default function ServicesHeroSection() {
             letterSpacing="-1px"
             fontFamily="Plus Jakarta Sans"
           >
-            Explore Our Services for<br />
-            Your Company Needs.
+            {hero.headlineLines.map((line, idx) => (
+              <Text as="span" display="block" key={idx}>
+                {line}
+              </Text>
+            ))}
           </Heading>
           <Text
             fontSize={{ base: "sm", md: "16px", lg: "18px" }}
@@ -48,8 +68,7 @@ export default function ServicesHeroSection() {
             maxW="2xl"
             lineHeight="1.6"
           >
-            Discover how ER Communications helps company build trust, strengthen reputation,
-            and create meaningful connections through strategic communication solutions.
+            {hero.subheadline}
           </Text>
         </VStack>
       </Container>

@@ -1,3 +1,4 @@
+import { ColorModeScript } from "@chakra-ui/react";
 import "./globals.css";
 import Providers from "./providers";
 import ChunkErrorReloader from "@/components/ChunkErrorReloader";
@@ -71,6 +72,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
+        <ColorModeScript initialColorMode="dark" />
         <ChunkErrorReloader />
         <Providers>{children}</Providers>
       </body>

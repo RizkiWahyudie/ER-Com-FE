@@ -14,8 +14,9 @@ import {
   useColorModeValue,
 } from "@chakra-ui/react";
 import { FaPlay, FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { getMediaCarouselSlides } from "@/lib/api";
 
-const slidesData = [
+const FALLBACK_SLIDES_DATA = [
   {
     tag: "Media Relation",
     imgs: [
@@ -68,6 +69,13 @@ export default function MediaCarousel() {
   const [idx, setIdx] = useState(0);
   const [perView, setPerView] = useState(3);
   const [isHovered, setIsHovered] = useState(false);
+  const [slidesData, setSlidesData] = useState(FALLBACK_SLIDES_DATA);
+
+  useEffect(() => {
+    getMediaCarouselSlides().then((data) => {
+      if (data.length > 0) setSlidesData(data);
+    });
+  }, []);
 
   const cardBg = useColorModeValue(
     "radial-gradient(circle at 50% 0%, rgba(0,37,85,0.06) 0%, rgba(0,13,44,0.03) 30%, rgba(2,91,207,0) 70%), #f0f4fa",

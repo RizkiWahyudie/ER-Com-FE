@@ -27,6 +27,7 @@ import {
   getAboutMilestones,
   getAboutSection,
   getHeroSection,
+  getPartnerLogos,
   getStatsSection,
 } from "@/lib/api";
 
@@ -108,6 +109,7 @@ export default function AboutPage() {
   const [hero, setHero] = useState(FALLBACK_HERO);
   const [stats, setStats] = useState([]);
   const [aboutSection, setAboutSection] = useState(FALLBACK_ABOUT_SECTION);
+  const [partnerLogos, setPartnerLogos] = useState([]);
 
   useEffect(() => {
     getAboutFeatures().then((apiFeatures) => {
@@ -135,6 +137,8 @@ export default function AboutPage() {
     getAboutSection().then((apiAboutSection) => {
       if (apiAboutSection?.headline) setAboutSection(apiAboutSection);
     });
+
+    getPartnerLogos().then(setPartnerLogos);
   }, []);
 
   const particles = [
@@ -517,7 +521,7 @@ export default function AboutPage() {
 
       {/* ── Additional Sections ── */}
       <TimelineSection />
-      <PartnersSection />
+      <PartnersSection logos={partnerLogos} />
       <ContactSection />
       <FooterSection />
     </>

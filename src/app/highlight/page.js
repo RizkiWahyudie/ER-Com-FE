@@ -21,10 +21,15 @@ import FooterSection from "@/components/FooterSection";
 import HighlightGallery from "@/components/HighlightGallery";
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FaArrowRight } from "react-icons/fa";
-import { getStatsSection } from "@/lib/api";
+import { apiGet, getBlogCategories, getBlogPosts, getStatsSection, sanitizeRichText } from "@/lib/api";
 
-const categories = [
-  "All",
+const FALLBACK_HEADLINE = 'See Our <span style="color:var(--accent)">Projects</span>.<br/>So You Know.';
+const FALLBACK_SUBHEADLINE =
+  "We help businesses communicate with confidence through strategic PR and " +
+  "communication solutions. ER Communication partners with brands to " +
+  "strengthen reputation and drive meaningful impact.";
+
+const FALLBACK_CATEGORIES = [
   "News",
   "Media Coverage",
   "CSR",
@@ -34,10 +39,9 @@ const categories = [
   "Digital Work",
 ];
 
-
-
-const allProjects = [
+const FALLBACK_PROJECTS = [
   {
+    id: "fallback-1",
     img: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -46,6 +50,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-2",
     img: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -54,6 +59,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-3",
     img: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -62,6 +68,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-4",
     img: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -70,6 +77,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-5",
     img: "https://images.unsplash.com/photo-1551817958-d9d86fb29431?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -78,6 +86,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-6",
     img: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -86,6 +95,7 @@ const allProjects = [
     category: "Events",
   },
   {
+    id: "fallback-7",
     img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -94,6 +104,7 @@ const allProjects = [
     category: "Media Coverage",
   },
   {
+    id: "fallback-8",
     img: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -102,6 +113,7 @@ const allProjects = [
     category: "Media Coverage",
   },
   {
+    id: "fallback-9",
     img: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&h=360&fit=crop",
     title: "Lorem ipsum dolor sit ametero irseo",
     desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
@@ -211,9 +223,24 @@ export default function HighlightPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [page, setPage] = useState(1);
   const [stats, setStats] = useState(FALLBACK_STATS);
+  const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
+  const [allProjects, setAllProjects] = useState(FALLBACK_PROJECTS);
+  const [hero, setHero] = useState(null);
 
   useEffect(() => {
     getStatsSection().then(setStats);
+
+    apiGet("/sections/hero/highlight")
+      .then(setHero)
+      .catch(() => setHero(null));
+
+    getBlogCategories().then((apiCategories) => {
+      if (apiCategories.length > 0) setCategories(["All", ...apiCategories]);
+    });
+
+    getBlogPosts().then((apiProjects) => {
+      if (apiProjects.length > 0) setAllProjects(apiProjects);
+    });
   }, []);
 
   const pageBg = useColorModeValue("#fff", "#05060A");
@@ -294,24 +321,15 @@ export default function HighlightPage() {
               lineHeight="1.05"
               letterSpacing="-1.5px"
               fontFamily="Plus Jakarta Sans"
-            >
-              See Our{" "}
-              <Text as="span" color="var(--accent)">
-                Projects
-              </Text>
-              .<br />
-              So You Know.
-            </Heading>
+              dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.headline) || FALLBACK_HEADLINE }}
+            />
             <Text
               fontSize={{ base: "15px", md: "18px", xl: "20px" }}
               color="#ffffff"
               maxW="3xl"
               lineHeight="1.4"
-            >
-              We help businesses communicate with confidence through strategic PR and
-              communication solutions. ER Communication partners with brands to
-              strengthen reputation and drive meaningful impact.
-            </Text>
+              dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.subheadline) || FALLBACK_SUBHEADLINE }}
+            />
           </VStack>
         </Container>
 
@@ -429,7 +447,7 @@ export default function HighlightPage() {
           {paginated.length > 0 ? (
             <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
               {paginated.map((project, idx) => (
-                <ProjectCard key={idx} {...project} id={allProjects.indexOf(project)} />
+                <ProjectCard key={project.id ?? idx} {...project} />
               ))}
             </SimpleGrid>
           ) : (

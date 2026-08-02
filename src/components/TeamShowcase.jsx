@@ -42,10 +42,13 @@ const FALLBACK_TEAM_DATA = [
 export default function TeamShowcase({ members }) {
   const teamData = Array.isArray(members) && members.length > 0 ? members : FALLBACK_TEAM_DATA;
   const [activeIndex, setActiveIndex] = useState(Math.min(2, teamData.length - 1)); // center by default
+  // teamData can change size once the API response replaces the fallback list,
+  // so clamp instead of trusting the index picked on first mount.
+  const safeActiveIndex = Math.min(activeIndex, teamData.length - 1);
 
   const getOffset = (idx) => {
     const total = teamData.length;
-    let diff = idx - activeIndex;
+    let diff = idx - safeActiveIndex;
     if (diff > Math.floor(total / 2)) diff -= total;
     if (diff < -Math.floor(total / 2)) diff += total;
     return diff;
@@ -195,14 +198,14 @@ export default function TeamShowcase({ members }) {
                   fontSize={{ base: "md", md: "xl" }}
                   lineHeight="1.3"
                 >
-                  {teamData[activeIndex].name}
+                  {teamData[safeActiveIndex].name}
                 </Text>
                 <Text
                   color={textRoleColor}
                   fontSize={{ base: "xs", md: "md" }}
                   fontWeight="400"
                 >
-                  {teamData[activeIndex].role}
+                  {teamData[safeActiveIndex].role}
                 </Text>
               </Box>
 
@@ -211,11 +214,11 @@ export default function TeamShowcase({ members }) {
                 {teamData.map((_, idx) => (
                   <Box
                     key={idx}
-                    w={idx === activeIndex ? "26px" : "10px"}
+                    w={idx === safeActiveIndex ? "26px" : "10px"}
                     h="10px"
                     borderRadius="full"
                     bg={
-                      idx === activeIndex
+                      idx === safeActiveIndex
                         ? "rgba(2, 91, 207, 1)"
                         : dotInactive
                     }
@@ -224,7 +227,7 @@ export default function TeamShowcase({ members }) {
                     onClick={() => setActiveIndex(idx)}
                     _hover={{
                       bg:
-                        idx === activeIndex
+                        idx === safeActiveIndex
                           ? "linear-gradient(135deg, #3b82f6, #60a5fa)"
                           : dotHover,
                     }}

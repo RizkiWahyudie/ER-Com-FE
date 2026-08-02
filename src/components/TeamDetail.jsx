@@ -134,7 +134,7 @@ export default function TeamDetail() {
   const pillBorder = useColorModeValue("5px solid #1a202c", "5px solid #fff");
   const nameBorder = useColorModeValue("1.5px solid #006adbff", "1.5px solid #006adbff");
   const nameColor = useColorModeValue("#006adbff", "#006adbff");
-
+  // Test
   const handleOpenContact = (member) => {
     setSelectedMember(member);
     onOpen();

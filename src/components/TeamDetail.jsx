@@ -188,7 +188,7 @@ export default function TeamDetail() {
         {/* Team Members Grid */}
         <Grid
           templateColumns={{
-            base: "1fr",
+            base: "repeat(2, 1fr)",
             sm: "repeat(2, 1fr)",
             md: "repeat(3, 1fr)",
             lg: "repeat(4, 1fr)",
@@ -236,7 +236,6 @@ export default function TeamDetail() {
                       opacity: 1,
                       visibility: "visible",
                     }}
-                    display={{ base: "none", md: "flex" }}
                   >
                     {/* Top: Social Media Icons (if available) */}
                     <HStack spacing={2}>
@@ -387,7 +386,7 @@ export default function TeamDetail() {
                     }}
                   >
                     <Text
-                      fontSize={{ base: "sm", md: "md" }}
+                      fontSize={{ base: "xs", md: "md" }}
                       fontWeight="600"
                       color={nameColor}
                       textTransform="uppercase"

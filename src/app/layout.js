@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./providers";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const productionUrl = process.env.URL_PRODUCTION || "https://www.er-communication.com";
 
@@ -70,7 +71,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ScrollToTop />
+        </Providers>
       </body>
     </html>
   );

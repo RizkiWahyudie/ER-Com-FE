@@ -188,7 +188,7 @@ export default function TeamDetail() {
         {/* Team Members Grid */}
         <Grid
           templateColumns={{
-            base: "repeat(2, 1fr)",
+            base: "1fr",
             sm: "repeat(2, 1fr)",
             md: "repeat(3, 1fr)",
             lg: "repeat(4, 1fr)",

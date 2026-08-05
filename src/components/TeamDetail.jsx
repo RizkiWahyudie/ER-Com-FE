@@ -237,7 +237,6 @@ export default function TeamDetail({ members }) {
                       opacity: 1,
                       visibility: "visible",
                     }}
-                    display={{ base: "none", md: "flex" }}
                   >
                     {/* Top: Social Media Icons (if available) */}
                     <HStack spacing={2}>
@@ -388,7 +387,7 @@ export default function TeamDetail({ members }) {
                     }}
                   >
                     <Text
-                      fontSize={{ base: "sm", md: "md" }}
+                      fontSize={{ base: "xs", md: "md" }}
                       fontWeight="600"
                       color={nameColor}
                       textTransform="uppercase"

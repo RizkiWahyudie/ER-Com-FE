@@ -2,6 +2,7 @@ import { ColorModeScript } from "@chakra-ui/react";
 import "./globals.css";
 import Providers from "./providers";
 import ChunkErrorReloader from "@/components/ChunkErrorReloader";
+import ScrollToTop from "@/components/ScrollToTop";
 
 const productionUrl = process.env.URL_PRODUCTION || "https://www.er-communication.com";
 
@@ -74,7 +75,10 @@ export default function RootLayout({ children }) {
       <body suppressHydrationWarning>
         <ColorModeScript initialColorMode="dark" />
         <ChunkErrorReloader />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ScrollToTop />
+        </Providers>
       </body>
     </html>
   );

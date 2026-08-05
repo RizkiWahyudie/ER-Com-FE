@@ -9,6 +9,7 @@ import {
   Text,
   Image,
   Circle,
+  Grid,
   Icon,
   Button,
   Modal,
@@ -16,6 +17,7 @@ import {
   ModalContent,
   ModalCloseButton,
   useToast,
+  GridItem,
 } from "@chakra-ui/react";
 import { FaWhatsapp, FaEnvelope, FaPhone, FaMapMarkerAlt, FaQrcode, FaArrowLeft } from "react-icons/fa";
 
@@ -108,18 +110,17 @@ export default function ContactCardModal({ isOpen, onClose, member }) {
             </Box>
 
             {/* ===== Swap Area: Profile <-> QR ===== */}
-            <Box
-              position="relative"
+            <Grid
+              templateColumns="1fr"
+              templateRows="1fr"
               w="full"
               mt={10}
-              minH={showQR ? { base: "330px", sm: "350px" } : { base: "270px", sm: "265px" }}
-              transition="min-height 0.35s ease"
+              alignItems="start"
             >
               {/* --- Profile View --- */}
-              <VStack
-                position="absolute"
-                top={0}
-                left={0}
+              <GridItem
+                gridArea="1 / 1 / 2 / 2"
+                as={VStack}
                 w="full"
                 spacing={0}
                 opacity={showQR ? 0 : 1}
@@ -141,7 +142,7 @@ export default function ContactCardModal({ isOpen, onClose, member }) {
                 <VStack spacing={1} mt={5} w="full" textAlign="center">
                   <Heading
                     as="h3"
-                    fontSize="2xl"
+                    fontSize={{ base: "xl", sm: "2xl" }}
                     fontWeight="800"
                     letterSpacing="wide"
                     bgGradient="linear(to-r, #FFA07A, #FFF, #00BFFF)"
@@ -171,13 +172,12 @@ export default function ContactCardModal({ isOpen, onClose, member }) {
                 >
                   Tampilkan Contact QR
                 </Button>
-              </VStack>
+              </GridItem>
 
               {/* --- QR View --- */}
-              <VStack
-                position="absolute"
-                top={0}
-                left={0}
+              <GridItem
+                gridArea="1 / 1 / 2 / 2"
+                as={VStack}
                 w="full"
                 spacing={4}
                 opacity={showQR ? 1 : 0}
@@ -222,8 +222,8 @@ export default function ContactCardModal({ isOpen, onClose, member }) {
                 >
                   Kembali ke Profil
                 </Button>
-              </VStack>
-            </Box>
+              </GridItem>
+            </Grid>
 
             {/* Member Contacts */}
             <VStack spacing={3} mt={6} align="stretch" w="full">

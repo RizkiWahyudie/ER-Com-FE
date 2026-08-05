@@ -66,14 +66,22 @@ const floatDot = keyframes`
   100% { transform: translateY(0) scale(1); opacity: 0.4; }
 `;
 
+// Deterministic pseudo-random (seeded by index) so server and client render
+// the same positions — Math.random() here would differ between SSR and
+// hydration and trip a hydration mismatch on every dot.
+function seededRandom(seed) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 function generateDots(count) {
   return Array.from({ length: count }).map((_, i) => ({
     id: i,
-    top: Math.random() * 90 + 5,
-    left: Math.random() * 95 + 2,
-    size: Math.random() * 6 + 4,
-    duration: Math.random() * 2 + 2.5,
-    delay: Math.random() * 2,
+    top: seededRandom(i * 12.9898) * 90 + 5,
+    left: seededRandom(i * 78.233) * 95 + 2,
+    size: seededRandom(i * 37.719) * 6 + 4,
+    duration: seededRandom(i * 93.989) * 2 + 2.5,
+    delay: seededRandom(i * 4.1414) * 2,
   }));
 }
 

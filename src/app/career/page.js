@@ -20,7 +20,10 @@ import FooterSection from "@/components/FooterSection";
 import { getCareers, getHeroSection, submitCareerApplication } from "@/lib/api";
 
 const FALLBACK_HERO = {
-  headlineLines: ["Your Next Career", "Starts Here With Us."],
+  headlineLines: [
+    { text: "Your Next Career", color: null },
+    { text: "Starts Here With Us.", color: null },
+  ],
   subheadline:
     "Join ER Communications and grow alongside a team dedicated to " +
     "delivering impactful communication solutions for leading companies.",
@@ -342,8 +345,8 @@ export default function CareerPage() {
               fontFamily="Plus Jakarta Sans"
             >
               {hero.headlineLines.map((line, idx) => (
-                <Text as="span" display="block" key={idx}>
-                  {line}
+                <Text as="span" display="block" key={idx} color={line.color || headingText}>
+                  {line.text}
                 </Text>
               ))}
             </Heading>

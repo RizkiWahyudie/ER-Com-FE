@@ -266,12 +266,33 @@ function htmlToLines(html) {
     .filter(Boolean);
 }
 
+// Same line-splitting as htmlToLines, but keeps the inline
+// color from a wrapping <span style="color: ...">, since CMS
+// headlines set color per line rather than on the whole block.
+function htmlToColoredLines(html) {
+  if (!html) return [];
+  return html
+    .replace(/<\/(p|div|h[1-6])>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .split("\n")
+    .map((chunk) => {
+      const colorMatch = chunk.match(/color:\s*([^;"']+)/i);
+      const text = chunk
+        .replace(/<[^>]*>/g, "")
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      return text ? { text, color: colorMatch ? colorMatch[1].trim() : null } : null;
+    })
+    .filter(Boolean);
+}
+
 export async function getHeroSection(type) {
   try {
     const data = await apiGet(`/sections/hero/${type}`);
     if (!data) return null;
     return {
-      headlineLines: htmlToLines(data.headline),
+      headlineLines: htmlToColoredLines(data.headline),
       subheadline: htmlToLines(data.subheadline).join(" "),
       backgroundImage: data.background_image_url ?? null,
     };

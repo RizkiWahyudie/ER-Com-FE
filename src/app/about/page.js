@@ -42,7 +42,10 @@ const FALLBACK_ABOUT_SECTION = {
 };
 
 const FALLBACK_HERO = {
-  headlineLines: ["Know Us More.", "Get Closer."],
+  headlineLines: [
+    { text: "Know Us More.", color: null },
+    { text: "Get Closer.", color: null },
+  ],
   subheadline:
     "We help businesses communicate with confidence through strategic PR and communication solutions. ER Communication partners with brands to strengthen reputation and drive meaningful impact.",
   backgroundImage: "/assets/bg-about.png",
@@ -224,8 +227,8 @@ export default function AboutPage() {
               fontFamily="Plus Jakarta Sans"
             >
               {hero.headlineLines.map((line, idx) => (
-                <Text as="span" display="block" key={idx}>
-                  {line}
+                <Text as="span" display="block" key={idx} color={line.color || "#fff"}>
+                  {line.text}
                 </Text>
               ))}
             </Heading>

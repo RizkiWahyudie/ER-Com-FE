@@ -5,7 +5,10 @@ import { Box, Container, VStack, Heading, Text, useColorModeValue } from "@chakr
 import { getHeroSection } from "@/lib/api";
 
 const FALLBACK_HERO = {
-  headlineLines: ["Explore Our Services for", "Your Company Needs."],
+  headlineLines: [
+    { text: "Explore Our Services for", color: null },
+    { text: "Your Company Needs.", color: null },
+  ],
   subheadline:
     "Discover how ER Communications helps company build trust, strengthen reputation, " +
     "and create meaningful connections through strategic communication solutions.",
@@ -57,8 +60,8 @@ export default function ServicesHeroSection() {
             fontFamily="Plus Jakarta Sans"
           >
             {hero.headlineLines.map((line, idx) => (
-              <Text as="span" display="block" key={idx}>
-                {line}
+              <Text as="span" display="block" key={idx} color={line.color || headingText}>
+                {line.text}
               </Text>
             ))}
           </Heading>

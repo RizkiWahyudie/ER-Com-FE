@@ -19,7 +19,10 @@ import FooterSection from "@/components/FooterSection";
 import { getClientCategories, getClients, getHeroSection, getTestimonials } from "@/lib/api";
 
 const FALLBACK_HERO = {
-  headlineLines: ["Trusted by Indonesia's", "Leading Companies"],
+  headlineLines: [
+    { text: "Trusted by Indonesia's", color: null },
+    { text: "Leading Companies", color: null },
+  ],
   subheadline:
     "Companies are ditching legacy platforms for the ability to deliver " +
     "an engaging experience at every level.",
@@ -153,8 +156,8 @@ export default function ClientsPage() {
               fontFamily="Plus Jakarta Sans"
             >
               {hero.headlineLines.map((line, idx) => (
-                <Text as="span" display="block" key={idx}>
-                  {line}
+                <Text as="span" display="block" key={idx} color={line.color || headingText}>
+                  {line.text}
                 </Text>
               ))}
             </Heading>

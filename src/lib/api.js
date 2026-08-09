@@ -158,12 +158,13 @@ function mapServiceItem(item) {
 }
 
 // An item counts as a "video" tile if it has a preview_video attached,
-// regardless of whether it also has its own thumbnail image.
+// regardless of whether it also has its own thumbnail image. Only
+// items the CMS marked is_selected are eligible for the carousel.
 function collectCategoryMedia(cat, limit = 4) {
   const media = [];
   const items = Array.isArray(cat.items)
     ? cat.items
-        .filter((item) => item.is_active !== false)
+        .filter((item) => item.is_active !== false && item.is_selected === true)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
     : [];
 

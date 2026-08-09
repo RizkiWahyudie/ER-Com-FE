@@ -126,49 +126,34 @@ function sumCounts(nodes) {
   );
 }
 
-function mapServiceSubItem(subItem) {
-  const image = toStorageUrl(subItem.thumbnail);
-  const media = image ? [{ type: "photo", src: image }] : [];
-  return {
-    title: subItem.name,
-    image,
-    photoCount: media.length,
-    videoCount: 0,
-    media,
-  };
-}
-
+// Items are the deepest navigable level (category → item). Their
+// sub_items aren't a further navigation level — they're additional
+// photos folded into the item's own gallery.
 function mapServiceItem(item) {
-  const children = Array.isArray(item.sub_items)
+  const thumb = toStorageUrl(item.thumbnail);
+  const video = toStorageUrl(item.preview_video);
+
+  const subMedia = Array.isArray(item.sub_items)
     ? item.sub_items
         .filter((sub) => sub.is_active !== false)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map(mapServiceSubItem)
+        .map((sub) => toStorageUrl(sub.thumbnail))
+        .filter(Boolean)
+        .map((src) => ({ type: "photo", src }))
     : [];
 
-  const thumb = toStorageUrl(item.thumbnail);
-  const video = toStorageUrl(item.preview_video);
-  const hasChildren = children.length > 0;
-
-  const ownMedia = [
+  const media = [
     ...(thumb ? [{ type: "photo", src: thumb }] : []),
     ...(video ? [{ type: "video", thumb, src: video }] : []),
+    ...subMedia,
   ];
-
-  const counts = hasChildren
-    ? sumCounts(children)
-    : {
-        photoCount: ownMedia.filter((m) => m.type === "photo").length,
-        videoCount: ownMedia.filter((m) => m.type === "video").length,
-      };
 
   return {
     title: item.name,
     image: thumb ?? video,
-    photoCount: counts.photoCount,
-    videoCount: counts.videoCount,
-    children: hasChildren ? children : undefined,
-    media: hasChildren ? undefined : ownMedia,
+    photoCount: media.filter((m) => m.type === "photo").length,
+    videoCount: media.filter((m) => m.type === "video").length,
+    media,
   };
 }
 

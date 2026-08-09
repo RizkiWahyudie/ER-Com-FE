@@ -648,16 +648,16 @@ export default function ServicesListSection() {
         }
       }
     }
-  }, [catParam]);
+  }, [catParam, servicesData]);
 
   // Derive current items from the path
   const getCurrentItems = useCallback(() => {
     let items = servicesData;
     for (const idx of path) {
-      items = items[idx].children;
+      items = items[idx]?.children ?? [];
     }
     return items;
-  }, [path]);
+  }, [path, servicesData]);
 
   const currentItems = getCurrentItems();
   const currentLevel = path.length + 1; // Level 1, 2, or 3
@@ -679,11 +679,8 @@ export default function ServicesListSection() {
   const handleCardClick = (idx) => {
     const item = currentItems[idx];
 
-    if (currentLevel === 3) {
-      // Level 3 → Open popup gallery (Level 4)
-      setPopupData(item);
-    } else {
-      // Level 1 or 2 → Navigate deeper
+    if (Array.isArray(item.children)) {
+      // Has nested items (category or item with sub_items) → navigate deeper
       setPath((prev) => [...prev, idx]);
       setAnimKey((k) => k + 1);
       // Scroll to section
@@ -691,6 +688,9 @@ export default function ServicesListSection() {
         const top = containerRef.current.getBoundingClientRect().top + window.scrollY - 120;
         window.scrollTo({ top, behavior: "smooth" });
       }
+    } else {
+      // Leaf item (no sub_items) → open its own media in the gallery popup
+      setPopupData(item);
     }
   };
 

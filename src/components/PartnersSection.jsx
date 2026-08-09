@@ -6,20 +6,7 @@ import { FaArrowRight } from "react-icons/fa";
 import { useMemo } from "react";
 import Link from "next/link";
 
-const FALLBACK_PARTNERS = [
-  "/assets/partner/partner-logo-1.png",
-  "/assets/partner/partner-logo-2.png",
-  "/assets/partner/partner-logo-3.png",
-  "/assets/partner/partner-logo-4.png",
-  "/assets/partner/partner-logo-5.png",
-  "/assets/partner/partner-logo-6.png",
-  "/assets/partner/partner-logo-7.png",
-  "/assets/partner/partner-logo-8.png",
-  "/assets/partner/partner-logo-9.png",
-  "/assets/partner/partner-logo-10.png",
-  "/assets/partner/partner-logo-11.png",
-  "/assets/partner/partner-logo-12.png",
-];
+
 
 // Scroll ke atas infinite
 const scrollUp = keyframes`
@@ -93,10 +80,10 @@ function LogoColumn({ logos, duration, reverse = false }) {
 }
 
 export default function PartnersSection({ logos }) {
-  const partners = Array.isArray(logos) && logos.length > 0 ? logos : FALLBACK_PARTNERS;
+  const partners = Array.isArray(logos) ? logos : [];
   const half = Math.ceil(partners.length / 2);
-  const colA = useMemo(() => partners.slice(0, half), [half]);
-  const colB = useMemo(() => partners.slice(half), [half]);
+  const colA = useMemo(() => partners.slice(0, half), [half, partners]);
+  const colB = useMemo(() => partners.slice(half), [half, partners]);
 
   const headingColor = useColorModeValue("#1a202c", "#fff");
   const textColor = useColorModeValue("#718096", "#bab9c4");
@@ -105,6 +92,8 @@ export default function PartnersSection({ logos }) {
   const btnBorder = useColorModeValue("#025BCF", "white");
   const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
+
+  if (partners.length === 0) return null;
 
   return (
     <Box

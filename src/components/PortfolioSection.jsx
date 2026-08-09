@@ -18,18 +18,8 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 
-const FALLBACK_PORTFOLIO_IMAGES = [
-  "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=600&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=600&fit=crop",
-  "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=600&h=600&fit=crop",
-];
-
 export default function PortfolioSection({ images }) {
-  const portfolioImages =
-    Array.isArray(images) && images.length > 0 ? images : FALLBACK_PORTFOLIO_IMAGES;
+  const portfolioImages = Array.isArray(images) ? images : [];
   const itemsPerView = useBreakpointValue({ base: 2, md: 3 }) ?? 3;
   const [index, setIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -78,6 +68,8 @@ export default function PortfolioSection({ images }) {
   const showNext = safeIndex < maxIndex;
 
   const itemWidthPercent = 100 / itemsPerView;
+
+  if (portfolioImages.length === 0) return null;
 
   return (
     <Box

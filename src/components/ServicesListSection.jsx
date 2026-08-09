@@ -347,12 +347,21 @@ function GalleryPopup({ title, photoCount, videoCount, media, onClose }) {
                       animation: `slsFadeInUp 400ms ease ${(photos.length + idx) * 40}ms both`,
                     }}
                   >
-                    <Image
-                      src={video.thumb} alt={`Video ${idx + 1}`}
-                      w="full" h="full" objectFit="cover"
-                      transition="transform 0.4s ease"
-                      _groupHover={{ transform: "scale(1.06)" }}
-                    />
+                    {video.thumb ? (
+                      <Image
+                        src={video.thumb} alt={`Video ${idx + 1}`}
+                        w="full" h="full" objectFit="cover"
+                        transition="transform 0.4s ease"
+                        _groupHover={{ transform: "scale(1.06)" }}
+                      />
+                    ) : (
+                      <Box
+                        w="full" h="full"
+                        bgGradient="linear(135deg, #1e293b, #0a0a0f)"
+                        transition="transform 0.4s ease"
+                        _groupHover={{ transform: "scale(1.06)" }}
+                      />
+                    )}
                     <Box
                       position="absolute" inset={0}
                       bg="rgba(0,0,0,0.15)" transition="background 0.3s"

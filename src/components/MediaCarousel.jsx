@@ -16,50 +16,52 @@ import {
 import { FaPlay, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { getMediaCarouselSlides } from "@/lib/api";
 
+const photo = (src) => ({ src, type: "photo" });
+
 const FALLBACK_SLIDES_DATA = [
   {
     tag: "Media Relation",
     imgs: [
-      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
+      photo("https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop"),
     ],
   },
   {
     tag: "Social & Digital",
     imgs: [
-      "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=300&h=300&fit=crop",
+      photo("https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1432888622747-4eb9a8efeb07?w=300&h=300&fit=crop"),
     ],
   },
   {
     tag: "Media Event",
     imgs: [
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop",
+      photo("https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop"),
     ],
   },
   {
     tag: "Brand & Strategic",
     imgs: [
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=300&h=300&fit=crop",
+      photo("https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=300&h=300&fit=crop"),
     ],
   },
   {
     tag: "International Event",
     imgs: [
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop",
+      photo("https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=300&h=300&fit=crop"),
+      photo("https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=300&h=300&fit=crop"),
     ],
   },
 ];
@@ -161,33 +163,36 @@ export default function MediaCarousel() {
                         key={imgIdx}
                         aspectRatio="1"
                         borderRadius="10px"
-                        bgImage={`url('${img}')`}
+                        bgImage={img.src ? `url('${img.src}')` : undefined}
+                        bgGradient={img.src ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
                         bgSize="cover"
                         bgPos="center"
                         position="relative"
                         overflow="hidden"
                       >
-                        <Flex
-                          position="absolute"
-                          inset={0}
-                          justify="center"
-                          align="center"
-                        >
-                          <Button
-                            boxSize={{ base: 10, lg: 12 }}
-                            borderRadius="full"
-                            bg="rgba(255, 255, 255, 0.3)"
-                            color="#05060a"
-                            _hover={{ bg: "rgba(255, 255, 255, 0.5)" }}
-                            transition="all 0.2s"
+                        {img.type === "video" && (
+                          <Flex
+                            position="absolute"
+                            inset={0}
+                            justify="center"
+                            align="center"
                           >
-                            <Icon
-                              as={FaPlay}
-                              color="#025BCF"
-                              boxSize={{ base: 6, lg: 8 }}
-                            />
-                          </Button>
-                        </Flex>
+                            <Button
+                              boxSize={{ base: 10, lg: 12 }}
+                              borderRadius="full"
+                              bg="rgba(255, 255, 255, 0.3)"
+                              color="#05060a"
+                              _hover={{ bg: "rgba(255, 255, 255, 0.5)" }}
+                              transition="all 0.2s"
+                            >
+                              <Icon
+                                as={FaPlay}
+                                color="#025BCF"
+                                boxSize={{ base: 6, lg: 8 }}
+                              />
+                            </Button>
+                          </Flex>
+                        )}
                       </Box>
                     ))}
                   </Box>

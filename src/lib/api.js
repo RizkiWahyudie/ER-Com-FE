@@ -157,8 +157,10 @@ function mapServiceItem(item) {
   };
 }
 
-function collectCategoryImages(cat, limit = 4) {
-  const images = [];
+// An item counts as a "video" tile if it has a preview_video attached,
+// regardless of whether it also has its own thumbnail image.
+function collectCategoryMedia(cat, limit = 4) {
+  const media = [];
   const items = Array.isArray(cat.items)
     ? cat.items
         .filter((item) => item.is_active !== false)
@@ -167,8 +169,11 @@ function collectCategoryImages(cat, limit = 4) {
 
   for (const item of items) {
     const itemThumb = toStorageUrl(item.thumbnail);
-    if (itemThumb) images.push(itemThumb);
-    if (images.length >= limit) break;
+    const isVideo = Boolean(item.preview_video);
+    if (itemThumb || isVideo) {
+      media.push({ src: itemThumb, type: isVideo ? "video" : "photo" });
+      if (media.length >= limit) break;
+    }
 
     const subItems = Array.isArray(item.sub_items)
       ? item.sub_items
@@ -177,18 +182,18 @@ function collectCategoryImages(cat, limit = 4) {
       : [];
     for (const sub of subItems) {
       const subThumb = toStorageUrl(sub.thumbnail);
-      if (subThumb) images.push(subThumb);
-      if (images.length >= limit) break;
+      if (subThumb) media.push({ src: subThumb, type: "photo" });
+      if (media.length >= limit) break;
     }
-    if (images.length >= limit) break;
+    if (media.length >= limit) break;
   }
 
-  if (images.length === 0) {
+  if (media.length === 0) {
     const cover = toStorageUrl(cat.cover_image);
-    if (cover) images.push(cover);
+    if (cover) media.push({ src: cover, type: "photo" });
   }
 
-  return images.slice(0, limit);
+  return media.slice(0, limit);
 }
 
 export async function getMediaCarouselSlides() {
@@ -201,7 +206,7 @@ export async function getMediaCarouselSlides() {
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => ({
         tag: cat.name,
-        imgs: collectCategoryImages(cat),
+        imgs: collectCategoryMedia(cat),
       }))
       .filter((slide) => slide.imgs.length > 0);
   } catch {

@@ -554,8 +554,10 @@ export default function HighlightGallery() {
           <Box
             position="relative"
             h={{ base: "240px", md: "480px" }}
-            cursor="pointer"
-            onClick={() => setVideoPopupIdx(videoSlide)}
+            cursor={videos[videoSlide].type === "video" ? "pointer" : "default"}
+            onClick={() => {
+              if (videos[videoSlide].type === "video") setVideoPopupIdx(videoSlide);
+            }}
           >
             <Image
               key={videoSlide}
@@ -570,32 +572,34 @@ export default function HighlightGallery() {
             {/* Dark overlay */}
             <Box position="absolute" inset={0} bg="rgba(5,6,10,0.35)" />
 
-            {/* Play button center */}
-            <Flex position="absolute" inset={0} align="center" justify="center">
-              <Flex
-                w={{ base: "56px", md: "80px" }}
-                h={{ base: "56px", md: "80px" }}
-                borderRadius="full"
-                bg="rgba(255,255,255,0.2)"
-                backdropFilter="blur(8px)"
-                border="2px solid rgba(255,255,255,0.3)"
-                align="center"
-                justify="center"
-                transition="all 0.25s"
-                _hover={{
-                  bg: "rgba(255,255,255,0.35)",
-                  transform: "scale(1.1)",
-                }}
-              >
-                <Icon
-                  as={FaPlay}
-                  color="#fff"
-                  w={{ base: 5, md: 7 }}
-                  h={{ base: 5, md: 7 }}
-                  ml={1}
-                />
+            {/* Play button center — video slides only */}
+            {videos[videoSlide].type === "video" && (
+              <Flex position="absolute" inset={0} align="center" justify="center">
+                <Flex
+                  w={{ base: "56px", md: "80px" }}
+                  h={{ base: "56px", md: "80px" }}
+                  borderRadius="full"
+                  bg="rgba(255,255,255,0.2)"
+                  backdropFilter="blur(8px)"
+                  border="2px solid rgba(255,255,255,0.3)"
+                  align="center"
+                  justify="center"
+                  transition="all 0.25s"
+                  _hover={{
+                    bg: "rgba(255,255,255,0.35)",
+                    transform: "scale(1.1)",
+                  }}
+                >
+                  <Icon
+                    as={FaPlay}
+                    color="#fff"
+                    w={{ base: 5, md: 7 }}
+                    h={{ base: 5, md: 7 }}
+                    ml={1}
+                  />
+                </Flex>
               </Flex>
-            </Flex>
+            )}
           </Box>
 
           {/* Prev arrow */}

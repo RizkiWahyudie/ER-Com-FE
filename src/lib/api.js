@@ -458,8 +458,10 @@ export async function getPortfolioSection() {
   }
 }
 
-// /portfolio has no video data — these YouTube IDs are placeholders paired
-// with real portfolio thumbnails until the CMS exposes an actual video field.
+// The CMS's real video field is preview_video, but /portfolio doesn't
+// expose a YouTube ID for it — these IDs are placeholders paired with
+// real portfolio video thumbnails until the popup can embed the
+// uploaded preview_video file directly.
 const PLACEHOLDER_VIDEO_IDS = ["dQw4w9WgXcQ", "jNQXAC9IVRw", "9bZkp7q19f0", "kJQP7kiw5Fk"];
 
 export async function getHighlightGallery() {
@@ -470,11 +472,16 @@ export async function getHighlightGallery() {
 
     const photos = published.map((item) => item.cover_image_url);
 
-    const videos = published.map((item, idx) => ({
-      id: PLACEHOLDER_VIDEO_IDS[idx % PLACEHOLDER_VIDEO_IDS.length],
-      title: item.project_title ?? "ER Communication Highlight",
-      thumb: item.cover_image_url,
-    }));
+    let videoCount = 0;
+    const videos = published.map((item) => {
+      const isVideo = Boolean(item.preview_video);
+      return {
+        type: isVideo ? "video" : "image",
+        id: isVideo ? PLACEHOLDER_VIDEO_IDS[videoCount++ % PLACEHOLDER_VIDEO_IDS.length] : null,
+        title: item.project_title ?? "ER Communication Highlight",
+        thumb: item.cover_image_url,
+      };
+    });
 
     return { photos, videos };
   } catch {

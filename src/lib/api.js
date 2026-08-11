@@ -458,6 +458,30 @@ export async function getPortfolioSection() {
   }
 }
 
+// preview_video can be a relative path to an uploaded file, or (if the CMS
+// user pastes one) a full YouTube/Vimeo/direct-file URL. Detect which so the
+// popup knows whether to embed a provider iframe or play a native <video>.
+function resolvePreviewVideo(raw) {
+  if (!raw) return null;
+  const value = String(raw).trim();
+  if (!value) return null;
+
+  const youtubeMatch = value.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,})/i
+  );
+  if (youtubeMatch) {
+    return { kind: "embed", embedUrl: `https://www.youtube.com/embed/${youtubeMatch[1]}?autoplay=1&rel=0` };
+  }
+
+  const vimeoMatch = value.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if (vimeoMatch) {
+    return { kind: "embed", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1` };
+  }
+
+  const src = /^https?:\/\//i.test(value) ? value : toStorageUrl(value);
+  return { kind: "file", src };
+}
+
 export async function getHighlightGallery() {
   try {
     const data = await apiGet("/portfolio");
@@ -471,10 +495,10 @@ export async function getHighlightGallery() {
     const photos = published.map((item) => item.cover_image_url).filter(Boolean);
 
     const videos = published.map((item) => {
-      const isVideo = Boolean(item.preview_video);
+      const video = resolvePreviewVideo(item.preview_video);
       return {
-        type: isVideo ? "video" : "image",
-        src: isVideo ? toStorageUrl(item.preview_video) : null,
+        type: video ? "video" : "image",
+        video,
         title: item.project_title ?? "ER Communication Highlight",
         thumb: item.cover_image_url ?? null,
       };

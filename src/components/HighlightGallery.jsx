@@ -149,20 +149,37 @@ function VideoPopup({ videos: vids, index, onClose }) {
             bg="#0a0a0f"
             pt="56.25%" /* 16:9 aspect ratio */
           >
-            <Box
-              as="video"
-              key={current}
-              position="absolute"
-              top={0}
-              left={0}
-              w="full"
-              h="full"
-              src={vids[current].src}
-              title={vids[current].title}
-              controls
-              autoPlay
-              border="none"
-            />
+            {vids[current].video?.kind === "embed" ? (
+              <Box
+                as="iframe"
+                key={current}
+                position="absolute"
+                top={0}
+                left={0}
+                w="full"
+                h="full"
+                src={vids[current].video.embedUrl}
+                title={vids[current].title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                border="none"
+              />
+            ) : (
+              <Box
+                as="video"
+                key={current}
+                position="absolute"
+                top={0}
+                left={0}
+                w="full"
+                h="full"
+                src={vids[current].video?.src}
+                title={vids[current].title}
+                controls
+                autoPlay
+                border="none"
+              />
+            )}
           </Box>
 
           {/* Video title */}

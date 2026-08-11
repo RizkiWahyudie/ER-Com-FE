@@ -70,6 +70,7 @@ export async function getAboutFeatures() {
       .map((item) => ({
         title: item.title,
         desc: item.description?.replace(/<[^>]*>/g, "").trim() ?? "",
+        icon: item.icon ?? null,
       }));
   } catch {
     return [];

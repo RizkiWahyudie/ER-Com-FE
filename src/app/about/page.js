@@ -16,6 +16,7 @@ import {
   useColorModeValue,
   useColorMode
 } from "@chakra-ui/react";
+import * as Fa6Icons from "react-icons/fa6";
 import Navbar from "@/components/Navbar";
 import FooterSection from "@/components/FooterSection";
 import TimelineSection from "@/components/TimelineSection";
@@ -105,6 +106,25 @@ const FALLBACK_FEATURES_WITH_ICONS = FALLBACK_FEATURES.map((feature, idx) => ({
   icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
 }));
 
+// Converts a Font Awesome class string (e.g. "fa-solid fa-flag") returned by
+// the API into the matching react-icons/fa6 component (e.g. FaFlag).
+function getFaIconComponent(iconClass) {
+  if (!iconClass) return null;
+  const nameToken = iconClass
+    .trim()
+    .split(/\s+/)
+    .find((token) => /^fa-/.test(token) && !/^fa-(solid|regular|brands|light|thin|duotone|sharp)$/.test(token));
+  if (!nameToken) return null;
+
+  const pascalName = nameToken
+    .replace(/^fa-/, "")
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+
+  return Fa6Icons[`Fa${pascalName}`] ?? null;
+}
+
 export default function AboutPage() {
   const [features, setFeatures] = useState(FALLBACK_FEATURES_WITH_ICONS);
   const [timelineSettings, setTimelineSettings] = useState(null);
@@ -120,7 +140,7 @@ export default function AboutPage() {
         setFeatures(
           apiFeatures.map((feature, idx) => ({
             ...feature,
-            icon: FEATURE_ICONS[idx % FEATURE_ICONS.length],
+            icon: feature.icon ?? FEATURE_ICONS[idx % FEATURE_ICONS.length],
           }))
         );
       }
@@ -350,7 +370,9 @@ export default function AboutPage() {
             </Flex>
 
             <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
-              {features.map((feature, idx) => (
+              {features.map((feature, idx) => {
+                const FaIcon = getFaIconComponent(feature.icon);
+                return (
                 <GridItem key={idx}>
                   <Box
                     bg={cardBg}
@@ -370,7 +392,11 @@ export default function AboutPage() {
                         justify="center"
                         flexShrink={0}
                       >
-                        <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
+                        {FaIcon ? (
+                          <Icon as={FaIcon} boxSize={{ base: 5, md: 7 }} color="#fff" />
+                        ) : (
+                          <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
+                        )}
                       </Flex>
                       <VStack align="flex-start" spacing={2}>
                         <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color={headingColor}>
@@ -387,7 +413,8 @@ export default function AboutPage() {
                     </HStack>
                   </Box>
                 </GridItem>
-              ))}
+                );
+              })}
             </Grid>
           </Container>
         </Box>

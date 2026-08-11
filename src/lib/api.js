@@ -77,6 +77,25 @@ export async function getAboutFeatures() {
   }
 }
 
+export async function getTimelineIntro() {
+  try {
+    const data = await apiGet("/about-section4-items");
+    const items = Array.isArray(data) ? data : [];
+    const firstItem = items
+      .filter((item) => item.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
+
+    if (!firstItem) return null;
+
+    return {
+      year: firstItem.year,
+      description: firstItem.description?.replace(/<[^>]*>/g, "").trim() ?? "",
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function getAboutMilestones() {
   try {
     const data = await apiGet("/about-milestones");

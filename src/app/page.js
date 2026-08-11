@@ -9,7 +9,7 @@ import PortfolioSection from "@/components/PortfolioSection";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
 import QuoteCarousel from "@/components/QuoteCarousel";
-import { apiGet, getTeamSection, getPortfolioSection, getPartnerLogos, getTestimonials } from "@/lib/api";
+import { apiGet, getTeamSection, getPortfolioSection, getPartnerLogos, getTestimonials, getTimelineIntro } from "@/lib/api";
 
 export default async function HomePage() {
   let about = null;
@@ -27,21 +27,7 @@ export default async function HomePage() {
     servicesSettings = null;
   }
 
-  let timelineIntro = null;
-  try {
-    const items = await apiGet("/about-section4-items");
-    if (Array.isArray(items) && items.length > 0) {
-      const firstItem = items
-        .filter((item) => item.is_active !== false)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0] ?? null;
-      timelineIntro = firstItem && {
-        ...firstItem,
-        description: firstItem.description?.replace(/<[^>]*>/g, "").trim() ?? "",
-      };
-    }
-  } catch {
-    timelineIntro = null;
-  }
+  const timelineIntro = await getTimelineIntro();
 
   let timelineItems = null;
   try {

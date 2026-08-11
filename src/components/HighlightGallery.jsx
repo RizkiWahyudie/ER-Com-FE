@@ -140,7 +140,7 @@ function VideoPopup({ videos: vids, index, onClose }) {
               : "vpFadeOut 280ms ease both",
           }}
         >
-          {/* iframe wrapper */}
+          {/* video wrapper */}
           <Box
             borderRadius="20px"
             overflow="hidden"
@@ -150,17 +150,17 @@ function VideoPopup({ videos: vids, index, onClose }) {
             pt="56.25%" /* 16:9 aspect ratio */
           >
             <Box
-              as="iframe"
+              as="video"
               key={current}
               position="absolute"
               top={0}
               left={0}
               w="full"
               h="full"
-              src={`https://www.youtube.com/embed/${vids[current].id}?autoplay=1&rel=0`}
+              src={vids[current].src}
               title={vids[current].title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
+              controls
+              autoPlay
               border="none"
             />
           </Box>
@@ -559,15 +559,24 @@ export default function HighlightGallery() {
               if (videos[videoSlide].type === "video") setVideoPopupIdx(videoSlide);
             }}
           >
-            <Image
-              key={videoSlide}
-              src={videos[videoSlide].thumb}
-              alt={videos[videoSlide].title}
-              w="full"
-              h="full"
-              objectFit="cover"
-              transition="opacity 0.4s ease"
-            />
+            {videos[videoSlide].thumb ? (
+              <Image
+                key={videoSlide}
+                src={videos[videoSlide].thumb}
+                alt={videos[videoSlide].title}
+                w="full"
+                h="full"
+                objectFit="cover"
+                transition="opacity 0.4s ease"
+              />
+            ) : (
+              <Box
+                key={videoSlide}
+                w="full"
+                h="full"
+                bgGradient="linear(135deg, #1e293b, #0a0a0f)"
+              />
+            )}
 
             {/* Dark overlay */}
             <Box position="absolute" inset={0} bg="rgba(5,6,10,0.35)" />

@@ -458,28 +458,25 @@ export async function getPortfolioSection() {
   }
 }
 
-// The CMS's real video field is preview_video, but /portfolio doesn't
-// expose a YouTube ID for it — these IDs are placeholders paired with
-// real portfolio video thumbnails until the popup can embed the
-// uploaded preview_video file directly.
-const PLACEHOLDER_VIDEO_IDS = ["dQw4w9WgXcQ", "jNQXAC9IVRw", "9bZkp7q19f0", "kJQP7kiw5Fk"];
-
 export async function getHighlightGallery() {
   try {
     const data = await apiGet("/portfolio");
     const items = Array.isArray(data?.data) ? data.data : [];
-    const published = items.filter((item) => item.is_published !== false && item.cover_image_url);
+    // A video-only item (no cover uploaded) still has cover_image_url === null,
+    // so it must not be dropped just for lacking a thumbnail.
+    const published = items.filter(
+      (item) => item.is_published !== false && (item.cover_image_url || item.preview_video)
+    );
 
-    const photos = published.map((item) => item.cover_image_url);
+    const photos = published.map((item) => item.cover_image_url).filter(Boolean);
 
-    let videoCount = 0;
     const videos = published.map((item) => {
       const isVideo = Boolean(item.preview_video);
       return {
         type: isVideo ? "video" : "image",
-        id: isVideo ? PLACEHOLDER_VIDEO_IDS[videoCount++ % PLACEHOLDER_VIDEO_IDS.length] : null,
+        src: isVideo ? toStorageUrl(item.preview_video) : null,
         title: item.project_title ?? "ER Communication Highlight",
-        thumb: item.cover_image_url,
+        thumb: item.cover_image_url ?? null,
       };
     });
 

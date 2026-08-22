@@ -568,6 +568,43 @@ export async function getCareers() {
   }
 }
 
+export async function getSocialSection() {
+  try {
+    const data = await apiGet("/sections/social");
+    const items = Array.isArray(data?.social_media) ? data.social_media : [];
+    return {
+      whatsapp: data?.whatsapp_number ?? null,
+      links: items
+        .map((item) => ({ url: item.url, icon: item.icon, label: item.label }))
+        .filter((item) => item.url),
+    };
+  } catch {
+    return { whatsapp: null, links: [] };
+  }
+}
+
+export async function getContactInfo() {
+  try {
+    const data = await apiGet("/contacts");
+    const items = Array.isArray(data) ? data : [];
+    const contact = items
+      .filter((item) => item.is_active !== false)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
+
+    if (!contact) return null;
+
+    return {
+      label: contact.label ?? "",
+      address: contact.address ?? "",
+      phone: contact.phone ?? "",
+      email: contact.email ?? "",
+      mapEmbedUrl: contact.map_embed_url ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function submitCareerApplication(slug, { name, email, phone, address, cv }) {
   const formData = new FormData();
   formData.append("name", name);

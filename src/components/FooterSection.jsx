@@ -1,11 +1,20 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image, useColorModeValue } from "@chakra-ui/react";
-import { FaFacebook, FaLinkedin, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaMapMarkerAlt } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
+import { getContactInfo, getSocialSection } from "@/lib/api";
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
+  const [contact, setContact] = useState(null);
+  const [socialLinks, setSocialLinks] = useState([]);
+
+  useEffect(() => {
+    getContactInfo().then(setContact);
+    getSocialSection().then((data) => setSocialLinks(data.links));
+  }, []);
 
   const sectionBg = useColorModeValue("rgba(0, 60, 255, 0.075)", "#070810");
   const dividerColor = useColorModeValue("#e0c0bb", "#751f0c");
@@ -26,12 +35,23 @@ export default function FooterSection() {
             gap={{ base: 8, md: 8 }}
           >
             {/* Company Info */}
-            <Image
-              src="/assets/hero/navbar-logo.svg"
-              w={{ base: "140px", md: "177px" }}
-              h={{ base: "78px", md: "118px" }}
-              mx={{ base: "auto", md:"0px" }}
-            />
+            <VStack align={{ base: "center", md: "flex-start" }} spacing={4}>
+              <Image
+                src="/assets/hero/navbar-logo.svg"
+                w={{ base: "140px", md: "177px" }}
+                h={{ base: "78px", md: "118px" }}
+                mx={{ base: "auto", md:"0px" }}
+              />
+
+              {contact?.address && (
+                <HStack align="flex-start" spacing={2} maxW="240px">
+                  <Icon as={FaMapMarkerAlt} color="#C73818" mt={1} flexShrink={0} />
+                  <Text fontSize={{ base: "xs", md: "sm" }} color={linkColor} textAlign={{ base: "center", md: "left" }}>
+                    {contact.address}
+                  </Text>
+                </HStack>
+              )}
+            </VStack>
 
             {/* Solutions */}
             <VStack align={{ base: "center", md: "flex-start" }} spacing={{ base: 4, md: 6 }}>
@@ -113,54 +133,32 @@ export default function FooterSection() {
 
             {/* Socials */}
             <HStack spacing={2.5}>
-              <Box
-                w="40px"
-                h="40px"
-                borderRadius="full"
-                bg="transparent"
-                border="1px solid #C73818"
-                color="#C73818"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                transition="all 0.2s"
-                _hover={{ bg: "white" }}
-              >
-                <Icon as={FaFacebook} fontSize="lg" />
-              </Box>
-              <Box
-                w="40px"
-                h="40px"
-                borderRadius="full"
-                bg="transparent"
-                border="1px solid #C73818"
-                color="#C73818"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                transition="all 0.2s"
-                _hover={{ bg: "white" }}
-              >
-                <Icon as={FaTwitter} fontSize="lg" />
-              </Box>
-              <Box
-                w="40px"
-                h="40px"
-                borderRadius="full"
-                bg="transparent"
-                border="1px solid #C73818"
-                color="#C73818"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                cursor="pointer"
-                transition="all 0.2s"
-                _hover={{ bg: "white" }}
-              >
-                <Icon as={FaInstagram} fontSize="lg" />
-              </Box>
+              {socialLinks.map((social, idx) => (
+                <Box
+                  key={idx}
+                  as="a"
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  title={social.label}
+                  w="40px"
+                  h="40px"
+                  borderRadius="full"
+                  bg="transparent"
+                  border="1px solid #C73818"
+                  color="#C73818"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontSize="lg"
+                  cursor="pointer"
+                  transition="all 0.2s"
+                  _hover={{ bg: "white" }}
+                >
+                  {social.icon}
+                </Box>
+              ))}
             </HStack>
 
             {/* Theme Toggle (Mobile view only - below social media) */}

@@ -1,3 +1,5 @@
+export const dynamic = "force-static";
+
 export default function sitemap() {
   const baseUrl = process.env.URL_PRODUCTION || 'https://www.er-communication.com';
 

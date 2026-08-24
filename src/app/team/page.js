@@ -7,20 +7,25 @@ import TeamShowcase from "@/components/TeamShowcase";
 import TeamDetail from "@/components/TeamDetail";
 import ContactSection from "@/components/ContactSection";
 import FooterSection from "@/components/FooterSection";
-import { getTeamSection } from "@/lib/api";
+import { getHeroSection, getTeamSection } from "@/lib/api";
 
-const FALLBACK_HERO_HEADLINE = "Meet The People Behind Great Project.";
-const FALLBACK_HERO_SUBTEXT =
-  "A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.";
+const FALLBACK_HERO = {
+  headlineLines: [{ text: "Meet The People Behind Great Project.", color: null }],
+  subheadline:
+    "A team of professionals dedicated to helping company strengthen reputation, and create meaningful connections.",
+};
 
 export default function TeamPage() {
-  const [settings, setSettings] = useState(null);
   const [members, setMembers] = useState([]);
+  const [hero, setHero] = useState(FALLBACK_HERO);
 
   useEffect(() => {
     getTeamSection().then((data) => {
-      setSettings(data.settings);
       setMembers(data.members);
+    });
+
+    getHeroSection("team").then((apiHero) => {
+      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
     });
   }, []);
 
@@ -109,7 +114,11 @@ export default function TeamPage() {
               letterSpacing="-1.8px"
               fontFamily="Plus Jakarta Sans"
             >
-              {settings?.headline ?? FALLBACK_HERO_HEADLINE}
+              {hero.headlineLines.map((line, idx) => (
+                <Text as="span" display="block" key={idx} color={line.color || headingText}>
+                  {line.text}
+                </Text>
+              ))}
             </Heading>
 
             <Text
@@ -119,7 +128,7 @@ export default function TeamPage() {
               lineHeight="1.6"
               opacity={0.85}
             >
-              {settings?.subtext ?? FALLBACK_HERO_SUBTEXT}
+              {hero.subheadline}
             </Text>
           </VStack>
         </Container>

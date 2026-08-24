@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -15,7 +15,7 @@ import {
   HStack,
   useToast
 } from "@chakra-ui/react";
-import { apiPost } from "@/lib/api";
+import { apiPost, getContactInfo } from "@/lib/api";
 
 const INITIAL_FORM_DATA = {
   name: "",
@@ -25,10 +25,20 @@ const INITIAL_FORM_DATA = {
   message: "",
 };
 
+const FALLBACK_MAP_EMBED_URL =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.8159147128544!2d106.80665931531557!3d-6.163726395427357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e945e34ef7%3A0x146bb1fbf7c03c87!2sJakarta!5e0!3m2!1sid!2sid!4v1234567890";
+
 export default function ContactSection() {
   const toast = useToast();
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mapEmbedUrl, setMapEmbedUrl] = useState(FALLBACK_MAP_EMBED_URL);
+
+  useEffect(() => {
+    getContactInfo().then((contact) => {
+      if (contact?.mapEmbedUrl) setMapEmbedUrl(contact.mapEmbedUrl);
+    });
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -173,7 +183,7 @@ export default function ContactSection() {
                 height="100%"
                 frameBorder="0"
                 style={{ border: "none" }}
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.8159147128544!2d106.80665931531557!3d-6.163726395427357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f3e945e34ef7%3A0x146bb1fbf7c03c87!2sJakarta!5e0!3m2!1sid!2sid!4v1234567890"
+                src={mapEmbedUrl}
                 title="Location"
               />
             </Box>

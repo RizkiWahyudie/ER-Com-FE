@@ -540,6 +540,7 @@ export async function getTeamSection() {
             name: member.name,
             role: member.position,
             img: member.photo_url,
+            silhouette: member.photo_silhouette_url ?? member.photo_url,
             whatsapp: member.whatsapp,
             email: member.email,
           }))

@@ -112,7 +112,7 @@ export default function TeamShowcase({ members }) {
                   w={{ base: "150px", sm: "180px", md: "220px" }}
                 >
                   <Image
-                    src={member.img}
+                    src={member.silhouette ?? member.img}
                     alt={member.name}
                     w="full"
                     h={{ base: "160px", sm: "190px", md: "240px" }}

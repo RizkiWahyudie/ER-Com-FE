@@ -133,7 +133,32 @@ export async function getGridServices() {
 }
 
 function toStorageUrl(path) {
-  return path ? `${STORAGE_BASE_URL}/storage/${path}` : null;
+  if (!path) return null;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${STORAGE_BASE_URL}/storage/${path}`;
+}
+
+// Pulls the 11-char video ID out of any common YouTube URL shape
+// (watch?v=, youtu.be/, embed/, shorts/) while ignoring extra query
+// params like &list=... or &start_radio=... that CMS users paste in.
+function extractYoutubeId(url) {
+  if (!url) return null;
+  const match = url.match(
+    /(?:youtube(?:-nocookie)?\.com\/(?:.*[?&]v=|embed\/|v\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
+// YouTube exposes a predictable, no-auth thumbnail endpoint; Vimeo and
+// uploaded/direct video files have no equivalent, so this only ever
+// resolves for YouTube links.
+function getVideoThumbnail(url) {
+  const videoId = extractYoutubeId(url);
+  return videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+}
+
+function isVimeoUrl(url) {
+  return /vimeo\.com\//i.test(String(url ?? ""));
 }
 
 function sumCounts(nodes) {
@@ -151,7 +176,12 @@ function sumCounts(nodes) {
 // photos folded into the item's own gallery.
 function mapServiceItem(item) {
   const thumb = toStorageUrl(item.thumbnail);
-  const video = toStorageUrl(item.preview_video);
+  const videoId = extractYoutubeId(item.preview_video);
+  const video = videoId ? null : toStorageUrl(item.preview_video);
+  // CMS items with only a preview_video (no uploaded thumbnail) had no
+  // image at all, so the card rendered blank. Fall back to YouTube's
+  // own thumbnail so the card/poster still has something to show.
+  const videoThumb = thumb ?? getVideoThumbnail(item.preview_video);
 
   const subMedia = Array.isArray(item.sub_items)
     ? item.sub_items
@@ -164,13 +194,17 @@ function mapServiceItem(item) {
 
   const media = [
     ...(thumb ? [{ type: "photo", src: thumb }] : []),
-    ...(video ? [{ type: "video", thumb, src: video }] : []),
+    ...(videoId
+      ? [{ type: "video", thumb: videoThumb, videoId }]
+      : video
+        ? [{ type: "video", thumb: videoThumb, src: video }]
+        : []),
     ...subMedia,
   ];
 
   return {
     title: item.name,
-    image: thumb ?? video,
+    image: videoThumb ?? video,
     photoCount: media.filter((m) => m.type === "photo").length,
     videoCount: media.filter((m) => m.type === "video").length,
     media,
@@ -448,9 +482,24 @@ export async function getPortfolioSection() {
   try {
     const data = await apiGet("/portfolio");
     const items = Array.isArray(data?.data) ? data.data : [];
+    // Video-only items (no uploaded cover) still need a tile. YouTube links
+    // get their official thumbnail; uploaded/direct video files are handed
+    // to the client as a video source so it can show the first frame itself.
+    // Vimeo has no no-auth thumbnail endpoint, so it's dropped like before.
     const images = items
       .filter((item) => item.is_published !== false)
-      .map((item) => item.cover_image_url)
+      .map((item) => {
+        if (item.cover_image_url) return { type: "image", src: item.cover_image_url };
+
+        const youtubeThumb = getVideoThumbnail(item.preview_video);
+        if (youtubeThumb) return { type: "image", src: youtubeThumb };
+
+        if (item.preview_video_url && !isVimeoUrl(item.preview_video)) {
+          return { type: "video", src: item.preview_video_url };
+        }
+
+        return null;
+      })
       .filter(Boolean);
     return { images };
   } catch {
@@ -461,9 +510,11 @@ export async function getPortfolioSection() {
 // preview_video can be a relative path to an uploaded file, or (if the CMS
 // user pastes one) a full YouTube/Vimeo/direct-file URL. Detect which so the
 // popup knows whether to embed a provider iframe or play a native <video>.
-function resolvePreviewVideo(raw) {
-  if (!raw) return null;
-  const value = String(raw).trim();
+// preview_video_url is the CMS's own pre-resolved absolute URL for uploaded
+// files, so it's preferred over reconstructing the storage path by hand.
+function resolvePreviewVideo(raw, resolvedUrl) {
+  if (!raw && !resolvedUrl) return null;
+  const value = String(raw ?? resolvedUrl).trim();
   if (!value) return null;
 
   const youtubeMatch = value.match(
@@ -478,7 +529,7 @@ function resolvePreviewVideo(raw) {
     return { kind: "embed", embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1` };
   }
 
-  const src = /^https?:\/\//i.test(value) ? value : toStorageUrl(value);
+  const src = resolvedUrl ?? (/^https?:\/\//i.test(value) ? value : toStorageUrl(value));
   return { kind: "file", src };
 }
 
@@ -489,13 +540,13 @@ export async function getHighlightGallery() {
     // A video-only item (no cover uploaded) still has cover_image_url === null,
     // so it must not be dropped just for lacking a thumbnail.
     const published = items.filter(
-      (item) => item.is_published !== false && (item.cover_image_url || item.preview_video)
+      (item) => item.is_published !== false && (item.cover_image_url || item.preview_video_url)
     );
 
     const photos = published.map((item) => item.cover_image_url).filter(Boolean);
 
     const videos = published.map((item) => {
-      const video = resolvePreviewVideo(item.preview_video);
+      const video = resolvePreviewVideo(item.preview_video, item.preview_video_url);
       return {
         type: video ? "video" : "image",
         video,

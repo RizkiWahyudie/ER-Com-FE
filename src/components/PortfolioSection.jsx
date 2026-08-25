@@ -15,8 +15,36 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+
+// Uploaded video files have no static thumbnail from the CMS, so instead of
+// an <img> we render the <video> itself and nudge it to a tiny offset once
+// its metadata loads — browsers then paint that frame as a static poster
+// without ever starting playback.
+function VideoFrameThumbnail({ src, alt }) {
+  const videoRef = useRef(null);
+
+  const handleLoadedMetadata = () => {
+    const video = videoRef.current;
+    if (video && video.currentTime === 0) {
+      video.currentTime = 0.1;
+    }
+  };
+
+  return (
+    <video
+      ref={videoRef}
+      src={src}
+      muted
+      playsInline
+      preload="metadata"
+      onLoadedMetadata={handleLoadedMetadata}
+      aria-label={alt}
+      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+    />
+  );
+}
 
 export default function PortfolioSection({ images }) {
   const portfolioImages = Array.isArray(images) ? images : [];
@@ -149,7 +177,7 @@ export default function PortfolioSection({ images }) {
                 transition="transform 0.4s ease"
                 align="stretch"
               >
-                {portfolioImages.map((src, idx) => (
+                {portfolioImages.map((item, idx) => (
                   <Box
                     key={idx}
                     flex={`0 0 ${itemWidthPercent}%`}
@@ -165,13 +193,17 @@ export default function PortfolioSection({ images }) {
                         boxShadow: "0 12px 24px rgba(0,0,0,0.4)",
                       }}
                     >
-                      <Image
-                        src={src}
-                        alt={`Portfolio ${idx + 1}`}
-                        w="full"
-                        h="full"
-                        objectFit="cover"
-                      />
+                      {item.type === "video" ? (
+                        <VideoFrameThumbnail src={item.src} alt={`Portfolio ${idx + 1}`} />
+                      ) : (
+                        <Image
+                          src={item.src}
+                          alt={`Portfolio ${idx + 1}`}
+                          w="full"
+                          h="full"
+                          objectFit="cover"
+                        />
+                      )}
                     </Box>
                   </Box>
                 ))}

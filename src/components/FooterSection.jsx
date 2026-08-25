@@ -2,9 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { Box, Container, Grid, VStack, HStack, Text, Link, Icon, Flex, Image, useColorModeValue } from "@chakra-ui/react";
-import { FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaMapMarkerAlt,
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaYoutube,
+  FaTiktok,
+  FaWhatsapp,
+  FaPinterestP,
+  FaTelegramPlane,
+  FaGlobe,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import ThemeToggle from "./ThemeToggle";
 import { getContactInfo, getSocialSection } from "@/lib/api";
+
+// social.icon comes from the CMS as a Font Awesome class string
+// (e.g. "fa-brands fa-instagram"); there's no Font Awesome CSS loaded
+// in this project, so map it to the matching react-icons component.
+const SOCIAL_ICON_MAP = {
+  facebook: FaFacebookF,
+  instagram: FaInstagram,
+  "x-twitter": FaXTwitter,
+  twitter: FaXTwitter,
+  linkedin: FaLinkedinIn,
+  youtube: FaYoutube,
+  tiktok: FaTiktok,
+  whatsapp: FaWhatsapp,
+  pinterest: FaPinterestP,
+  telegram: FaTelegramPlane,
+};
+
+function resolveSocialIcon(iconClass) {
+  const key = Object.keys(SOCIAL_ICON_MAP).find((name) =>
+    String(iconClass ?? "").toLowerCase().includes(name)
+  );
+  return key ? SOCIAL_ICON_MAP[key] : FaGlobe;
+}
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
@@ -156,7 +191,7 @@ export default function FooterSection() {
                   transition="all 0.2s"
                   _hover={{ bg: "white" }}
                 >
-                  {social.icon}
+                  <Icon as={resolveSocialIcon(social.icon)} boxSize={4} />
                 </Box>
               ))}
             </HStack>

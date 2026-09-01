@@ -59,8 +59,8 @@ const SILHOUETTE_OUTLINE = [
   `drop-shadow(-${outlineSize} ${outlineSize} 0 #fff)`,
 ].join(" ");
 
-export default function TeamShowcase({ members }) {
-  const teamData = Array.isArray(members) && members.length > 0 ? members : FALLBACK_TEAM_DATA;
+export default function TeamShowcase({ banners }) {
+  const teamData = Array.isArray(banners) && banners.length > 0 ? banners : FALLBACK_TEAM_DATA;
   const [hoveredIdx, setHoveredIdx] = useState(null);
 
   return (
@@ -119,7 +119,7 @@ export default function TeamShowcase({ members }) {
                 transformOrigin="bottom center"
               >
                 <Image
-                  src={member.silhouette ?? member.img}
+                  src={member.img}
                   alt={member.name}
                   h={{ base: "320px", sm: "400px", md: "480px", lg: "550px" }}
                   objectFit="contain"

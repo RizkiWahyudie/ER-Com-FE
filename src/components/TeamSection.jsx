@@ -102,7 +102,7 @@ export default function TeamSection({ teamHome = 1, members }) {
     Array.isArray(members) && members.length > 0
       ? members.map((member, idx) => ({
           ...member,
-          bgImg: member.img ?? FALLBACK_BG_IMAGES[idx % FALLBACK_BG_IMAGES.length],
+          bgImg: member.bgImg ?? FALLBACK_BG_IMAGES[idx % FALLBACK_BG_IMAGES.length],
         }))
       : FALLBACK_TEAM_MEMBERS;
   const [selectedIdx, setSelectedIdx] = useState(0);

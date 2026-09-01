@@ -17,11 +17,13 @@ const FALLBACK_HERO = {
 
 export default function TeamPage() {
   const [members, setMembers] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [hero, setHero] = useState(FALLBACK_HERO);
 
   useEffect(() => {
     getTeamSection().then((data) => {
       setMembers(data.members);
+      setBanners(data.banners);
     });
 
     getHeroSection("team").then((apiHero) => {
@@ -136,7 +138,7 @@ export default function TeamPage() {
 
       {/* ── Team Showcase (Interactive Carousel) ── */}
       <Box pb={{ base: 6, md: 20 }}>
-        <TeamShowcase members={members} />
+        <TeamShowcase banners={banners} />
       </Box>
 
       {/* ── Team Detail Grid Section ── */}

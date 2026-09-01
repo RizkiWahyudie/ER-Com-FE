@@ -113,8 +113,8 @@ export default function MediaCarousel() {
                         key={imgIdx}
                         aspectRatio="1"
                         borderRadius="10px"
-                        bgImage={img.src ? `url('${img.src}')` : undefined}
-                        bgGradient={img.src ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
+                        bgImage={img.src || img.thumb ? `url('${img.src || img.thumb}')` : undefined}
+                        bgGradient={img.src || img.thumb ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
                         bgSize="cover"
                         bgPos="center"
                         position="relative"

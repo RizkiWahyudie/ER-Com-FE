@@ -215,10 +215,42 @@ function mapServiceItem(item) {
 
 function collectCategoryMedia(cat, limit = 4) {
   const media = normalizeMediaArray(cat.media);
+
+  if (media.length < limit && Array.isArray(cat.items)) {
+    for (const item of cat.items) {
+      if (item.is_active === false) continue;
+
+      const itemMedia = normalizeMediaArray(item.media);
+      for (const m of itemMedia) {
+        if (!media.some((existing) => existing.src === m.src || existing.thumb === m.thumb)) {
+          media.push(m);
+        }
+        if (media.length >= limit) break;
+      }
+      if (media.length >= limit) break;
+
+      if (Array.isArray(item.sub_items)) {
+        for (const sub of item.sub_items) {
+          if (sub.is_active === false) continue;
+          const subMedia = normalizeMediaArray(sub.media);
+          for (const m of subMedia) {
+            if (!media.some((existing) => existing.src === m.src || existing.thumb === m.thumb)) {
+              media.push(m);
+            }
+            if (media.length >= limit) break;
+          }
+          if (media.length >= limit) break;
+        }
+      }
+      if (media.length >= limit) break;
+    }
+  }
+
   if (media.length === 0) {
     const cover = toStorageUrl(cat.cover_image);
-    if (cover) media.push({ src: cover, type: "photo" });
+    if (cover) media.push({ type: "photo", src: cover });
   }
+
   return media.slice(0, limit);
 }
 
@@ -249,7 +281,7 @@ export async function getServicesListSection() {
       .filter((cat) => cat.is_active !== false)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => {
-        const catMedia = normalizeMediaArray(cat.media);
+        const aggregatedMedia = collectCategoryMedia(cat, 4);
         const children = Array.isArray(cat.items)
           ? cat.items
               .filter((item) => item.is_active !== false)
@@ -260,11 +292,11 @@ export async function getServicesListSection() {
         
         return {
           title: cat.name,
-          image: catMedia[0]?.src || catMedia[0]?.thumb || toStorageUrl(cat.cover_image),
-          media: catMedia.length > 0 ? catMedia : [],
+          image: aggregatedMedia[0]?.src || aggregatedMedia[0]?.thumb || toStorageUrl(cat.cover_image),
+          media: aggregatedMedia,
           colSpan: 1,
-          photoCount: catMedia.filter(m => m.type === "photo").length || counts.photoCount,
-          videoCount: catMedia.filter(m => m.type === "video").length || counts.videoCount,
+          photoCount: counts.photoCount,
+          videoCount: counts.videoCount,
           children,
         };
       });
@@ -571,9 +603,21 @@ export async function getTeamSection() {
             bgImg: member.background_image_url,
           }))
       : [];
-    return { settings: data?.settings ?? null, members };
+      
+    const banners = Array.isArray(data?.banners)
+      ? data.banners
+          .filter((banner) => banner.is_active !== false)
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map((banner) => ({
+            name: banner.name,
+            role: banner.position ?? banner.role,
+            img: banner.image_url,
+          }))
+      : [];
+
+    return { settings: data?.settings ?? null, members, banners };
   } catch {
-    return { settings: null, members: [] };
+    return { settings: null, members: [], banners: [] };
   }
 }
 

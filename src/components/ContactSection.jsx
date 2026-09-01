@@ -35,8 +35,10 @@ export default function ContactSection() {
   const [mapEmbedUrl, setMapEmbedUrl] = useState(FALLBACK_MAP_EMBED_URL);
 
   useEffect(() => {
-    getContactInfo().then((contact) => {
-      if (contact?.mapEmbedUrl) setMapEmbedUrl(contact.mapEmbedUrl);
+    getContactInfo().then((contacts) => {
+      if (contacts && contacts.length > 0 && contacts[0].mapEmbedUrl) {
+        setMapEmbedUrl(contacts[0].mapEmbedUrl);
+      }
     });
   }, []);
 

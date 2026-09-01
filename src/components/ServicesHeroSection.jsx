@@ -60,7 +60,7 @@ export default function ServicesHeroSection() {
             fontFamily="Plus Jakarta Sans"
           >
             {hero.headlineLines.map((line, idx) => (
-              <Text as="span" display="block" key={idx} color={line.color || headingText}>
+              <Text as="span" display="block" key={idx} color={headingText}>
                 {line.text}
               </Text>
             ))}

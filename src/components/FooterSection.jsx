@@ -43,12 +43,16 @@ function resolveSocialIcon(iconClass) {
 
 export default function FooterSection() {
   const currentYear = new Date().getFullYear();
-  const [contact, setContact] = useState(null);
+  const [contacts, setContacts] = useState([]);
   const [socialLinks, setSocialLinks] = useState([]);
+  const [copyrightText, setCopyrightText] = useState("");
 
   useEffect(() => {
-    getContactInfo().then(setContact);
-    getSocialSection().then((data) => setSocialLinks(data.links));
+    getContactInfo().then((data) => setContacts(data || []));
+    getSocialSection().then((data) => {
+      setSocialLinks(data?.links || []);
+      if (data?.copyright) setCopyrightText(data.copyright);
+    });
   }, []);
 
   const sectionBg = useColorModeValue("rgba(0, 60, 255, 0.075)", "#070810");
@@ -72,20 +76,11 @@ export default function FooterSection() {
             {/* Company Info */}
             <VStack align={{ base: "center", md: "flex-start" }} spacing={4}>
               <Image
-                src="/assets/hero/navbar-logo.svg"
+                src="/assets/hero/navbar-logo-sm.svg"
                 w={{ base: "140px", md: "177px" }}
                 h={{ base: "78px", md: "118px" }}
                 mx={{ base: "auto", md:"0px" }}
               />
-
-              {contact?.address && (
-                <HStack align="flex-start" spacing={2} maxW="240px">
-                  <Icon as={FaMapMarkerAlt} color="#C73818" mt={1} flexShrink={0} />
-                  <Text fontSize={{ base: "xs", md: "sm" }} color={linkColor} textAlign={{ base: "center", md: "left" }}>
-                    {contact.address}
-                  </Text>
-                </HStack>
-              )}
             </VStack>
 
             {/* Solutions */}
@@ -94,17 +89,17 @@ export default function FooterSection() {
                 Useful Links
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Media Relations
+                <Link href="/services" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                  Services
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Brand Strategy
+                <Link href="/clients" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                  Client
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Events & Activation
+                <Link href="/highlight" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                  Highlight
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Digital Campaign
+                <Link href="/career" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                  Career
                 </Link>
               </VStack>
             </VStack>
@@ -115,16 +110,16 @@ export default function FooterSection() {
                 Help
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                <Link href="/about" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   About Us
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                <Link href="/team" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Our Team
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                <Link href="/clients" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Portfolio
                 </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
+                <Link href="/#contact" fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
                   Contact
                 </Link>
               </VStack>
@@ -136,15 +131,26 @@ export default function FooterSection() {
                 Connect With Us
               </Text>
               <VStack spacing={{ base: 2, md: 4 }} align={{ base: "center", md: "flex-start" }}>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Privacy Policy
-                </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Terms of Service
-                </Link>
-                <Link fontSize={{ base: "xs", md: "md" }}  color={linkColor} _hover={{ color: "#C73818" }}>
-                  Cookie Policy
-                </Link>
+                {contacts.map((contact, idx) => (
+                  <VStack key={idx} align={{ base: "center", md: "flex-start" }} spacing={1} mb={2}>
+                    <Text fontWeight="600" color={bottomTextColor} fontSize={{ base: "xs", md: "sm" }}>
+                      {contact.label}
+                    </Text>
+                    <Text fontSize={{ base: "xs", md: "sm" }} color={linkColor} textAlign={{ base: "center", md: "left" }}>
+                      {contact.address}
+                    </Text>
+                    {contact.phone && (
+                      <Link href={`tel:${contact.phone}`} fontSize={{ base: "xs", md: "sm" }} color={linkColor} _hover={{ color: "#C73818" }}>
+                        {contact.phone}
+                      </Link>
+                    )}
+                    {contact.email && (
+                      <Link href={`mailto:${contact.email}`} fontSize={{ base: "xs", md: "sm" }} color={linkColor} _hover={{ color: "#C73818" }}>
+                        {contact.email}
+                      </Link>
+                    )}
+                  </VStack>
+                ))}
               </VStack>
             </VStack>
           </Grid>
@@ -163,7 +169,7 @@ export default function FooterSection() {
             color={bottomTextColor}
           >
             <Text textAlign={{ base: "center", md: "left" }}>
-              © {currentYear} All Right Reserved.
+              {copyrightText || `© ${currentYear} All Right Reserved.`}
             </Text>
 
             {/* Socials */}
@@ -191,7 +197,7 @@ export default function FooterSection() {
                   transition="all 0.2s"
                   _hover={{ bg: "white" }}
                 >
-                  <Icon as={resolveSocialIcon(social.icon)} boxSize={4} />
+                  <Icon as={resolveSocialIcon(social.label || social.icon)} boxSize={4} />
                 </Box>
               ))}
             </HStack>

@@ -174,80 +174,51 @@ function sumCounts(nodes) {
 // Items are the deepest navigable level (category → item). Their
 // sub_items aren't a further navigation level — they're additional
 // photos folded into the item's own gallery.
-function mapServiceItem(item) {
-  const thumb = toStorageUrl(item.thumbnail);
-  const videoId = extractYoutubeId(item.preview_video);
-  const video = videoId ? null : toStorageUrl(item.preview_video);
-  // CMS items with only a preview_video (no uploaded thumbnail) had no
-  // image at all, so the card rendered blank. Fall back to YouTube's
-  // own thumbnail so the card/poster still has something to show.
-  const videoThumb = thumb ?? getVideoThumbnail(item.preview_video);
+function normalizeMediaArray(mediaArray) {
+  if (!Array.isArray(mediaArray)) return [];
+  return mediaArray
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((m) => {
+      if (m.media_type === "youtube") {
+        const videoId = extractYoutubeId(m.youtube_url);
+        return { type: "video", thumb: m.thumbnail_url || getVideoThumbnail(m.youtube_url), videoId };
+      }
+      if (m.media_type === "video") {
+        return { type: "video", thumb: m.thumbnail_url, src: toStorageUrl(m.file_url) };
+      }
+      return { type: "photo", src: toStorageUrl(m.file_url) || m.thumbnail_url };
+    });
+}
 
+function mapServiceItem(item) {
+  const itemMedia = normalizeMediaArray(item.media);
+  
   const subMedia = Array.isArray(item.sub_items)
     ? item.sub_items
         .filter((sub) => sub.is_active !== false)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .map((sub) => toStorageUrl(sub.thumbnail))
-        .filter(Boolean)
-        .map((src) => ({ type: "photo", src }))
+        .flatMap((sub) => normalizeMediaArray(sub.media))
     : [];
 
-  const media = [
-    ...(thumb ? [{ type: "photo", src: thumb }] : []),
-    ...(videoId
-      ? [{ type: "video", thumb: videoThumb, videoId }]
-      : video
-        ? [{ type: "video", thumb: videoThumb, src: video }]
-        : []),
-    ...subMedia,
-  ];
+  const media = [...itemMedia, ...subMedia];
+  const coverImage = toStorageUrl(item.cover_image) || toStorageUrl(item.thumbnail);
 
   return {
     title: item.name,
-    image: videoThumb ?? video,
+    image: media[0]?.src || media[0]?.thumb || coverImage,
+    desc: item.description,
     photoCount: media.filter((m) => m.type === "photo").length,
     videoCount: media.filter((m) => m.type === "video").length,
     media,
   };
 }
 
-// An item counts as a "video" tile if it has a preview_video attached,
-// regardless of whether it also has its own thumbnail image. Only
-// items the CMS marked is_selected are eligible for the carousel.
 function collectCategoryMedia(cat, limit = 4) {
-  const media = [];
-  const items = Array.isArray(cat.items)
-    ? cat.items
-        .filter((item) => item.is_active !== false && item.is_selected === true)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    : [];
-
-  for (const item of items) {
-    const itemThumb = toStorageUrl(item.thumbnail);
-    const isVideo = Boolean(item.preview_video);
-    if (itemThumb || isVideo) {
-      media.push({ src: itemThumb, type: isVideo ? "video" : "photo" });
-      if (media.length >= limit) break;
-    }
-
-    const subItems = Array.isArray(item.sub_items)
-      ? item.sub_items
-          .filter((sub) => sub.is_active !== false)
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      : [];
-    for (const sub of subItems) {
-      const subThumb = toStorageUrl(sub.thumbnail);
-      if (subThumb) media.push({ src: subThumb, type: "photo" });
-      if (media.length >= limit) break;
-    }
-    if (media.length >= limit) break;
-  }
-
+  const media = normalizeMediaArray(cat.media);
   if (media.length === 0) {
     const cover = toStorageUrl(cat.cover_image);
     if (cover) media.push({ src: cover, type: "photo" });
   }
-
   return media.slice(0, limit);
 }
 
@@ -278,6 +249,7 @@ export async function getServicesListSection() {
       .filter((cat) => cat.is_active !== false)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => {
+        const catMedia = normalizeMediaArray(cat.media);
         const children = Array.isArray(cat.items)
           ? cat.items
               .filter((item) => item.is_active !== false)
@@ -285,12 +257,14 @@ export async function getServicesListSection() {
               .map(mapServiceItem)
           : [];
         const counts = sumCounts(children);
+        
         return {
           title: cat.name,
-          image: toStorageUrl(cat.cover_image),
+          image: catMedia[0]?.src || catMedia[0]?.thumb || toStorageUrl(cat.cover_image),
+          media: catMedia.length > 0 ? catMedia : [],
           colSpan: 1,
-          photoCount: counts.photoCount,
-          videoCount: counts.videoCount,
+          photoCount: catMedia.filter(m => m.type === "photo").length || counts.photoCount,
+          videoCount: catMedia.filter(m => m.type === "video").length || counts.videoCount,
           children,
         };
       });
@@ -594,6 +568,7 @@ export async function getTeamSection() {
             silhouette: member.photo_silhouette_url ?? member.photo_url,
             whatsapp: member.whatsapp,
             email: member.email,
+            bgImg: member.background_image_url,
           }))
       : [];
     return { settings: data?.settings ?? null, members };
@@ -626,12 +601,13 @@ export async function getSocialSection() {
     const items = Array.isArray(data?.social_media) ? data.social_media : [];
     return {
       whatsapp: data?.whatsapp_number ?? null,
+      copyright: data?.copyright_text ?? null,
       links: items
         .map((item) => ({ url: item.url, icon: item.icon, label: item.label }))
         .filter((item) => item.url),
     };
   } catch {
-    return { whatsapp: null, links: [] };
+    return { whatsapp: null, copyright: null, links: [] };
   }
 }
 
@@ -639,21 +615,21 @@ export async function getContactInfo() {
   try {
     const data = await apiGet("/contacts");
     const items = Array.isArray(data) ? data : [];
-    const contact = items
+    const activeContacts = items
       .filter((item) => item.is_active !== false)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-    if (!contact) return null;
+    if (activeContacts.length === 0) return [];
 
-    return {
+    return activeContacts.map((contact) => ({
       label: contact.label ?? "",
       address: contact.address ?? "",
       phone: contact.phone ?? "",
       email: contact.email ?? "",
       mapEmbedUrl: contact.map_embed_url ?? null,
-    };
+    }));
   } catch {
-    return null;
+    return [];
   }
 }
 

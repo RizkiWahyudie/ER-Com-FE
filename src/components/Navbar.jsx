@@ -21,13 +21,24 @@ import {
 import { HamburgerIcon } from "@chakra-ui/icons";
 import { FaWhatsapp } from "react-icons/fa";
 import NextLink from "next/link";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
+import { getSocialSection } from "@/lib/api";
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const pathname = usePathname();
-  const bgNav = useColorModeValue("rgba(0, 0, 0, 0.3)", "rgba(255, 255, 255, 0.4)")
+  const bgNav = useColorModeValue("rgba(0, 0, 0, 0.3)", "rgba(255, 255, 255, 0.4)");
+  const [waNumber, setWaNumber] = useState("6281234567890");
+
+  useEffect(() => {
+    getSocialSection().then((data) => {
+      if (data?.whatsapp) {
+        setWaNumber(data.whatsapp.replace(/[^0-9]/g, ''));
+      }
+    });
+  }, []);
 
   const navItems = [
     {
@@ -120,7 +131,7 @@ export default function Navbar() {
           {/* WhatsApp Button - Right */}
           <Flex
             as="a"
-            href="https://wa.me/6281234567890"
+            href={`https://wa.me/${waNumber}`}
             target="_blank"
             rel="noopener noreferrer"
             align="center"

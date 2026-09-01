@@ -479,6 +479,7 @@ function CollageCard({
 }) {
   const defaultDesc = `Explore ${item.title} portfolio, press coverage, and media documentation.`;
   const descriptionText = item.desc || item.description || defaultDesc;
+  const displayGrid = isLevel1 && Array.isArray(item.media) && item.media.length > 1;
 
   return (
     <Box
@@ -488,9 +489,10 @@ function CollageCard({
       borderRadius={{ base: "16px", md: "24px" }}
       overflow="hidden"
       h={{ base: "260px", md: isLevel1 ? "380px" : "320px" }}
-      bgImage={`url('${item.image}')`}
+      bgImage={displayGrid ? "none" : `url('${item.image}')`}
       bgSize="cover"
       bgPos="center"
+      bg="#1a1a24"
       cursor="pointer"
       role="group"
       onClick={onClick}
@@ -513,6 +515,53 @@ function CollageCard({
         animation: `slsFadeInUp 500ms ease ${index * 80}ms both`,
       }}
     >
+      {/* 2x2 Media Grid for Level 1 */}
+      {displayGrid && (
+        <Box
+          display="grid"
+          gridTemplateColumns={item.media.length === 2 ? "1fr 1fr" : "1fr 1fr"}
+          gridTemplateRows={item.media.length <= 2 ? "1fr" : "1fr 1fr"}
+          gap={1}
+          position="absolute"
+          inset={0}
+          w="full"
+          h="full"
+        >
+          {item.media.slice(0, 4).map((img, imgIdx) => (
+            <Box
+              key={imgIdx}
+              bgImage={img.src || img.thumb ? `url('${img.src || img.thumb}')` : undefined}
+              bgGradient={img.src || img.thumb ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
+              bgSize="cover"
+              bgPos="center"
+              position="relative"
+              overflow="hidden"
+            >
+              {img.type === "video" && (
+                <Flex
+                  position="absolute"
+                  inset={0}
+                  justify="center"
+                  align="center"
+                >
+                  <Box
+                    boxSize={{ base: 8, lg: 10 }}
+                    borderRadius="full"
+                    bg="rgba(255, 255, 255, 0.3)"
+                    backdropFilter="blur(4px)"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Icon as={FaPlay} color="#fff" boxSize={3} ml="2px" />
+                  </Box>
+                </Flex>
+              )}
+            </Box>
+          ))}
+        </Box>
+      )}
+
       {/* Gradient Overlay */}
       <Box
         className="card-overlay"

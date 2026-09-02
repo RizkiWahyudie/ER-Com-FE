@@ -60,7 +60,7 @@ const SILHOUETTE_OUTLINE = [
 ].join(" ");
 
 export default function TeamShowcase({ banners }) {
-  const teamData = Array.isArray(banners) && banners.length > 0 ? banners : FALLBACK_TEAM_DATA;
+  const teamData = banners;
   const [hoveredIdx, setHoveredIdx] = useState(null);
 
   return (

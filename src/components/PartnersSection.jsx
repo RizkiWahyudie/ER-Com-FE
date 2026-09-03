@@ -14,7 +14,7 @@ const scrollUp = keyframes`
   100% { transform: translateY(-50%); }
 `;
 
-function LogoColumn({ logos, duration, reverse = false, logoBg, logoBorder }) {
+function LogoColumn({ logos, duration, reverse = false }) {
   // duplicate logos supaya loop mulus (translateY -50% pas balik ke awal)
   const doubled = [...logos, ...logos];
 
@@ -65,25 +65,19 @@ function LogoColumn({ logos, duration, reverse = false, logoBg, logoBorder }) {
         {doubled.map((partner, idx) => (
           <Box
             key={idx}
-            w={{ base: "140px", md: "220px" }}
-            h={{ base: "80px", md: "120px" }}
-            p={{ base: 3, md: 4 }}
+            w="full"
             display="flex"
             alignItems="center"
             justifyContent="center"
-            borderRadius={{ base: "14px", md: "18px" }}
-            overflow="hidden"
-            bg={logoBg}
-            border="1px solid"
-            borderColor={logoBorder}
-            flexShrink={0}
+            py={{ base: 2, md: 4 }}
           >
             <Image
               src={partner}
               alt={`Partner Logo ${idx + 1}`}
-              maxW="100%"
-              maxH="100%"
+              maxW={{ base: "120px", md: "200px" }}
+              maxH={{ base: "60px", md: "100px" }}
               objectFit="contain"
+              borderRadius={{ base: "8px", md: "12px" }}
             />
           </Box>
         ))}
@@ -105,9 +99,6 @@ export default function PartnersSection({ logos }) {
   const btnBorder = useColorModeValue("#025BCF", "white");
   const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
-
-  const logoBg = useColorModeValue("rgba(0,0,0,0.02)", "rgba(255,255,255,0.05)");
-  const logoBorder = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)");
 
   if (partners.length === 0) return null;
 
@@ -186,8 +177,8 @@ export default function PartnersSection({ logos }) {
             w={{ base: "full", xl: "70%" }}
             justifySelf="end"
           >
-            <LogoColumn logos={colA} duration={22} logoBg={logoBg} logoBorder={logoBorder} />
-            <LogoColumn logos={colB} duration={26} logoBg={logoBg} logoBorder={logoBorder} />
+            <LogoColumn logos={colA} duration={22} />
+            <LogoColumn logos={colB} duration={26} />
           </Grid>
         </Grid>
       </Container>

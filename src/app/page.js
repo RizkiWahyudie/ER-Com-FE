@@ -62,7 +62,7 @@ export default async function HomePage() {
       <TimelineSection intro={timelineIntro} items={timelineItems} />
       <QuoteCarousel testimonials={testimonials} />
       <PartnersSection logos={partnerLogos} />
-      <TeamSection members={teamMembers} />
+      <TeamSection members={teamMembers} porto={portfolioImages} />
       <PortfolioSection images={portfolioImages} />
       <ContactSection />
       <FooterSection />

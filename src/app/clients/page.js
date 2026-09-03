@@ -48,7 +48,7 @@ const FALLBACK_CLIENTS = [
 export default function ClientsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
-  const [clients, setClients] = useState();
+  const [clients, setClients] = useState([]);
   const [hero, setHero] = useState(FALLBACK_HERO);
   const [testimonials, setTestimonials] = useState([]);
 

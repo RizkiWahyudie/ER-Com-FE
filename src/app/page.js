@@ -34,7 +34,7 @@ export default async function HomePage() {
     const pages = await apiGet("/about-section4-pages");
     if (Array.isArray(pages) && pages.length > 0) {
       timelineItems = pages
-        .filter((page) => page.is_active !== false)
+        .filter((page) => Number(page.is_active ?? 1) === 1)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .map((page) => ({
           year: page.year,

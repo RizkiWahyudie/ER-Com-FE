@@ -2,6 +2,19 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "https://cms-ercommunication.arunikasolusiinovasi.tech/api/v1";
 const STORAGE_BASE_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
+// Soft-delete helpers – the CMS may send booleans (true/false) or integers
+// (1/0). Using `Number()` normalises both: Number(true) === 1, Number(false)
+// === 0, Number(1) === 1, Number(0) === 0. When the field is absent
+// (undefined/null) we default to 1 (visible) so pre-existing data without the
+// flag still renders.
+function isActive(item) {
+  return Number(item.is_active ?? 1) === 1;
+}
+
+function isPublished(item) {
+  return Number(item.is_published ?? 1) === 1;
+}
+
 // CMS rich-text fields sometimes come wrapped in block-level tags
 // (<h1>-<h6>, <p>, <div>). Injecting those as-is nests a block element
 // inside the Chakra Heading/Text that renders it, and the nested tag's
@@ -65,7 +78,7 @@ export async function getAboutFeatures() {
     const data = await apiGet("/about-sections");
     const items = Array.isArray(data) ? data : [];
     return items
-      .filter((item) => item.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((item) => ({
         title: item.title,
@@ -82,7 +95,7 @@ export async function getTimelineIntro() {
     const data = await apiGet("/about-section4-items");
     const items = Array.isArray(data) ? data : [];
     const firstItem = items
-      .filter((item) => item.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
 
     if (!firstItem) return null;
@@ -101,7 +114,7 @@ export async function getAboutMilestones() {
     const data = await apiGet("/about-milestones");
     const items = Array.isArray(data?.data)
       ? data.data
-          .filter((item) => item.is_active !== false)
+          .filter(isActive)
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
           .map((item) => ({
             year: item.year,
@@ -120,7 +133,7 @@ export async function getGridServices() {
     const data = await apiGet("/services");
     const items = Array.isArray(data?.data) ? data.data : [];
     return items
-      .filter((item) => item.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((item) => ({
         title: item.name,
@@ -195,7 +208,7 @@ function mapServiceItem(item) {
   
   const subMedia = Array.isArray(item.sub_items)
     ? item.sub_items
-        .filter((sub) => sub.is_active !== false)
+        .filter(isActive)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
         .flatMap((sub) => normalizeMediaArray(sub.media))
     : [];
@@ -218,7 +231,7 @@ function collectCategoryMedia(cat, limit = 4) {
 
   if (media.length < limit && Array.isArray(cat.items)) {
     for (const item of cat.items) {
-      if (item.is_active === false) continue;
+      if (!isActive(item)) continue;
 
       const itemMedia = normalizeMediaArray(item.media);
       for (const m of itemMedia) {
@@ -231,7 +244,7 @@ function collectCategoryMedia(cat, limit = 4) {
 
       if (Array.isArray(item.sub_items)) {
         for (const sub of item.sub_items) {
-          if (sub.is_active === false) continue;
+          if (!isActive(sub)) continue;
           const subMedia = normalizeMediaArray(sub.media);
           for (const m of subMedia) {
             if (!media.some((existing) => existing.src === m.src || existing.thumb === m.thumb)) {
@@ -260,7 +273,7 @@ export async function getMediaCarouselSlides() {
     const categories = Array.isArray(data?.data) ? data.data : [];
 
     return categories
-      .filter((cat) => cat.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => ({
         tag: cat.name,
@@ -278,13 +291,13 @@ export async function getServicesListSection() {
     const categories = Array.isArray(data?.data) ? data.data : [];
 
     return categories
-      .filter((cat) => cat.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => {
         const aggregatedMedia = collectCategoryMedia(cat, 4);
         const children = Array.isArray(cat.items)
           ? cat.items
-              .filter((item) => item.is_active !== false)
+              .filter(isActive)
               .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
               .map(mapServiceItem)
           : [];
@@ -341,7 +354,7 @@ function htmlToColoredLines(html) {
 export async function getHeroSection(type) {
   try {
     const data = await apiGet(`/sections/hero/${type}`);
-    if (!data) return null;
+    if (!data || !isActive(data)) return null;
     return {
       headlineLines: htmlToColoredLines(data.headline),
       subheadline: htmlToLines(data.subheadline).join(" "),
@@ -370,7 +383,7 @@ export async function getPartnerLogos() {
     const clients = await apiGet("/clients");
     const data = Array.isArray(clients?.data) ? clients.data : [];
     return data
-      .filter((client) => client.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((client) => client.logo_image_url)
       .filter(Boolean);
@@ -384,7 +397,7 @@ export async function getTestimonials() {
     const testimonials = await apiGet("/testimonials");
     const data = Array.isArray(testimonials?.data) ? testimonials.data : [];
     return data
-      .filter((item) => item.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((item) => ({
         quote: item.testimonial_text?.replace(/<[^>]*>/g, "").trim() ?? "",
@@ -422,7 +435,7 @@ export async function getBlogPosts() {
     const data = await apiGet("/blog");
     const posts = Array.isArray(data?.data) ? data.data : [];
     return posts
-      .filter((post) => post.is_published !== false)
+      .filter(isPublished)
       .map(mapBlogPost)
       .filter((post) => post.img);
   } catch {
@@ -445,7 +458,7 @@ export async function getBlogCategories() {
     const data = await apiGet("/blog-categories");
     const categories = Array.isArray(data) ? data : [];
     return categories
-      .filter((cat) => cat.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => cat.name);
   } catch {
@@ -458,7 +471,7 @@ export async function getClients() {
     const clients = await apiGet("/clients");
     const data = Array.isArray(clients?.data) ? clients.data : [];
     return data
-      .filter((client) => client.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((client) => ({
         src: client.logo_image_url,
@@ -476,7 +489,7 @@ export async function getClientCategories() {
     const data = await apiGet("/client-categories");
     const categories = Array.isArray(data) ? data : [];
     return categories
-      .filter((cat) => cat.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((cat) => cat.name);
   } catch {
@@ -493,7 +506,7 @@ export async function getPortfolioSection() {
     // to the client as a video source so it can show the first frame itself.
     // Vimeo has no no-auth thumbnail endpoint, so it's dropped like before.
     const images = items
-      .filter((item) => item.is_published !== false)
+      .filter(isPublished)
       .map((item) => {
         if (item.cover_image_url) return { type: "image", src: item.cover_image_url };
 
@@ -546,7 +559,7 @@ export async function getHighlightGallery() {
     // A video-only item (no cover uploaded) still has cover_image_url === null,
     // so it must not be dropped just for lacking a thumbnail.
     const published = items.filter(
-      (item) => item.is_published !== false && (item.cover_image_url || item.preview_video_url)
+      (item) => isPublished(item) && (item.cover_image_url || item.preview_video_url)
     );
 
     const photos = published.map((item) => item.cover_image_url).filter(Boolean);
@@ -577,7 +590,7 @@ export async function getStatsSection() {
     const data = await apiGet("/stats");
     if (Array.isArray(data) && data.length > 0) {
       return data
-        .filter((stat) => stat.is_active !== false)
+        .filter(isActive)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
     return FALLBACK_STATS;
@@ -591,7 +604,7 @@ export async function getTeamSection() {
     const data = await apiGet("/sections/team");
     const members = Array.isArray(data?.members)
       ? data.members
-          .filter((member) => member.is_active !== false)
+          .filter(isActive)
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
           .map((member) => ({
             name: member.name,
@@ -606,7 +619,7 @@ export async function getTeamSection() {
       
     const banners = Array.isArray(data?.banners)
       ? data.banners
-          .filter((banner) => banner.is_active !== false)
+          .filter(isActive)
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
           .map((banner) => ({
             name: banner.name,
@@ -626,7 +639,7 @@ export async function getCareers() {
     const data = await apiGet("/careers");
     const careers = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
     return careers
-      .filter((job) => job.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((job) => ({
         slug: job.slug,
@@ -660,7 +673,7 @@ export async function getContactInfo() {
     const data = await apiGet("/contacts");
     const items = Array.isArray(data) ? data : [];
     const activeContacts = items
-      .filter((item) => item.is_active !== false)
+      .filter(isActive)
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     if (activeContacts.length === 0) return [];

@@ -25,7 +25,15 @@ export default function HeroSection() {
 
   useEffect(() => {
     apiGet("/sections/hero/home")
-      .then(setHero)
+      .then((data) => {
+        // If the hero section is deactivated in the CMS, ignore it entirely
+        // so the component falls back to its default/fallback content.
+        if (data && Number(data.is_active ?? 1) === 1) {
+          setHero(data);
+        } else {
+          setHero(null);
+        }
+      })
       .catch(() => setHero(null));
 
     getStatsSection().then(setStats);
@@ -54,7 +62,7 @@ export default function HeroSection() {
         left={0}
         right={0}
         bottom={0}
-        backgroundImage={`url('${hero?.background_image_url ?? "/assets/hero/hero-bg-new.png"}')`}
+        backgroundImage={`url('${hero?.background_image_url || "/assets/hero/hero-bg-new.png"}')`}
         backgroundSize="cover"
         backgroundPosition="center"
         // filter="brightness(0.55) saturate(0.85)"

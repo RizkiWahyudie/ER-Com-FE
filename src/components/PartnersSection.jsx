@@ -14,7 +14,7 @@ const scrollUp = keyframes`
   100% { transform: translateY(-50%); }
 `;
 
-function LogoColumn({ logos, duration, reverse = false }) {
+function LogoColumn({ logos, duration, reverse = false, logoBg, logoBorder }) {
   // duplicate logos supaya loop mulus (translateY -50% pas balik ke awal)
   const doubled = [...logos, ...logos];
 
@@ -65,13 +65,26 @@ function LogoColumn({ logos, duration, reverse = false }) {
         {doubled.map((partner, idx) => (
           <Box
             key={idx}
-            w="full"
+            w={{ base: "140px", md: "220px" }}
+            h={{ base: "80px", md: "120px" }}
+            p={{ base: 3, md: 4 }}
             display="flex"
             alignItems="center"
             justifyContent="center"
-            py={2}
+            borderRadius={{ base: "14px", md: "18px" }}
+            overflow="hidden"
+            bg={logoBg}
+            border="1px solid"
+            borderColor={logoBorder}
+            flexShrink={0}
           >
-            <Image src={partner} alt={`Partner Logo ${idx + 1}`} />
+            <Image
+              src={partner}
+              alt={`Partner Logo ${idx + 1}`}
+              maxW="100%"
+              maxH="100%"
+              objectFit="contain"
+            />
           </Box>
         ))}
       </VStack>
@@ -92,6 +105,9 @@ export default function PartnersSection({ logos }) {
   const btnBorder = useColorModeValue("#025BCF", "white");
   const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
+
+  const logoBg = useColorModeValue("rgba(0,0,0,0.02)", "rgba(255,255,255,0.05)");
+  const logoBorder = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)");
 
   if (partners.length === 0) return null;
 
@@ -170,8 +186,8 @@ export default function PartnersSection({ logos }) {
             w={{ base: "full", xl: "70%" }}
             justifySelf="end"
           >
-            <LogoColumn logos={colA} duration={22} />
-            <LogoColumn logos={colB} duration={26} />
+            <LogoColumn logos={colA} duration={22} logoBg={logoBg} logoBorder={logoBorder} />
+            <LogoColumn logos={colB} duration={26} logoBg={logoBg} logoBorder={logoBorder} />
           </Grid>
         </Grid>
       </Container>

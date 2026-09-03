@@ -48,7 +48,7 @@ const FALLBACK_CLIENTS = [
 export default function ClientsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
-  const [clients, setClients] = useState(FALLBACK_CLIENTS);
+  const [clients, setClients] = useState();
   const [hero, setHero] = useState(FALLBACK_HERO);
   const [testimonials, setTestimonials] = useState([]);
 
@@ -78,6 +78,14 @@ export default function ClientsPage() {
 
   const headingText = useColorModeValue("#3C87F9", "#fff");
   const subHeadingText = useColorModeValue("rgba(0, 0, 0, 0.65)", "#a0aab8");
+
+  const logoBg = useColorModeValue("rgba(0,0,0,0.02)", "rgba(255,255,255,0.05)");
+  const logoBorder = useColorModeValue("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)");
+  const logoHoverBorder = useColorModeValue("rgba(0,0,0,0.18)", "rgba(255,255,255,0.25)");
+  const logoHoverShadow = useColorModeValue(
+    "0 8px 24px rgba(0,0,0,0.08)",
+    "0 8px 24px rgba(255,255,255,0.06)"
+  );
 
   const filtered = activeCategory === "All"
     ? clients
@@ -224,19 +232,26 @@ export default function ClientsPage() {
                 key={`${activeCategory}-${idx}`}
                 align="center"
                 justify="center"
-                py={{ base: 4, md: 6 }}
-                px={{ base: 4, md: 8 }}
+                w={{ base: "150px", md: "360px" }}
+                h={{ base: "90px", md: "180px" }}
+                p={{ base: 3, md: 5 }}
+                borderRadius={{ base: "16px", md: "20px" }}
+                overflow="hidden"
+                bg={logoBg}
+                border="1px solid"
+                borderColor={logoBorder}
                 transition="all 0.3s ease"
                 _hover={{
-                  transform: "scale(1.08)",
-                  filter: "brightness(1.3)",
+                  transform: "scale(1.06)",
+                  boxShadow: logoHoverShadow,
+                  borderColor: logoHoverBorder,
                 }}
               >
                 <Image
                   src={client.src}
                   alt={client.name}
-                  maxH={{ base: "60px", md: "140px" }}
-                  maxW={{ base: "160px", md: "290px" }}
+                  maxW="100%"
+                  maxH="100%"
                   objectFit="contain"
                   transition="all 0.3s ease"
                 />

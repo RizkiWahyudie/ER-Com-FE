@@ -107,7 +107,7 @@ export default function TeamSection({ teamHome = 1, members }) {
       : FALLBACK_TEAM_MEMBERS;
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const selected = teamMembers[selectedIdx];
+  const selected = teamMembers[selectedIdx] ?? teamMembers[0];
   const { isOpen, onOpen, onClose } = useDisclosure();
   const bgBtn = useColorModeValue("#fff", "#030712");
   const btnColor = useColorModeValue("#025BCF", "white");
@@ -115,13 +115,18 @@ export default function TeamSection({ teamHome = 1, members }) {
   const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
 
+  // Reset selectedIdx if teamMembers shrinks (e.g. after API data arrives)
   useEffect(() => {
-    if (isHovered || isOpen) return;
+    setSelectedIdx((prev) => (prev >= teamMembers.length ? 0 : prev));
+  }, [teamMembers.length]);
+
+  useEffect(() => {
+    if (isHovered || isOpen || teamMembers.length <= 1) return;
     const interval = setInterval(() => {
       setSelectedIdx((prevIdx) => (prevIdx + 1) % teamMembers.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [selectedIdx, isHovered, isOpen]);
+  }, [isHovered, isOpen, teamMembers.length]);
 
   // Get current active and next 2 members for the preview carousel on the right
   const getPreviewMembers = () => {

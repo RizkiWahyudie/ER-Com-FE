@@ -15,6 +15,36 @@ import {
 } from "@chakra-ui/react";
 import { FaPlay, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { getMediaCarouselSlides } from "@/lib/api";
+// import { FALLBACK_SERVICES } from "@/components/ServicesListSection";
+
+// Derive carousel slides from the shared fallback data.
+// Each top-level category becomes a slide: { tag, imgs (up to 4 media) }
+// function deriveFallbackSlides(services) {
+//   return services.map((cat) => {
+//     const imgs = [];
+//     // Collect media from nested children (breadth-first, up to 4)
+//     const queue = [...(cat.children || [])];
+//     while (queue.length > 0 && imgs.length < 4) {
+//       const node = queue.shift();
+//       if (Array.isArray(node.media)) {
+//         for (const m of node.media) {
+//           if (imgs.length >= 4) break;
+//           imgs.push(m);
+//         }
+//       }
+//       if (Array.isArray(node.children)) {
+//         queue.push(...node.children);
+//       }
+//     }
+//     // If still empty, use the category image itself
+//     if (imgs.length === 0 && cat.image) {
+//       imgs.push({ type: "photo", src: cat.image });
+//     }
+//     return { tag: cat.title, imgs };
+//   }).filter((s) => s.imgs.length > 0);
+// }
+
+// const FALLBACK_SLIDES = deriveFallbackSlides([FALLBACK_SERVICES]);
 
 export default function MediaCarousel() {
   const router = useRouter();
@@ -24,7 +54,9 @@ export default function MediaCarousel() {
   const [slidesData, setSlidesData] = useState([]);
 
   useEffect(() => {
-    getMediaCarouselSlides().then(setSlidesData);
+    getMediaCarouselSlides().then((data) => {
+      if (data.length > 0) setSlidesData(data);
+    });
   }, []);
 
   const cardBg = useColorModeValue(

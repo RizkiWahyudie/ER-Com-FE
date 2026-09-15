@@ -671,22 +671,26 @@ export async function getSocialSection() {
 export async function getContactInfo() {
   try {
     const data = await apiGet("/contacts");
-    const items = Array.isArray(data) ? data : [];
+    // The API now returns { contacts: [...], whatsapp: { number, default_message } }
+    // but we also handle the legacy plain-array format for backward compatibility.
+    const items = Array.isArray(data) ? data : Array.isArray(data?.contacts) ? data.contacts : [];
     const activeContacts = items
       .filter(isActive)
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((contact) => ({
+        label: contact.label ?? "",
+        address: contact.address ?? "",
+        phone: contact.phone ?? "",
+        email: contact.email ?? "",
+        mapEmbedUrl: contact.map_embed_url ?? null,
+      }));
 
-    if (activeContacts.length === 0) return [];
-
-    return activeContacts.map((contact) => ({
-      label: contact.label ?? "",
-      address: contact.address ?? "",
-      phone: contact.phone ?? "",
-      email: contact.email ?? "",
-      mapEmbedUrl: contact.map_embed_url ?? null,
-    }));
+    return {
+      contacts: activeContacts,
+      whatsapp: data?.whatsapp ?? null,
+    };
   } catch {
-    return [];
+    return { contacts: [], whatsapp: null };
   }
 }
 

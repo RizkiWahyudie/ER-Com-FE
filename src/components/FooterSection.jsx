@@ -48,7 +48,7 @@ export default function FooterSection() {
   const [copyrightText, setCopyrightText] = useState("");
 
   useEffect(() => {
-    getContactInfo().then((data) => setContacts(data || []));
+    getContactInfo().then((data) => setContacts(data?.contacts || []));
     getSocialSection().then((data) => {
       setSocialLinks(data?.links || []);
       if (data?.copyright) setCopyrightText(data.copyright);

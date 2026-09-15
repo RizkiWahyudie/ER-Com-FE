@@ -24,18 +24,22 @@ import NextLink from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
-import { getSocialSection } from "@/lib/api";
+import { getContactInfo } from "@/lib/api";
 
 export default function Navbar() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const pathname = usePathname();
   const bgNav = useColorModeValue("rgba(0, 0, 0, 0.3)", "rgba(255, 255, 255, 0.4)");
   const [waNumber, setWaNumber] = useState("6281234567890");
+  const [waMessage, setWaMessage] = useState("");
 
   useEffect(() => {
-    getSocialSection().then((data) => {
-      if (data?.whatsapp) {
-        setWaNumber(data.whatsapp.replace(/[^0-9]/g, ''));
+    getContactInfo().then((data) => {
+      if (data?.whatsapp?.number) {
+        setWaNumber(data.whatsapp.number.replace(/[^0-9]/g, ''));
+      }
+      if (data?.whatsapp?.default_message) {
+        setWaMessage(data.whatsapp.default_message);
       }
     });
   }, []);
@@ -131,7 +135,7 @@ export default function Navbar() {
           {/* WhatsApp Button - Right */}
           <Flex
             as="a"
-            href={`https://wa.me/${waNumber}`}
+            href={`https://wa.me/${waNumber}${waMessage ? `?text=${encodeURIComponent(waMessage)}` : ''}`}
             target="_blank"
             rel="noopener noreferrer"
             align="center"

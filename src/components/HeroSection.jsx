@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
+  Button,
   Container,
   VStack,
   Heading,
@@ -19,25 +20,55 @@ const FALLBACK_SUBHEADLINE =
   "communication solutions. At ER Communication, we share our knowledge to " +
   "strengthen reputation and drive meaningful impact.";
 
+const AUTO_SLIDE_INTERVAL = 4000;
+
 export default function HeroSection() {
-  const [hero, setHero] = useState(null);
+  const [heroes, setHeroes] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [stats, setStats] = useState([]);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     apiGet("/sections/hero/home")
       .then((data) => {
-        // If the hero section is deactivated in the CMS, ignore it entirely
-        // so the component falls back to its default/fallback content.
-        if (data && Number(data.is_active ?? 1) === 1) {
-          setHero(data);
-        } else {
-          setHero(null);
-        }
+        // The API now returns an array for the home type.
+        // We also handle the legacy single-object format for backward compatibility.
+        const items = Array.isArray(data) ? data : data ? [data] : [];
+        const active = items.filter(
+          (item) => item && Number(item.is_active ?? 1) === 1
+        );
+        setHeroes(active);
       })
-      .catch(() => setHero(null));
+      .catch(() => setHeroes([]));
 
     getStatsSection().then(setStats);
   }, []);
+
+  // Auto-slide timer — only when there are multiple slides
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (heroes.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % heroes.length);
+    }, AUTO_SLIDE_INTERVAL);
+  }, [heroes.length]);
+
+  useEffect(() => {
+    startTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [startTimer]);
+
+  const goToSlide = (index) => {
+    setActiveIndex(index);
+    // Reset the auto-slide timer so it doesn't immediately jump
+    startTimer();
+  };
+
+  // Resolve the currently displayed hero, or use fallback values
+  const currentHero = heroes[activeIndex] ?? null;
+  const showDots = heroes.length > 1;
 
   const overlay = useColorModeValue(
     "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)",
@@ -55,19 +86,37 @@ export default function HeroSection() {
       alignItems="center"
       justifyContent="space-between"
     >
-      {/* Background Image */}
-      <Box
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        backgroundImage={`url('${hero?.background_image_url || "/assets/hero/hero-bg-new.png"}')`}
-        backgroundSize="cover"
-        backgroundPosition="center"
-        // filter="brightness(0.55) saturate(0.85)"
-        zIndex={-2}
-      />
+      {/* Background Images — stacked for crossfade */}
+      {heroes.length > 0 ? (
+        heroes.map((hero, idx) => (
+          <Box
+            key={hero.id ?? idx}
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundImage={`url('${hero.background_image_url || "/assets/hero/hero-bg-new.png"}')`}
+            backgroundSize="cover"
+            backgroundPosition="center"
+            opacity={idx === activeIndex ? 1 : 0}
+            transition="opacity 0.8s ease-in-out"
+            zIndex={-2}
+          />
+        ))
+      ) : (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          backgroundImage="url('/assets/hero/hero-bg-new.png')"
+          backgroundSize="cover"
+          backgroundPosition="center"
+          zIndex={-2}
+        />
+      )}
 
       {/* Overlay */}
       <Box
@@ -95,26 +144,128 @@ export default function HeroSection() {
           textAlign="center"
           w="full"
         >
-          {/* Main Heading */}
-          <Heading
-            as="h1"
-            fontSize={{ base: "42px", md: "56px", lg: "64px" }}
-            color="#fff"
-            fontWeight="700"
-            lineHeight="1.15"
-            letterSpacing="-1px"
-            fontFamily="Plus Jakarta Sans"
-            dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.headline) || FALLBACK_HEADLINE }}
-          />
+          {/* Main Heading — crossfade between slides */}
+          <Box position="relative" w="full" minH={{ base: "100px", md: "140px" }}>
+            {heroes.length > 0 ? (
+              heroes.map((hero, idx) => (
+                <Heading
+                  key={hero.id ?? idx}
+                  as={idx === activeIndex ? "h1" : "div"}
+                  fontSize={{ base: "42px", md: "56px", lg: "64px" }}
+                  color="#fff"
+                  fontWeight="700"
+                  lineHeight="1.15"
+                  letterSpacing="-1px"
+                  fontFamily="Plus Jakarta Sans"
+                  position={idx === 0 ? "relative" : "absolute"}
+                  top={0}
+                  left={0}
+                  right={0}
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.6s ease-in-out"
+                  pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero.headline) || FALLBACK_HEADLINE }}
+                />
+              ))
+            ) : (
+              <Heading
+                as="h1"
+                fontSize={{ base: "42px", md: "56px", lg: "64px" }}
+                color="#fff"
+                fontWeight="700"
+                lineHeight="1.15"
+                letterSpacing="-1px"
+                fontFamily="Plus Jakarta Sans"
+                dangerouslySetInnerHTML={{ __html: FALLBACK_HEADLINE }}
+              />
+            )}
+          </Box>
 
-          {/* Subtitle */}
-          <Text
-            fontSize={{ base: "sm", md: "16px", lg: "18px" }}
-            color="#a0aab8"
-            maxW="2xl"
-            lineHeight="1.6"
-            dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero?.subheadline) || FALLBACK_SUBHEADLINE }}
-          />
+          {/* Subtitle — crossfade between slides */}
+          <Box position="relative" w="full" minH={{ base: "50px", md: "60px" }}>
+            {heroes.length > 0 ? (
+              heroes.map((hero, idx) => (
+                <Text
+                  key={hero.id ?? idx}
+                  fontSize={{ base: "sm", md: "16px", lg: "18px" }}
+                  color="#a0aab8"
+                  maxW="2xl"
+                  mx="auto"
+                  lineHeight="1.6"
+                  position={idx === 0 ? "relative" : "absolute"}
+                  top={0}
+                  left={0}
+                  right={0}
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.6s ease-in-out"
+                  pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero.subheadline) || FALLBACK_SUBHEADLINE }}
+                />
+              ))
+            ) : (
+              <Text
+                fontSize={{ base: "sm", md: "16px", lg: "18px" }}
+                color="#a0aab8"
+                maxW="2xl"
+                mx="auto"
+                lineHeight="1.6"
+                dangerouslySetInnerHTML={{ __html: FALLBACK_SUBHEADLINE }}
+              />
+            )}
+          </Box>
+
+          {/* CTA Button */}
+          {currentHero?.cta_text && currentHero?.cta_url && (
+            <Button
+              as="a"
+              href={currentHero.cta_url}
+              target={currentHero.cta_url.startsWith("http") ? "_blank" : "_self"}
+              rel={currentHero.cta_url.startsWith("http") ? "noopener noreferrer" : undefined}
+              variant="outline"
+              bg="transparent"
+              color="#fff"
+              borderColor="#fff"
+              borderWidth="1.5px"
+              borderRadius="999px"
+              px={8}
+              py={5}
+              fontSize={{ base: "sm", md: "md" }}
+              fontWeight="600"
+              transition="all 0.25s ease"
+              _hover={{
+                bg: "rgba(255, 255, 255, 0.12)",
+                borderColor: "#fff",
+                transform: "translateY(-1px)",
+              }}
+              _active={{
+                bg: "rgba(255, 255, 255, 0.2)",
+                transform: "translateY(0)",
+              }}
+            >
+              {currentHero.cta_text}
+            </Button>
+          )}
+
+          {/* Carousel Dots */}
+          {showDots && (
+            <HStack spacing={2.5} justify="center">
+              {heroes.map((_, idx) => (
+                <Box
+                  key={idx}
+                  as="button"
+                  aria-label={`Go to slide ${idx + 1}`}
+                  w={idx === activeIndex ? "28px" : "10px"}
+                  h="10px"
+                  borderRadius="full"
+                  bg={idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.35)"}
+                  transition="all 0.3s ease"
+                  cursor="pointer"
+                  _hover={{ bg: idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.55)" }}
+                  onClick={() => goToSlide(idx)}
+                />
+              ))}
+            </HStack>
+          )}
         </VStack>
       </Container>
       <HStack

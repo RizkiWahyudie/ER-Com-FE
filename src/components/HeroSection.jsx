@@ -11,7 +11,7 @@ import {
   HStack,
   useColorModeValue
 } from "@chakra-ui/react";
-import { apiGet, getStatsSection, sanitizeRichText } from "@/lib/api";
+import { getHeroSection, getStatsSection, sanitizeRichText } from "@/lib/api";
 
 const FALLBACK_HEADLINE =
   'We are Building <span style="color:var(--accent)">Trust</span>.<br/>Driving Impact.';
@@ -29,15 +29,13 @@ export default function HeroSection() {
   const timerRef = useRef(null);
 
   useEffect(() => {
-    apiGet("/sections/hero/home")
+    getHeroSection("home")
       .then((data) => {
-        // The API now returns an array for the home type.
-        // We also handle the legacy single-object format for backward compatibility.
-        const items = Array.isArray(data) ? data : data ? [data] : [];
-        const active = items.filter(
-          (item) => item && Number(item.is_active ?? 1) === 1
-        );
-        setHeroes(active);
+        if (data.length > 0) {
+          setHeroes(data);
+        } else {
+          setHeroes([]);
+        }
       })
       .catch(() => setHeroes([]));
 

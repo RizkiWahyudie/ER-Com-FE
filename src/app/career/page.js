@@ -97,7 +97,10 @@ export default function CareerPage() {
       },
     },
   };
-  const [hero, setHero] = useState(FALLBACK_HERO);
+
+  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const timerRef = useRef(null);
   const [jobs, setJobs] = useState(FALLBACK_JOBS);
   // FALLBACK_JOBS are placeholder options only — their slugs don't exist in
   // the backend, so applying against them always fails. Only allow
@@ -121,10 +124,34 @@ export default function CareerPage() {
       }
     });
 
-    getHeroSection("career").then((apiHero) => {
-      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    getHeroSection("career").then((apiHeroes) => {
+      if (apiHeroes.length > 0) setHeroes(apiHeroes);
     });
   }, []);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (heroes.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % heroes.length);
+    }, AUTO_SLIDE_INTERVAL);
+  }, [heroes.length]);
+
+  useEffect(() => {
+    startTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [startTimer]);
+
+  const goToSlide = (index) => {
+    setActiveIndex(index);
+    startTimer();
+  };
+
+  const hasBg = heroes.length > 0 && heroes.some((h) => Boolean(h.hasBgImage || h.backgroundImage));
+  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const showDots = heroes.length > 1;
 
   const [errors, setErrors] = useState({});
   const [isDragActive, setIsDragActive] = useState(false);
@@ -290,79 +317,301 @@ export default function CareerPage() {
 
       <Navbar />
 
-      {/* ── Hero ── */}
-      <Box
-        position="relative"
-        w="full"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        overflow="hidden"
-      >
-        {/* Blue glow — top center */}
+      {/* ── Hero Section ── */}
+      {hasBg ? (
         <Box
-          position="absolute"
-          top="-60px"
-          left="50%"
-          transform="translateX(-50%)"
-          w="800px"
-          h="500px"
-          style={{
-            background: "radial-gradient(ellipse at center top, rgba(29,78,216,0.45) 0%, transparent 60%)",
-          }}
-          pointerEvents="none" />
-
-        <Container
-          maxW="7xl"
-          px={{ base: 6, md: 8 }}
-          textAlign="center"
           position="relative"
-          zIndex={1}
-          pt={{ base: "130px", md: "150px" }}
-          pb={{ base: 10, md: 14 }}
+          w="full"
+          minH={{ base: "80vh", md: "100vh" }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          pt={{ base: "140px", md: "180px" }}
+          pb={{ base: 12, md: 16 }}
+          overflow="hidden"
         >
-          <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
+          {/* Background Images — stacked for crossfade */}
+          {heroes.map((h, idx) => (
             <Box
-              display="inline-block"
-              bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
-              color="#fff"
-              fontSize="lg"
-              fontWeight="600"
-              px={4}
-              py={1}
-              borderRadius="full"
-            >
-              Career
-            </Box>
+              key={h.id ?? idx}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              backgroundImage={`url('${h.backgroundImage}')`}
+              backgroundSize="cover"
+              backgroundPosition="center"
+              opacity={idx === activeIndex ? 1 : 0}
+              transition="opacity 0.8s ease-in-out"
+              zIndex={0}
+            />
+          ))}
 
-            <Heading
-              as="h1"
-              fontSize={{ base: "52px", md: "72px", xl: "90px" }}
-              color={headingText}
-              fontWeight="700"
-              lineHeight="1.05"
-              letterSpacing="-1.8px"
-              fontFamily="Plus Jakarta Sans"
-            >
-              {hero.headlineLines.map((line, idx) => (
-                <Text as="span" display="block" key={idx} color={headingText}>
-                  {line.text}
-                </Text>
-              ))}
-            </Heading>
+          {/* Gradient overlay */}
+          <Box
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            background={bgOverlay}
+            zIndex={1}
+          />
 
-            <Text
-              fontSize={{ base: "18px", md: "110px", xl: "19px" }}
-              color={subHeadingText}
-              maxW="2xl"
-              lineHeight="1.6"
-              opacity={0.85}
-            >
-              {hero.subheadline}
-            </Text>
-          </VStack>
-        </Container>
-      </Box>
+          <Container maxW="7xl" px={{ base: 6, md: 8 }} textAlign="center" position="relative" zIndex={2}>
+            <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
+              <Box
+                display="inline-block"
+                bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
+                color="#fff"
+                fontSize="lg"
+                fontWeight="600"
+                px={4}
+                py={1}
+                borderRadius="full"
+              >
+                Career
+              </Box>
+
+              {/* Headline with crossfade */}
+              <Box position="relative" w="full" minH={{ base: "90px", md: "140px" }}>
+                {heroes.map((h, idx) => (
+                  <Heading
+                    key={h.id ?? idx}
+                    as={idx === activeIndex ? "h1" : "div"}
+                    fontSize={{ base: "52px", md: "72px", xl: "90px" }}
+                    color="#fff"
+                    fontWeight="700"
+                    lineHeight="1.05"
+                    letterSpacing="-1.8px"
+                    fontFamily="Plus Jakarta Sans"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 1 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.headlineLines && h.headlineLines.length > 0 ? (
+                      h.headlineLines.map((line, lIdx) => (
+                        <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
+                          {line.text}
+                        </Text>
+                      ))
+                    ) : (
+                      <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
+                    )}
+                  </Heading>
+                ))}
+              </Box>
+
+              {/* Subheadline with crossfade */}
+              <Box position="relative" w="full" minH={{ base: "50px", md: "60px" }}>
+                {heroes.map((h, idx) => (
+                  <Text
+                    key={h.id ?? idx}
+                    fontSize={{ base: "18px", md: "20px", xl: "21px" }}
+                    color="#ffffff"
+                    maxW="2xl"
+                    mx="auto"
+                    lineHeight="1.6"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 0.85 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.subheadline}
+                  </Text>
+                ))}
+              </Box>
+
+              {/* CTA Button — only when background exists */}
+              {currentHero?.cta_text && currentHero?.cta_url && (
+                <Button
+                  as="a"
+                  href={currentHero.cta_url}
+                  target={currentHero.cta_url.startsWith("http") ? "_blank" : "_self"}
+                  rel={currentHero.cta_url.startsWith("http") ? "noopener noreferrer" : undefined}
+                  variant="outline"
+                  bg="transparent"
+                  color="#fff"
+                  borderColor="#fff"
+                  borderWidth="1.5px"
+                  borderRadius="999px"
+                  px={8}
+                  py={5}
+                  fontSize={{ base: "sm", md: "md" }}
+                  fontWeight="600"
+                  transition="all 0.25s ease"
+                  _hover={{
+                    bg: "rgba(255, 255, 255, 0.12)",
+                    borderColor: "#fff",
+                    transform: "translateY(-1px)",
+                  }}
+                  _active={{
+                    bg: "rgba(255, 255, 255, 0.2)",
+                    transform: "translateY(0)",
+                  }}
+                >
+                  {currentHero.cta_text}
+                </Button>
+              )}
+
+              {/* Carousel Dots */}
+              {showDots && (
+                <HStack spacing={2.5} justify="center">
+                  {heroes.map((_, idx) => (
+                    <Box
+                      key={idx}
+                      as="button"
+                      aria-label={`Go to slide ${idx + 1}`}
+                      w={idx === activeIndex ? "28px" : "10px"}
+                      h="10px"
+                      borderRadius="full"
+                      bg={idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.35)"}
+                      transition="all 0.3s ease"
+                      cursor="pointer"
+                      _hover={{ bg: idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.55)" }}
+                      onClick={() => goToSlide(idx)}
+                    />
+                  ))}
+                </HStack>
+              )}
+            </VStack>
+          </Container>
+        </Box>
+      ) : (
+        <Box
+          position="relative"
+          w="full"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          overflow="hidden"
+        >
+          {/* Blue glow — top center */}
+          <Box
+            position="absolute"
+            top="-60px"
+            left="50%"
+            transform="translateX(-50%)"
+            w="800px"
+            h="500px"
+            style={{
+              background: "radial-gradient(ellipse at center top, rgba(29,78,216,0.45) 0%, transparent 60%)",
+            }}
+            pointerEvents="none"
+          />
+
+          <Container
+            maxW="7xl"
+            px={{ base: 6, md: 8 }}
+            textAlign="center"
+            position="relative"
+            zIndex={1}
+            pt={{ base: "130px", md: "150px" }}
+            pb={{ base: 10, md: 14 }}
+          >
+            <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
+              <Box
+                display="inline-block"
+                bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
+                color="#fff"
+                fontSize="lg"
+                fontWeight="600"
+                px={4}
+                py={1}
+                borderRadius="full"
+              >
+                Career
+              </Box>
+
+              {/* Headline with crossfade */}
+              <Box position="relative" w="full" minH={{ base: "90px", md: "140px" }}>
+                {heroes.map((h, idx) => (
+                  <Heading
+                    key={h.id ?? idx}
+                    as={idx === activeIndex ? "h1" : "div"}
+                    fontSize={{ base: "52px", md: "72px", xl: "90px" }}
+                    color={headingText}
+                    fontWeight="700"
+                    lineHeight="1.05"
+                    letterSpacing="-1.8px"
+                    fontFamily="Plus Jakarta Sans"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 1 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.headlineLines && h.headlineLines.length > 0 ? (
+                      h.headlineLines.map((line, lIdx) => (
+                        <Text as="span" display="block" key={lIdx} color={line.color || headingText}>
+                          {line.text}
+                        </Text>
+                      ))
+                    ) : (
+                      <Text as="span" display="block" color={headingText} dangerouslySetInnerHTML={{ __html: h.headline }} />
+                    )}
+                  </Heading>
+                ))}
+              </Box>
+
+              {/* Subheadline with crossfade */}
+              <Box position="relative" w="full" minH={{ base: "50px", md: "60px" }}>
+                {heroes.map((h, idx) => (
+                  <Text
+                    key={h.id ?? idx}
+                    fontSize={{ base: "18px", md: "20px", xl: "21px" }}
+                    color={subHeadingText}
+                    maxW="2xl"
+                    mx="auto"
+                    lineHeight="1.6"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 0.85 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.subheadline}
+                  </Text>
+                ))}
+              </Box>
+
+              {/* Carousel Dots (without CTA, matching no-bg style) */}
+              {showDots && (
+                <HStack spacing={2.5} justify="center">
+                  {heroes.map((_, idx) => (
+                    <Box
+                      key={idx}
+                      as="button"
+                      aria-label={`Go to slide ${idx + 1}`}
+                      w={idx === activeIndex ? "28px" : "10px"}
+                      h="10px"
+                      borderRadius="full"
+                      bg={idx === activeIndex ? headingText : "rgba(128, 128, 128, 0.35)"}
+                      transition="all 0.3s ease"
+                      cursor="pointer"
+                      _hover={{ bg: idx === activeIndex ? headingText : "rgba(128, 128, 128, 0.6)" }}
+                      onClick={() => goToSlide(idx)}
+                    />
+                  ))}
+                </HStack>
+              )}
+            </VStack>
+          </Container>
+        </Box>
+      )}
 
       <Container
         maxW="5xl"

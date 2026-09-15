@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
 import {
   Box,
+  Button,
   Container,
   VStack,
   HStack,
@@ -130,11 +131,13 @@ export default function AboutPage() {
   const [features, setFeatures] = useState(FALLBACK_FEATURES_WITH_ICONS);
   const [timelineSettings, setTimelineSettings] = useState(null);
   const [timelineItems, setTimelineItems] = useState(FALLBACK_TIMELINE_ITEMS);
-  const [hero, setHero] = useState(FALLBACK_HERO);
+  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [stats, setStats] = useState([]);
   const [aboutSection, setAboutSection] = useState(FALLBACK_ABOUT_SECTION);
   const [partnerLogos, setPartnerLogos] = useState([]);
   const [timelineIntro, setTimelineIntro] = useState(null);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     getAboutFeatures().then((apiFeatures) => {
@@ -153,8 +156,10 @@ export default function AboutPage() {
       if (items.length > 0) setTimelineItems(items);
     });
 
-    getHeroSection("about").then((apiHero) => {
-      if (apiHero?.headlineLines?.length > 0) setHero(apiHero);
+    getHeroSection("about").then((apiHeroes) => {
+      if (apiHeroes.length > 0) {
+        setHeroes(apiHeroes);
+      }
     });
 
     getStatsSection().then(setStats);
@@ -167,6 +172,29 @@ export default function AboutPage() {
 
     getTimelineIntro().then(setTimelineIntro);
   }, []);
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (heroes.length <= 1) return;
+    timerRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % heroes.length);
+    }, AUTO_SLIDE_INTERVAL);
+  }, [heroes.length]);
+
+  useEffect(() => {
+    startTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [startTimer]);
+
+  const goToSlide = (index) => {
+    setActiveIndex(index);
+    startTimer();
+  };
+
+  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const showDots = heroes.length > 1;
 
   const particles = [
     { top: "5%", left: "8%", size: "9px", color: "#F97316", opacity: 0.8, duration: "4s", delay: "0s" },
@@ -216,10 +244,25 @@ export default function AboutPage() {
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
-        backgroundImage={`url('${hero.backgroundImage}')`}
-        backgroundSize="cover"
-        backgroundPosition="center"
       >
+        {/* Background Images — stacked for crossfade */}
+        {heroes.map((h, idx) => (
+          <Box
+            key={h.id ?? idx}
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundImage={`url('${h.backgroundImage || "/assets/about/hero-bg.png"}')`}
+            backgroundSize="cover"
+            backgroundPosition="center"
+            opacity={idx === activeIndex ? 1 : 0}
+            transition="opacity 0.8s ease-in-out"
+            zIndex={0}
+          />
+        ))}
+
         {/* Gradient overlay */}
         <Box
           position="absolute"
@@ -228,44 +271,127 @@ export default function AboutPage() {
           right={0}
           bottom={0}
           background={overlay}
-          zIndex={0}
+          zIndex={1}
         />
 
-        {/* Heading */}
+        {/* Heading Container */}
         <Container
           maxW="7xl"
           w="full"
           position="relative"
-          zIndex={1}
+          zIndex={2}
           px={{ base: 6, md: 8 }}
           pt={{ base: "160px", md: "220px" }}
         >
           <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
-            <Heading
-              as="h1"
-              fontSize={{ base: "52px", md: "72px", xl: "90px" }}
-              color="#fff"
-              fontWeight="700"
-              lineHeight="1.05"
-              letterSpacing="-1.8px"
-              fontFamily="Plus Jakarta Sans"
-            >
-              {hero.headlineLines.map((line, idx) => (
-                <Text as="span" display="block" key={idx} color={line.color || "#fff"}>
-                  {line.text}
+            {/* Headline with crossfade */}
+            <Box position="relative" w="full" minH={{ base: "120px", md: "160px" }}>
+              {heroes.map((h, idx) => (
+                <Heading
+                  key={h.id ?? idx}
+                  as={idx === activeIndex ? "h1" : "div"}
+                  fontSize={{ base: "52px", md: "72px", xl: "90px" }}
+                  color="#fff"
+                  fontWeight="700"
+                  lineHeight="1.05"
+                  letterSpacing="-1.8px"
+                  fontFamily="Plus Jakarta Sans"
+                  position={idx === 0 ? "relative" : "absolute"}
+                  top={0}
+                  left={0}
+                  right={0}
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.6s ease-in-out"
+                  pointerEvents={idx === activeIndex ? "auto" : "none"}
+                >
+                  {h.headlineLines && h.headlineLines.length > 0 ? (
+                    h.headlineLines.map((line, lIdx) => (
+                      <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
+                        {line.text}
+                      </Text>
+                    ))
+                  ) : (
+                    <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
+                  )}
+                </Heading>
+              ))}
+            </Box>
+
+            {/* Subheadline with crossfade */}
+            <Box position="relative" w="full" minH={{ base: "60px", md: "70px" }}>
+              {heroes.map((h, idx) => (
+                <Text
+                  key={h.id ?? idx}
+                  fontSize={{ base: "18px", md: "20px", xl: "21px" }}
+                  color="#ffffff"
+                  maxW="3xl"
+                  mx="auto"
+                  lineHeight="1.6"
+                  position={idx === 0 ? "relative" : "absolute"}
+                  top={0}
+                  left={0}
+                  right={0}
+                  opacity={idx === activeIndex ? 0.85 : 0}
+                  transition="opacity 0.6s ease-in-out"
+                  pointerEvents={idx === activeIndex ? "auto" : "none"}
+                >
+                  {h.subheadline}
                 </Text>
               ))}
-            </Heading>
+            </Box>
 
-            <Text
-              fontSize={{ base: "18px", md: "110px", xl: "19px" }}
-              color="#ffffff"
-              maxW="3xl"
-              lineHeight="1.6"
-              opacity={0.85}
-            >
-              {hero.subheadline}
-            </Text>
+            {/* CTA Button */}
+            {currentHero?.cta_text && currentHero?.cta_url && (
+              <Button
+                as="a"
+                href={currentHero.cta_url}
+                target={currentHero.cta_url.startsWith("http") ? "_blank" : "_self"}
+                rel={currentHero.cta_url.startsWith("http") ? "noopener noreferrer" : undefined}
+                variant="outline"
+                bg="transparent"
+                color="#fff"
+                borderColor="#fff"
+                borderWidth="1.5px"
+                borderRadius="999px"
+                px={8}
+                py={5}
+                fontSize={{ base: "sm", md: "md" }}
+                fontWeight="600"
+                transition="all 0.25s ease"
+                _hover={{
+                  bg: "rgba(255, 255, 255, 0.12)",
+                  borderColor: "#fff",
+                  transform: "translateY(-1px)",
+                }}
+                _active={{
+                  bg: "rgba(255, 255, 255, 0.2)",
+                  transform: "translateY(0)",
+                }}
+              >
+                {currentHero.cta_text}
+              </Button>
+            )}
+
+            {/* Carousel Dots */}
+            {showDots && (
+              <HStack spacing={2.5} justify="center">
+                {heroes.map((_, idx) => (
+                  <Box
+                    key={idx}
+                    as="button"
+                    aria-label={`Go to slide ${idx + 1}`}
+                    w={idx === activeIndex ? "28px" : "10px"}
+                    h="10px"
+                    borderRadius="full"
+                    bg={idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.35)"}
+                    transition="all 0.3s ease"
+                    cursor="pointer"
+                    _hover={{ bg: idx === activeIndex ? "#fff" : "rgba(255, 255, 255, 0.55)" }}
+                    onClick={() => goToSlide(idx)}
+                  />
+                ))}
+              </HStack>
+            )}
           </VStack>
         </Container>
 

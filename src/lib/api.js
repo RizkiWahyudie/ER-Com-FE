@@ -354,14 +354,28 @@ function htmlToColoredLines(html) {
 export async function getHeroSection(type) {
   try {
     const data = await apiGet(`/sections/hero/${type}`);
-    if (!data || !isActive(data)) return null;
-    return {
-      headlineLines: htmlToColoredLines(data.headline),
-      subheadline: htmlToLines(data.subheadline).join(" "),
-      backgroundImage: data.background_image_url ?? null,
-    };
+    const items = Array.isArray(data) ? data : data ? [data] : [];
+    const active = items.filter(isActive);
+
+    // Conflict rule: If any item has a background image, only keep items with background image
+    const hasAnyBg = active.some((item) => Boolean(item.background_image_url));
+    const filtered = hasAnyBg
+      ? active.filter((item) => Boolean(item.background_image_url))
+      : active;
+
+    return filtered.map((item) => ({
+      id: item.id,
+      headline: item.headline ?? "",
+      headlineLines: htmlToColoredLines(item.headline),
+      subheadline: htmlToLines(item.subheadline).join(" "),
+      rawSubheadline: item.subheadline ?? "",
+      backgroundImage: item.background_image_url ?? null,
+      cta_text: item.cta_text ?? null,
+      cta_url: item.cta_url ?? null,
+      hasBgImage: Boolean(item.background_image_url),
+    }));
   } catch {
-    return null;
+    return [];
   }
 }
 

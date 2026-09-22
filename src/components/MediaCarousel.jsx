@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Box,
@@ -15,36 +15,156 @@ import {
 } from "@chakra-ui/react";
 import { FaPlay, FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { getMediaCarouselSlides } from "@/lib/api";
-// import { FALLBACK_SERVICES } from "@/components/ServicesListSection";
 
-// Derive carousel slides from the shared fallback data.
-// Each top-level category becomes a slide: { tag, imgs (up to 4 media) }
-// function deriveFallbackSlides(services) {
-//   return services.map((cat) => {
-//     const imgs = [];
-//     // Collect media from nested children (breadth-first, up to 4)
-//     const queue = [...(cat.children || [])];
-//     while (queue.length > 0 && imgs.length < 4) {
-//       const node = queue.shift();
-//       if (Array.isArray(node.media)) {
-//         for (const m of node.media) {
-//           if (imgs.length >= 4) break;
-//           imgs.push(m);
-//         }
-//       }
-//       if (Array.isArray(node.children)) {
-//         queue.push(...node.children);
-//       }
-//     }
-//     // If still empty, use the category image itself
-//     if (imgs.length === 0 && cat.image) {
-//       imgs.push({ type: "photo", src: cat.image });
-//     }
-//     return { tag: cat.title, imgs };
-//   }).filter((s) => s.imgs.length > 0);
-// }
+function SlideMediaBox({ imgs }) {
+  const count = imgs?.length || 0;
 
-// const FALLBACK_SLIDES = deriveFallbackSlides([FALLBACK_SERVICES]);
+  const renderMediaItem = (img, key, extraProps = {}) => (
+    <Box
+      key={key}
+      w="full"
+      h="full"
+      borderRadius="10px"
+      bgImage={img?.src || img?.thumb ? `url('${img.src || img.thumb}')` : undefined}
+      bgGradient={img?.src || img?.thumb ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
+      bgSize="cover"
+      bgPos="center"
+      position="relative"
+      overflow="hidden"
+      {...extraProps}
+    >
+      {img?.type === "video" && (
+        <Flex
+          position="absolute"
+          inset={0}
+          justify="center"
+          align="center"
+        >
+          <Button
+            boxSize={{ base: 10, lg: 12 }}
+            borderRadius="full"
+            bg="rgba(255, 255, 255, 0.3)"
+            color="#05060a"
+            _hover={{ bg: "rgba(255, 255, 255, 0.5)" }}
+            transition="all 0.2s"
+          >
+            <Icon
+              as={FaPlay}
+              color="#025BCF"
+              boxSize={{ base: 6, lg: 8 }}
+            />
+          </Button>
+        </Flex>
+      )}
+    </Box>
+  );
+
+  // 0 media: placeholder
+  if (count === 0) {
+    return (
+      <Box
+        w="full"
+        aspectRatio="1"
+        borderRadius="10px"
+        bgGradient="linear(135deg, #1e293b, #0a0a0f)"
+        mb={4}
+      />
+    );
+  }
+
+  // 1 Image: No flex or grid, full box
+  if (count === 1) {
+    const img = imgs[0];
+    return (
+      <Box
+        w="full"
+        aspectRatio="1"
+        borderRadius="10px"
+        bgImage={img?.src || img?.thumb ? `url('${img.src || img.thumb}')` : undefined}
+        bgGradient={img?.src || img?.thumb ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
+        bgSize="cover"
+        bgPos="center"
+        position="relative"
+        overflow="hidden"
+        mb={4}
+      >
+        {img?.type === "video" && (
+          <Flex
+            position="absolute"
+            inset={0}
+            justify="center"
+            align="center"
+          >
+            <Button
+              boxSize={{ base: 10, lg: 12 }}
+              borderRadius="full"
+              bg="rgba(255, 255, 255, 0.3)"
+              color="#05060a"
+              _hover={{ bg: "rgba(255, 255, 255, 0.5)" }}
+              transition="all 0.2s"
+            >
+              <Icon
+                as={FaPlay}
+                color="#025BCF"
+                boxSize={{ base: 6, lg: 8 }}
+              />
+            </Button>
+          </Flex>
+        )}
+      </Box>
+    );
+  }
+
+  // 2 Images: Grid kanan kiri
+  if (count === 2) {
+    return (
+      <Box
+        display="grid"
+        gridTemplateColumns="1fr 1fr"
+        gap={3}
+        w="full"
+        aspectRatio="1"
+        mb={4}
+      >
+        {imgs.slice(0, 2).map((img, i) => renderMediaItem(img, i))}
+      </Box>
+    );
+  }
+
+  // 3 Images: Kanan kiri di atas, di bawah 1
+  if (count === 3) {
+    return (
+      <Box
+        display="grid"
+        gridTemplateColumns="1fr 1fr"
+        gridTemplateRows="1fr 1fr"
+        gap={3}
+        w="full"
+        aspectRatio="1"
+        mb={4}
+      >
+        {renderMediaItem(imgs[0], 0)}
+        {renderMediaItem(imgs[1], 1)}
+        {renderMediaItem(imgs[2], 2, { gridColumn: "span 2" })}
+      </Box>
+    );
+  }
+
+  // 4 or more Images: Grid 2x2
+  return (
+    <Box
+      display="grid"
+      gridTemplateColumns="1fr 1fr"
+      gridTemplateRows="1fr 1fr"
+      gap={3}
+      w="full"
+      aspectRatio="1"
+      mb={4}
+    >
+      {imgs.slice(0, 4).map((img, i) => renderMediaItem(img, i))}
+    </Box>
+  );
+}
 
 export default function MediaCarousel() {
   const router = useRouter();
@@ -52,6 +172,8 @@ export default function MediaCarousel() {
   const [perView, setPerView] = useState(3);
   const [isHovered, setIsHovered] = useState(false);
   const [slidesData, setSlidesData] = useState([]);
+  const trackRef = useRef(null);
+  const [trackWidth, setTrackWidth] = useState(0);
 
   useEffect(() => {
     getMediaCarouselSlides().then((data) => {
@@ -78,10 +200,29 @@ export default function MediaCarousel() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  useEffect(() => {
+    if (!trackRef.current) return;
+    const updateWidth = () => {
+      if (trackRef.current) {
+        setTrackWidth(trackRef.current.clientWidth);
+      }
+    };
+    updateWidth();
+    const ro = new ResizeObserver(updateWidth);
+    ro.observe(trackRef.current);
+    return () => ro.disconnect();
+  }, [slidesData.length]);
+
+  const gap = perView === 1 ? 16 : (perView === 2 ? 20 : 24);
   const pages = Math.max(1, slidesData.length - perView + 1);
 
+  // Keep index within bounds if perView or pages change
   useEffect(() => {
-    if (isHovered) return;
+    setIdx((prev) => Math.min(prev, Math.max(0, pages - 1)));
+  }, [pages]);
+
+  useEffect(() => {
+    if (isHovered || pages <= 1) return;
     const interval = setInterval(() => {
       setIdx((prev) => (prev + 1) % pages);
     }, 3000);
@@ -94,7 +235,18 @@ export default function MediaCarousel() {
 
   const handlePrev = () => setIdx((idx - 1 + pages) % pages);
   const handleNext = () => setIdx((idx + 1) % pages);
-  const slideWidth = 100 / perView;
+
+  const cardWidth = trackWidth > 0
+    ? (trackWidth - (perView - 1) * gap) / perView
+    : 0;
+
+  const step = trackWidth > 0
+    ? (trackWidth + gap) / perView
+    : 0;
+
+  const translateX = trackWidth > 0
+    ? idx * step
+    : 0;
 
   if (slidesData.length === 0) return null;
 
@@ -109,17 +261,21 @@ export default function MediaCarousel() {
       <Container maxW="7xl" px={{ base: 6, md: 0 }} mx="auto">
         <VStack spacing={7} align="stretch">
           {/* Carousel Track */}
-          <Box overflow="hidden" w="full" py={5}>
+          <Box ref={trackRef} overflow="hidden" w="full" py={5}>
             <Flex
-              gap={{ base: 6, md: 4 }}
-              transform={`translateX(calc(-${idx * slideWidth}% - ${idx * 24}px))`}
+              gap={`${gap}px`}
+              transform={trackWidth > 0 ? `translateX(-${translateX}px)` : `translateX(calc(-${idx} * (100% + ${gap}px) / ${perView}))`}
               transition="transform 0.5s ease"
+              align="stretch"
             >
               {slidesData.map((slide, slideIdx) => (
                 <Box
                   key={slideIdx}
-                  flex={`0 0 calc(${slideWidth}% - ${(perView - 1) * 6}px)`}
-                  minW={`calc(${slideWidth}% - ${(perView - 1) * 6}px)`}
+                  flex={`0 0 ${cardWidth ? `${cardWidth}px` : `calc((100% - ${(perView - 1) * gap}px) / ${perView})`}`}
+                  w={cardWidth ? `${cardWidth}px` : `calc((100% - ${(perView - 1) * gap}px) / ${perView})`}
+                  minW={cardWidth ? `${cardWidth}px` : `calc((100% - ${(perView - 1) * gap}px) / ${perView})`}
+                  maxW={cardWidth ? `${cardWidth}px` : `calc((100% - ${(perView - 1) * gap}px) / ${perView})`}
+                  boxSizing="border-box"
                   bg={cardBg}
                   borderRadius="18px"
                   p={4}
@@ -127,57 +283,18 @@ export default function MediaCarousel() {
                   cursor="pointer"
                   onClick={() => handleSlideClick(slide.tag)}
                   transition="transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease"
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-between"
                   _hover={{
                     transform: "translateY(-6px)",
                     borderColor: "rgba(2, 91, 207, 0.4)",
                     boxShadow: "0 12px 30px rgba(2, 91, 207, 0.15)",
                   }}
                 >
-                  {/* Image Grid 2x2 */}
-                  <Box
-                    display="grid"
-                    gridTemplateColumns="1fr 1fr"
-                    gap={3}
-                    mb={4}
-                  >
-                    {slide.imgs.map((img, imgIdx) => (
-                      <Box
-                        key={imgIdx}
-                        aspectRatio="1"
-                        borderRadius="10px"
-                        bgImage={img.src || img.thumb ? `url('${img.src || img.thumb}')` : undefined}
-                        bgGradient={img.src || img.thumb ? undefined : "linear(135deg, #1e293b, #0a0a0f)"}
-                        bgSize="cover"
-                        bgPos="center"
-                        position="relative"
-                        overflow="hidden"
-                      >
-                        {img.type === "video" && (
-                          <Flex
-                            position="absolute"
-                            inset={0}
-                            justify="center"
-                            align="center"
-                          >
-                            <Button
-                              boxSize={{ base: 10, lg: 12 }}
-                              borderRadius="full"
-                              bg="rgba(255, 255, 255, 0.3)"
-                              color="#05060a"
-                              _hover={{ bg: "rgba(255, 255, 255, 0.5)" }}
-                              transition="all 0.2s"
-                            >
-                              <Icon
-                                as={FaPlay}
-                                color="#025BCF"
-                                boxSize={{ base: 6, lg: 8 }}
-                              />
-                            </Button>
-                          </Flex>
-                        )}
-                      </Box>
-                    ))}
-                  </Box>
+                  {/* Adaptive Image Box */}
+                  <SlideMediaBox imgs={slide.imgs} />
+
                   <Heading
                     as="h3"
                     size="sm"

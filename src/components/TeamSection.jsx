@@ -101,9 +101,8 @@ export default function TeamSection({ teamHome = 1, members, porto }) {
   const portfolioImages = Array.isArray(porto) ? porto : [];
   const teamMembers =
     Array.isArray(members) && members.length > 0
-      ? members.map((member, idx) => ({
+      ? members.map((member) => ({
           ...member,
-          bgImg: member.bgImg ?? FALLBACK_BG_IMAGES[idx % FALLBACK_BG_IMAGES.length],
         }))
       : FALLBACK_TEAM_MEMBERS;
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -153,7 +152,7 @@ export default function TeamSection({ teamHome = 1, members, porto }) {
         position="relative"
         py={{ base: 16, md: 0 }}
         overflow="hidden"
-        bgImage={`url('${selected.bgImg}')`}
+        bgImage={selected?.img || selected?.bgImg ? `url('${selected.img || selected.bgImg}')` : undefined}
         bgSize="cover"
         bgPosition="center"
         transition="background-image 0.6s ease-in-out"

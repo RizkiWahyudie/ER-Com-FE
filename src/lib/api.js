@@ -1,6 +1,7 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "https://cms-ercommunication.arunikasolusiinovasi.tech/api/v1";
-const STORAGE_BASE_URL = API_BASE_URL.replace(/\/api\/v1\/?$/, "");
+  process.env.NEXT_PUBLIC_API_URL ?? "https://cms.er-communication.com/api/v1";
+const STORAGE_BASE_URL =
+  process.env.NEXT_PUBLIC_API_IMG ?? API_BASE_URL.replace(/\/api\/v1\/?$/, "");
 
 // Soft-delete helpers – the CMS may send booleans (true/false) or integers
 // (1/0). Using `Number()` normalises both: Number(true) === 1, Number(false)
@@ -137,7 +138,7 @@ export async function getGridServices() {
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
       .map((item) => ({
         title: item.name,
-        img: item.cover_image ? `${STORAGE_BASE_URL}/storage/${item.cover_image}` : null,
+        img: toStorageUrl(item.cover_image),
       }))
       .filter((item) => item.img);
   } catch {
@@ -145,10 +146,28 @@ export async function getGridServices() {
   }
 }
 
-function toStorageUrl(path) {
+export function toStorageUrl(path) {
   if (!path) return null;
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${STORAGE_BASE_URL}/storage/${path}`;
+  const str = String(path).trim().replace(/\\/g, "/");
+  if (!str) return null;
+  if (/^https?:\/\//i.test(str)) return str;
+
+  const rawBase =
+    process.env.NEXT_PUBLIC_API_IMG ||
+    STORAGE_BASE_URL ||
+    "https://cms.er-communication.com";
+
+  let base = rawBase.replace(/\/+$/, "");
+  let cleanPath = str.replace(/^\/+/, "");
+
+  if (base.endsWith("/storage")) {
+    base = base.slice(0, -"/storage".length);
+  }
+  if (cleanPath.startsWith("storage/")) {
+    cleanPath = cleanPath.slice("storage/".length);
+  }
+
+  return `${base}/storage/${cleanPath}`;
 }
 
 // Pulls the 11-char video ID out of any common YouTube URL shape
@@ -177,16 +196,13 @@ function isVimeoUrl(url) {
 function sumCounts(nodes) {
   return nodes.reduce(
     (acc, node) => ({
-      photoCount: acc.photoCount + node.photoCount,
-      videoCount: acc.videoCount + node.videoCount,
+      photoCount: acc.photoCount + (node.photoCount ?? 0),
+      videoCount: acc.videoCount + (node.videoCount ?? 0),
     }),
     { photoCount: 0, videoCount: 0 }
   );
 }
 
-// Items are the deepest navigable level (category → item). Their
-// sub_items aren't a further navigation level — they're additional
-// photos folded into the item's own gallery.
 function normalizeMediaArray(mediaArray) {
   if (!Array.isArray(mediaArray)) return [];
   return mediaArray
@@ -194,31 +210,112 @@ function normalizeMediaArray(mediaArray) {
     .map((m) => {
       if (m.media_type === "youtube") {
         const videoId = extractYoutubeId(m.youtube_url);
-        return { type: "video", thumb: m.thumbnail_url || getVideoThumbnail(m.youtube_url), videoId };
+        return {
+          type: "video",
+          thumb: m.thumbnail_url || getVideoThumbnail(m.youtube_url),
+          videoId,
+          title: m.title ?? null,
+        };
       }
       if (m.media_type === "video") {
-        return { type: "video", thumb: m.thumbnail_url, src: toStorageUrl(m.file_url) };
+        return {
+          type: "video",
+          thumb: m.thumbnail_url,
+          src: toStorageUrl(m.file_url),
+          title: m.title ?? null,
+        };
       }
-      return { type: "photo", src: toStorageUrl(m.file_url) || m.thumbnail_url };
+      return {
+        type: "photo",
+        src: toStorageUrl(m.file_url) || m.thumbnail_url,
+        title: m.title ?? null,
+      };
     });
 }
 
+function resolveMediaItem(itemOrSub) {
+  const media = [];
+
+  if (Array.isArray(itemOrSub.media) && itemOrSub.media.length > 0) {
+    media.push(...normalizeMediaArray(itemOrSub.media));
+  }
+
+  if (itemOrSub.preview_video) {
+    const videoId = extractYoutubeId(itemOrSub.preview_video);
+    const thumb =
+      toStorageUrl(itemOrSub.cover_image) ||
+      toStorageUrl(itemOrSub.thumbnail) ||
+      getVideoThumbnail(itemOrSub.preview_video);
+
+    if (videoId) {
+      media.push({
+        type: "video",
+        videoId,
+        thumb,
+        src: `https://www.youtube.com/watch?v=${videoId}`,
+        title: itemOrSub.name,
+      });
+    } else {
+      const src = /^https?:\/\//i.test(itemOrSub.preview_video)
+        ? itemOrSub.preview_video
+        : toStorageUrl(itemOrSub.preview_video);
+      media.push({
+        type: "video",
+        src,
+        thumb,
+        title: itemOrSub.name,
+      });
+    }
+  }
+
+  if (itemOrSub.cover_image) {
+    const src = toStorageUrl(itemOrSub.cover_image);
+    if (src && !media.some((m) => m.src === src)) {
+      media.push({
+        type: "photo",
+        src,
+        title: itemOrSub.name,
+        desc: itemOrSub.description,
+      });
+    }
+  }
+
+  if (itemOrSub.thumbnail) {
+    const src = toStorageUrl(itemOrSub.thumbnail);
+    if (src && !media.some((m) => m.src === src)) {
+      media.push({
+        type: "photo",
+        src,
+        title: itemOrSub.name,
+        desc: itemOrSub.description,
+      });
+    }
+  }
+
+  return media;
+}
+
 function mapServiceItem(item) {
-  const itemMedia = normalizeMediaArray(item.media);
-  
+  const itemSelfMedia = resolveMediaItem(item);
+
   const subMedia = Array.isArray(item.sub_items)
     ? item.sub_items
         .filter(isActive)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .flatMap((sub) => normalizeMediaArray(sub.media))
+        .flatMap(resolveMediaItem)
     : [];
 
-  const media = [...itemMedia, ...subMedia];
-  const coverImage = toStorageUrl(item.cover_image) || toStorageUrl(item.thumbnail);
+  const media = subMedia.length > 0 ? subMedia : itemSelfMedia;
+
+  const coverImage =
+    toStorageUrl(item.cover_image) ||
+    toStorageUrl(item.thumbnail) ||
+    media[0]?.src ||
+    media[0]?.thumb;
 
   return {
     title: item.name,
-    image: media[0]?.src || media[0]?.thumb || coverImage,
+    image: coverImage,
     desc: item.description,
     photoCount: media.filter((m) => m.type === "photo").length,
     videoCount: media.filter((m) => m.type === "video").length,
@@ -227,15 +324,19 @@ function mapServiceItem(item) {
 }
 
 function collectCategoryMedia(cat, limit = 4) {
-  const media = normalizeMediaArray(cat.media);
+  const media = [];
 
-  if (media.length < limit && Array.isArray(cat.items)) {
+  if (Array.isArray(cat.media) && cat.media.length > 0) {
+    media.push(...normalizeMediaArray(cat.media));
+  }
+
+  if (Array.isArray(cat.items)) {
     for (const item of cat.items) {
       if (!isActive(item)) continue;
 
-      const itemMedia = normalizeMediaArray(item.media);
+      const itemMedia = resolveMediaItem(item);
       for (const m of itemMedia) {
-        if (!media.some((existing) => existing.src === m.src || existing.thumb === m.thumb)) {
+        if (!media.some((ex) => (ex.src && ex.src === m.src) || (ex.thumb && ex.thumb === m.thumb))) {
           media.push(m);
         }
         if (media.length >= limit) break;
@@ -245,9 +346,9 @@ function collectCategoryMedia(cat, limit = 4) {
       if (Array.isArray(item.sub_items)) {
         for (const sub of item.sub_items) {
           if (!isActive(sub)) continue;
-          const subMedia = normalizeMediaArray(sub.media);
+          const subMedia = resolveMediaItem(sub);
           for (const m of subMedia) {
-            if (!media.some((existing) => existing.src === m.src || existing.thumb === m.thumb)) {
+            if (!media.some((ex) => (ex.src && ex.src === m.src) || (ex.thumb && ex.thumb === m.thumb))) {
               media.push(m);
             }
             if (media.length >= limit) break;
@@ -259,7 +360,7 @@ function collectCategoryMedia(cat, limit = 4) {
     }
   }
 
-  if (media.length === 0) {
+  if (media.length === 0 && cat.cover_image) {
     const cover = toStorageUrl(cat.cover_image);
     if (cover) media.push({ type: "photo", src: cover });
   }
@@ -302,13 +403,14 @@ export async function getServicesListSection() {
               .map(mapServiceItem)
           : [];
         const counts = sumCounts(children);
-        
+        const catCover = toStorageUrl(cat.cover_image);
+
         return {
           title: cat.name,
-          image: aggregatedMedia[0]?.src || aggregatedMedia[0]?.thumb || toStorageUrl(cat.cover_image),
+          image: catCover || aggregatedMedia[0]?.src || aggregatedMedia[0]?.thumb,
           media: aggregatedMedia,
           colSpan: 1,
-          photoCount: counts.photoCount,
+          photoCount: counts.photoCount > 0 ? counts.photoCount : (catCover ? 1 : 0),
           videoCount: counts.videoCount,
           children,
         };

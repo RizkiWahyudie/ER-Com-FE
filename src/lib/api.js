@@ -460,22 +460,26 @@ export async function getHeroSection(type) {
     const active = items.filter(isActive);
 
     // Conflict rule: If any item has a background image, only keep items with background image
-    const hasAnyBg = active.some((item) => Boolean(item.background_image_url));
+    const hasAnyBg = active.some((item) => Boolean(item.background_image_url || item.background_image));
     const filtered = hasAnyBg
-      ? active.filter((item) => Boolean(item.background_image_url))
+      ? active.filter((item) => Boolean(item.background_image_url || item.background_image))
       : active;
 
-    return filtered.map((item) => ({
-      id: item.id,
-      headline: item.headline ?? "",
-      headlineLines: htmlToColoredLines(item.headline),
-      subheadline: htmlToLines(item.subheadline).join(" "),
-      rawSubheadline: item.subheadline ?? "",
-      backgroundImage: item.background_image_url ?? null,
-      cta_text: item.cta_text ?? null,
-      cta_url: item.cta_url ?? null,
-      hasBgImage: Boolean(item.background_image_url),
-    }));
+    return filtered.map((item) => {
+      const bg = item.background_image_url || toStorageUrl(item.background_image) || null;
+      return {
+        id: item.id,
+        headline: item.headline ?? "",
+        headlineLines: htmlToColoredLines(item.headline),
+        subheadline: htmlToLines(item.subheadline).join(" "),
+        rawSubheadline: item.subheadline ?? "",
+        backgroundImage: bg,
+        background_image_url: bg,
+        cta_text: item.cta_text ?? null,
+        cta_url: item.cta_url ?? null,
+        hasBgImage: Boolean(bg),
+      };
+    });
   } catch {
     return [];
   }

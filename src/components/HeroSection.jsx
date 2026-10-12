@@ -94,7 +94,7 @@ export default function HeroSection() {
             left={0}
             right={0}
             bottom={0}
-            backgroundImage={`url('${hero.background_image_url || "/assets/hero/hero-bg-new.png"}')`}
+            backgroundImage={`url('${hero.backgroundImage || "/assets/hero/hero-bg-new.png"}')`}
             backgroundSize="cover"
             backgroundPosition="center"
             opacity={idx === activeIndex ? 1 : 0}

@@ -84,24 +84,56 @@ export default function HeroSection() {
       alignItems="center"
       justifyContent="space-between"
     >
-      {/* Background Images — stacked for crossfade */}
+      {/* Background Media — stacked for crossfade */}
       {heroes.length > 0 ? (
-        heroes.map((hero, idx) => (
-          <Box
-            key={hero.id ?? idx}
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundImage={`url('${hero.backgroundImage || "/assets/hero/hero-bg-new.png"}')`}
-            backgroundSize="cover"
-            backgroundPosition="center"
-            opacity={idx === activeIndex ? 1 : 0}
-            transition="opacity 0.8s ease-in-out"
-            zIndex={-2}
-          />
-        ))
+        heroes.map((hero, idx) =>
+          hero.background_media_type === 'video' ? (
+            <Box
+              key={hero.id ?? idx}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              opacity={idx === activeIndex ? 1 : 0}
+              transition="opacity 0.8s ease-in-out"
+              zIndex={-2}
+              overflow="hidden"
+            >
+              <video
+                src={hero.backgroundImage}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                }}
+              />
+            </Box>
+          ) : (
+            <Box
+              key={hero.id ?? idx}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              backgroundImage={`url('${hero.backgroundImage || "/assets/hero/hero-bg-new.png"}')`}
+              backgroundSize="cover"
+              backgroundPosition="center"
+              opacity={idx === activeIndex ? 1 : 0}
+              transition="opacity 0.8s ease-in-out"
+              zIndex={-2}
+            />
+          )
+        )
       ) : (
         <Box
           position="absolute"

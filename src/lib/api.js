@@ -475,6 +475,7 @@ export async function getHeroSection(type) {
         rawSubheadline: item.subheadline ?? "",
         backgroundImage: bg,
         background_image_url: bg,
+        background_media_type: item.background_media_type ?? null,
         cta_text: item.cta_text ?? null,
         cta_url: item.cta_url ?? null,
         hasBgImage: Boolean(bg),

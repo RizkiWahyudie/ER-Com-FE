@@ -87,23 +87,55 @@ export default function ServicesHeroSection() {
         pb={{ base: 12, md: 16 }}
         overflow="hidden"
       >
-        {/* Background Images — stacked for crossfade */}
-        {heroes.map((h, idx) => (
-          <Box
-            key={h.id ?? idx}
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundImage={`url('${h.backgroundImage}')`}
-            backgroundSize="cover"
-            backgroundPosition="center"
-            opacity={idx === activeIndex ? 1 : 0}
-            transition="opacity 0.8s ease-in-out"
-            zIndex={0}
-          />
-        ))}
+        {/* Background Media — stacked for crossfade */}
+        {heroes.map((h, idx) =>
+          h.background_media_type === 'video' ? (
+            <Box
+              key={h.id ?? idx}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              opacity={idx === activeIndex ? 1 : 0}
+              transition="opacity 0.8s ease-in-out"
+              zIndex={0}
+              overflow="hidden"
+            >
+              <video
+                src={h.backgroundImage}
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  pointerEvents: 'none',
+                }}
+              />
+            </Box>
+          ) : (
+            <Box
+              key={h.id ?? idx}
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              backgroundImage={`url('${h.backgroundImage}')`}
+              backgroundSize="cover"
+              backgroundPosition="center"
+              opacity={idx === activeIndex ? 1 : 0}
+              transition="opacity 0.8s ease-in-out"
+              zIndex={0}
+            />
+          )
+        )}
 
         {/* Gradient overlay */}
         <Box

@@ -10,6 +10,8 @@ import {
   Text,
   Image,
   Circle,
+  Skeleton,
+  Flex,
   useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
@@ -46,8 +48,22 @@ function VideoFrameThumbnail({ src, alt }) {
   );
 }
 
-export default function PortfolioSection({ images }) {
-  const portfolioImages = Array.isArray(images) ? images : [];
+const FALLBACK_IMAGES = [
+  { type: "image", src: "/assets/porto/porto-1.jpg" },
+  { type: "image", src: "/assets/porto/porto-2.jpg" },
+  { type: "image", src: "/assets/porto/porto-3.jpg" },
+  { type: "image", src: "/assets/porto/porto-4.jpg" },
+  { type: "image", src: "/assets/porto/porto-5.jpg" },
+  { type: "image", src: "/assets/porto/porto-6.jpg" },
+];
+
+export default function PortfolioSection({ images, isLoading = false }) {
+  const portfolioImages = useMemo(() => {
+    if (Array.isArray(images) && images.length > 0) {
+      return images;
+    }
+    return FALLBACK_IMAGES;
+  }, [images]);
   const itemsPerView = useBreakpointValue({ base: 2, md: 3 }) ?? 3;
   const [index, setIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -59,27 +75,16 @@ export default function PortfolioSection({ images }) {
   const btnHoverBg = useColorModeValue("#025BCF", "white");
   const btnHoverColor = useColorModeValue("white", "black");
   const navBtnBg = useColorModeValue("rgba(0,0,0,0.08)", "rgba(10,15,25,0.85)");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   const maxIndex = useMemo(
     () => Math.max(0, portfolioImages.length - itemsPerView),
-    [itemsPerView]
+    [itemsPerView, portfolioImages.length]
   );
 
   // clamp index kalau breakpoint berubah (misal resize dari desktop ke mobile)
   const safeIndex = Math.min(index, maxIndex);
-
-  // useEffect(() => {
-  //   if (isHovered || maxIndex <= 0) return;
-  //   const interval = setInterval(() => {
-  //     setIndex((prev) => {
-  //       if (prev >= maxIndex) {
-  //         return 0;
-  //       }
-  //       return prev + 1;
-  //     });
-  //   }, 3000);
-  //   return () => clearInterval(interval);
-  // }, [index, maxIndex, isHovered]);
 
   useEffect(() => {
     if (maxIndex <= 0) return;
@@ -97,7 +102,41 @@ export default function PortfolioSection({ images }) {
 
   const itemWidthPercent = 100 / itemsPerView;
 
-  if (portfolioImages.length === 0) return null;
+  if (isLoading) {
+    return (
+      <Box w="full" bg={sectionBg} py={{ base: 20, md: 20 }}>
+        <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
+          <VStack spacing={{ base: 4, md: 8 }} align="center">
+            <Skeleton
+              h={{ base: "32px", md: "48px" }}
+              w={{ base: "220px", md: "380px" }}
+              borderRadius="md"
+              startColor={skeletonStartColor}
+              endColor={skeletonEndColor}
+            />
+            <Flex gap={{ base: 3, md: 5 }} w="full" justify="center">
+              {[0, 1, 2].slice(0, itemsPerView).map((idx) => (
+                <Box
+                  key={idx}
+                  flex={`0 0 ${100 / itemsPerView}%`}
+                  minW={`${100 / itemsPerView}%`}
+                  px={2}
+                >
+                  <Skeleton
+                    h={{ base: "200px", md: "280px" }}
+                    w="full"
+                    borderRadius="20px"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </Box>
+              ))}
+            </Flex>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box

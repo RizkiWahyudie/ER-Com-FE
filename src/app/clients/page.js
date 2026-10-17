@@ -12,6 +12,7 @@ import {
   Image,
   Flex,
   SimpleGrid,
+  Skeleton,
   useColorModeValue,
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
@@ -60,27 +61,56 @@ const FALLBACK_CLIENTS = [
 
 export default function ClientsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
+  const [categories, setCategories] = useState([]);
   const [clients, setClients] = useState([]);
-  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [loadingClients, setLoadingClients] = useState(true);
+  const [heroes, setHeroes] = useState([]);
+  const [loadingHero, setLoadingHero] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [testimonials, setTestimonials] = useState([]);
+  const [loadingTestimonials, setLoadingTestimonials] = useState(true);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    getClientCategories().then((apiCategories) => {
-      if (apiCategories.length > 0) setCategories(["All", ...apiCategories]);
-    });
+    Promise.all([
+      getClientCategories().catch(() => []),
+      getClients().catch(() => []),
+    ])
+      .then(([apiCategories, apiClients]) => {
+        if (Array.isArray(apiCategories) && apiCategories.length > 0) {
+          setCategories(["All", ...apiCategories]);
+        } else {
+          setCategories(["All", ...FALLBACK_CATEGORIES]);
+        }
+        if (Array.isArray(apiClients) && apiClients.length > 0) {
+          setClients(apiClients);
+        } else {
+          setClients(FALLBACK_CLIENTS);
+        }
+      })
+      .catch(() => {
+        setCategories(["All", ...FALLBACK_CATEGORIES]);
+        setClients(FALLBACK_CLIENTS);
+      })
+      .finally(() => setLoadingClients(false));
 
-    getClients().then((apiClients) => {
-      if (apiClients.length > 0) setClients(apiClients);
-    });
+    getHeroSection("client")
+      .then((apiHeroes) => {
+        if (apiHeroes.length > 0) {
+          setHeroes(apiHeroes);
+        } else {
+          setHeroes([FALLBACK_HERO]);
+        }
+      })
+      .catch(() => setHeroes([FALLBACK_HERO]))
+      .finally(() => setLoadingHero(false));
 
-    getHeroSection("client").then((apiHeroes) => {
-      if (apiHeroes.length > 0) setHeroes(apiHeroes);
-    });
-
-    getTestimonials().then(setTestimonials);
+    getTestimonials()
+      .then((apiTestimonials) => {
+        setTestimonials(Array.isArray(apiTestimonials) ? apiTestimonials : []);
+      })
+      .catch(() => setTestimonials([]))
+      .finally(() => setLoadingTestimonials(false));
   }, []);
 
   const startTimer = useCallback(() => {
@@ -104,7 +134,7 @@ export default function ClientsPage() {
   };
 
   const hasBg = heroes.length > 0 && heroes.some((h) => Boolean(h.hasBgImage || h.backgroundImage));
-  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
 
   const pageBg = useColorModeValue("#fff", "#05060A");
@@ -121,6 +151,8 @@ export default function ClientsPage() {
     "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%, linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)",
     "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%, linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%)"
   );
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   const filtered = activeCategory === "All"
     ? clients
@@ -148,7 +180,7 @@ export default function ClientsPage() {
       <Navbar />
 
       {/* ── Hero Section ── */}
-      {hasBg ? (
+      {loadingHero ? (
         <Box
           position="relative"
           w="full"
@@ -159,6 +191,83 @@ export default function ClientsPage() {
           justifyContent="center"
           pt={{ base: "140px", md: "180px" }}
           pb={{ base: 12, md: 16 }}
+          bg="var(--background)"
+          overflow="hidden"
+        >
+          <Container maxW="7xl" px={{ base: 6, md: 8 }} textAlign="center" position="relative" zIndex={2}>
+            <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
+              <Box
+                display="inline-block"
+                bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
+                color="#fff"
+                fontSize="lg"
+                fontWeight="600"
+                px={4}
+                py={1}
+                borderRadius="full"
+              >
+                Clients
+              </Box>
+
+              {/* Headline Skeleton */}
+              <VStack spacing={{ base: 3, md: 4 }} align="center" justify="center" w="full" maxW="4xl" mx="auto" py={1}>
+                <Skeleton
+                  h={{ base: "48px", md: "64px", xl: "80px" }}
+                  w={{ base: "85%", md: "70%", lg: "60%" }}
+                  maxW="720px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "48px", md: "64px", xl: "80px" }}
+                  w={{ base: "65%", md: "50%", lg: "42%" }}
+                  maxW="480px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+
+              {/* Subheadline Skeleton */}
+              <VStack spacing={2.5} align="center" justify="center" w="full" maxW="2xl" mx="auto">
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="95%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="80%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="55%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+            </VStack>
+          </Container>
+        </Box>
+      ) : hasBg ? (
+        <Box
+          position="relative"
+          w="full"
+          minH={{ base: "80vh", md: "100vh" }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          pt={{ base: "140px", md: "180px" }}
+          pb={{ base: 12, md: 16 }}
+          bg="var(--background)"
           overflow="hidden"
         >
           {/* Background Images — stacked for crossfade */}
@@ -227,9 +336,13 @@ export default function ClientsPage() {
                   >
                     {h.headlineLines && h.headlineLines.length > 0 ? (
                       h.headlineLines.map((line, lIdx) => (
-                        <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
-                          {line.text}
-                        </Text>
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || "#fff"}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
                       ))
                     ) : (
                       <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
@@ -384,9 +497,13 @@ export default function ClientsPage() {
                   >
                     {h.headlineLines && h.headlineLines.length > 0 ? (
                       h.headlineLines.map((line, lIdx) => (
-                        <Text as="span" display="block" key={lIdx} color={line.color || headingText}>
-                          {line.text}
-                        </Text>
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || headingText}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
                       ))
                     ) : (
                       <Text as="span" display="block" color={headingText} dangerouslySetInnerHTML={{ __html: h.headline }} />
@@ -443,87 +560,134 @@ export default function ClientsPage() {
         </Box>
       )}
 
-      {/* ── Filter Tabs ── */}
-      <Box bg="transparent" pt={{ base: 8, md: 16 }} pb={{ base: 4, md: 8 }}>
-        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          <Flex justify="center" gap={3} flexWrap="wrap">
-            {categories.map((cat) => {
-              const isActive = activeCategory === cat;
-              return (
-                <Box
-                  key={cat}
-                  as="button"
-                  onClick={() => setActiveCategory(cat)}
-                  px={{ base: 4, md: 6 }}
-                  py={2}
+      {/* ── Filter Tabs & Logo Grid ── */}
+      {loadingClients ? (
+        <Box py={{ base: 8, md: 16 }}>
+          {/* Skeleton Category Tabs */}
+          <Container maxW="7xl" px={{ base: 6, md: 8 }} mb={{ base: 8, md: 12 }}>
+            <Flex justify="center" gap={3} flexWrap="wrap">
+              {[100, 140, 120, 150, 130, 160].map((w, idx) => (
+                <Skeleton
+                  key={idx}
+                  h="42px"
+                  w={`${w}px`}
                   borderRadius="full"
-                  border="1px solid"
-                  borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
-                  bg={isActive ? tabActiveBg : "transparent"}
-                  color={isActive ? tabActiveColor : tabInactiveColor}
-                  fontSize={{ base: "md", md: "lg" }}
-                  fontWeight={isActive ? "600" : "400"}
-                  transition="all 0.2s"
-                  _hover={{
-                    borderColor: tabHoverBorder,
-                    color: isActive ? tabActiveColor : tabHoverBorder,
-                  }}
-                >
-                  {cat}
-                </Box>
-              );
-            })}
-          </Flex>
-        </Container>
-      </Box>
-
-      {/* ── Logo Grid ── */}
-      <Box bg="transparent" py={{ base: 8, md: 16 }}>
-        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          <SimpleGrid
-            columns={{ base: 2, md: 3 }}
-            spacingX={{ base: 8, md: 12 }}
-            spacingY={{ base: 10, md: 16 }}
-            justifyItems="center"
-            alignItems="center"
-          >
-            {filtered.map((client, idx) => (
-              <Flex
-                key={`${activeCategory}-${idx}`}
-                align="center"
-                justify="center"
-                py={{ base: 4, md: 6 }}
-                px={{ base: 4, md: 8 }}
-                transition="all 0.3s ease"
-                _hover={{
-                  transform: "scale(1.08)",
-                  filter: "brightness(1.1)",
-                }}
-              >
-                <Image
-                  src={client.src}
-                  alt={client.name}
-                  maxH={{ base: "60px", md: "140px" }}
-                  maxW={{ base: "160px", md: "290px" }}
-                  objectFit="contain"
-                  borderRadius={{ base: "8px", md: "12px" }}
-                  transition="all 0.3s ease"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
                 />
-              </Flex>
-            ))}
-          </SimpleGrid>
+              ))}
+            </Flex>
+          </Container>
 
-          {filtered.length === 0 && (
-            <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
-              No clients in this category yet.
-            </Text>
+          {/* Skeleton Logo Grid */}
+          <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+            <SimpleGrid
+              columns={{ base: 2, md: 3 }}
+              spacingX={{ base: 8, md: 12 }}
+              spacingY={{ base: 10, md: 16 }}
+              justifyItems="center"
+              alignItems="center"
+            >
+              {[0, 1, 2, 3, 4, 5].map((idx) => (
+                <Skeleton
+                  key={idx}
+                  h={{ base: "60px", md: "100px" }}
+                  w={{ base: "140px", md: "240px" }}
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              ))}
+            </SimpleGrid>
+          </Container>
+        </Box>
+      ) : (
+        <>
+          {/* ── Filter Tabs ── */}
+          {categories.length > 1 && (
+            <Box bg="transparent" pt={{ base: 8, md: 16 }} pb={{ base: 4, md: 8 }}>
+              <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+                <Flex justify="center" gap={3} flexWrap="wrap">
+                  {categories.map((cat) => {
+                    const isActive = activeCategory === cat;
+                    return (
+                      <Box
+                        key={cat}
+                        as="button"
+                        onClick={() => setActiveCategory(cat)}
+                        px={{ base: 4, md: 6 }}
+                        py={2}
+                        borderRadius="full"
+                        border="1px solid"
+                        borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
+                        bg={isActive ? tabActiveBg : "transparent"}
+                        color={isActive ? tabActiveColor : tabInactiveColor}
+                        fontSize={{ base: "md", md: "lg" }}
+                        fontWeight={isActive ? "600" : "400"}
+                        transition="all 0.2s"
+                        _hover={{
+                          borderColor: tabHoverBorder,
+                          color: isActive ? tabActiveColor : tabHoverBorder,
+                        }}
+                      >
+                        {cat}
+                      </Box>
+                    );
+                  })}
+                </Flex>
+              </Container>
+            </Box>
           )}
-        </Container>
-      </Box>
+
+          {/* ── Logo Grid ── */}
+          <Box bg="transparent" py={{ base: 8, md: 16 }}>
+            <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+              <SimpleGrid
+                columns={{ base: 2, md: 3 }}
+                spacingX={{ base: 8, md: 12 }}
+                spacingY={{ base: 10, md: 16 }}
+                justifyItems="center"
+                alignItems="center"
+              >
+                {filtered.map((client, idx) => (
+                  <Flex
+                    key={`${activeCategory}-${idx}`}
+                    align="center"
+                    justify="center"
+                    py={{ base: 4, md: 6 }}
+                    px={{ base: 4, md: 8 }}
+                    transition="all 0.3s ease"
+                    _hover={{
+                      transform: "scale(1.08)",
+                      filter: "brightness(1.1)",
+                    }}
+                  >
+                    <Image
+                      src={client.src}
+                      alt={client.name}
+                      maxH={{ base: "60px", md: "140px" }}
+                      maxW={{ base: "160px", md: "290px" }}
+                      objectFit="contain"
+                      borderRadius={{ base: "8px", md: "12px" }}
+                      transition="all 0.3s ease"
+                    />
+                  </Flex>
+                ))}
+              </SimpleGrid>
+
+              {filtered.length === 0 && (
+                <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
+                  No clients in this category yet.
+                </Text>
+              )}
+            </Container>
+          </Box>
+        </>
+      )}
 
       {/* ── Quote Carousel ── */}
       <Box pb={{ base: 12, md: 24 }}>
-        <QuoteCarousel testimonials={testimonials} />
+        <QuoteCarousel testimonials={testimonials} isLoading={loadingTestimonials} />
       </Box>
 
       {/* ── Contact & Footer ── */}

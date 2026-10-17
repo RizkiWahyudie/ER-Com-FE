@@ -13,6 +13,7 @@ import {
   Flex,
   SimpleGrid,
   Avatar,
+  Skeleton,
   useColorModeValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
@@ -232,29 +233,60 @@ const FALLBACK_STATS = [
 export default function HighlightPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [page, setPage] = useState(1);
-  const [stats, setStats] = useState(FALLBACK_STATS);
-  const [categories, setCategories] = useState(["All", ...FALLBACK_CATEGORIES]);
-  const [allProjects, setAllProjects] = useState(FALLBACK_PROJECTS);
-  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [stats, setStats] = useState([]);
+  const [loadingHero, setLoadingHero] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [allProjects, setAllProjects] = useState([]);
+  const [loadingBlog, setLoadingBlog] = useState(true);
+  const [heroes, setHeroes] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    getStatsSection().then(setStats);
+    getStatsSection()
+      .then((apiStats) => {
+        if (Array.isArray(apiStats) && apiStats.length > 0) {
+          setStats(apiStats);
+        } else {
+          setStats(FALLBACK_STATS);
+        }
+      })
+      .catch(() => setStats(FALLBACK_STATS))
+      .finally(() => setLoadingStats(false));
 
     getHeroSection("highlight")
       .then((apiHeroes) => {
-        if (apiHeroes.length > 0) setHeroes(apiHeroes);
+        if (apiHeroes.length > 0) {
+          setHeroes(apiHeroes);
+        } else {
+          setHeroes([FALLBACK_HERO]);
+        }
       })
-      .catch(() => setHeroes([FALLBACK_HERO]));
+      .catch(() => setHeroes([FALLBACK_HERO]))
+      .finally(() => setLoadingHero(false));
 
-    getBlogCategories().then((apiCategories) => {
-      if (apiCategories.length > 0) setCategories(["All", ...apiCategories]);
-    });
-
-    getBlogPosts().then((apiProjects) => {
-      if (apiProjects.length > 0) setAllProjects(apiProjects);
-    });
+    Promise.all([
+      getBlogCategories().catch(() => []),
+      getBlogPosts().catch(() => []),
+    ])
+      .then(([apiCategories, apiProjects]) => {
+        if (Array.isArray(apiCategories) && apiCategories.length > 0) {
+          setCategories(["All", ...apiCategories]);
+        } else {
+          setCategories(["All", ...FALLBACK_CATEGORIES]);
+        }
+        if (Array.isArray(apiProjects) && apiProjects.length > 0) {
+          setAllProjects(apiProjects);
+        } else {
+          setAllProjects(FALLBACK_PROJECTS);
+        }
+      })
+      .catch(() => {
+        setCategories(["All", ...FALLBACK_CATEGORIES]);
+        setAllProjects(FALLBACK_PROJECTS);
+      })
+      .finally(() => setLoadingBlog(false));
   }, []);
 
   const startTimer = useCallback(() => {
@@ -277,7 +309,7 @@ export default function HighlightPage() {
     startTimer();
   };
 
-  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
 
   const pageBg = useColorModeValue("#fff", "#05060A");
@@ -298,6 +330,8 @@ export default function HighlightPage() {
 
   const overlay = useColorModeValue("radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)", "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )");
   const bnw = useColorModeValue("#000", "#fff");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   const filtered =
     activeCategory === "All"
@@ -329,32 +363,75 @@ export default function HighlightPage() {
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
+        bg="var(--background)"
+        overflow="hidden"
       >
         {/* Background Images — stacked for crossfade */}
-        {heroes.map((h, idx) => (
-          <Box
-            key={h.id ?? idx}
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundImage={`url('${h.backgroundImage || "/assets/highlight/hero-bg.png"}')`}
-            backgroundSize="cover"
-            backgroundPosition="center"
-            opacity={idx === activeIndex ? 1 : 0}
-            transition="opacity 0.8s ease-in-out"
-            zIndex={0}
-          />
-        ))}
+        {!loadingHero && heroes.length > 0
+          ? heroes.map((h, idx) =>
+              h.background_media_type === "video" ? (
+                <Box
+                  key={h.id ?? idx}
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.8s ease-in-out"
+                  zIndex={0}
+                  overflow="hidden"
+                >
+                  <video
+                    src={h.backgroundImage}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </Box>
+              ) : h.backgroundImage ? (
+                <Box
+                  key={h.id ?? idx}
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  backgroundImage={`url('${h.backgroundImage}')`}
+                  backgroundSize="cover"
+                  backgroundPosition="center"
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.8s ease-in-out"
+                  zIndex={0}
+                />
+              ) : null
+            )
+          : null}
 
         {/* Dark overlay */}
         <Box
           position="absolute"
-          top={0} left={0} right={0} bottom={0}
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
           background={overlay}
+          opacity={!loadingHero && heroes.length > 0 ? 1 : 0}
+          transition="opacity 0.8s ease-in-out"
           zIndex={1}
+          pointerEvents="none"
         />
+
         {/* Heading */}
         <Container
           maxW="4xl"
@@ -367,52 +444,112 @@ export default function HighlightPage() {
           <VStack spacing={{ base: 5, md: 7 }}>
             {/* Headline with crossfade */}
             <Box position="relative" w="full" minH={{ base: "100px", md: "140px" }}>
-              {heroes.map((h, idx) => (
-                <Heading
-                  key={h.id ?? idx}
-                  as={idx === activeIndex ? "h1" : "div"}
-                  fontSize={{ base: "58px", sm: "48px", md: "72px", xl: "96px" }}
-                  color="#fff"
-                  fontWeight="600"
-                  lineHeight="1.05"
-                  letterSpacing="-1.5px"
-                  fontFamily="Plus Jakarta Sans"
-                  position={idx === 0 ? "relative" : "absolute"}
-                  top={0}
-                  left={0}
-                  right={0}
-                  opacity={idx === activeIndex ? 1 : 0}
-                  transition="opacity 0.6s ease-in-out"
-                  pointerEvents={idx === activeIndex ? "auto" : "none"}
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(h.headline) || FALLBACK_HEADLINE }}
-                />
-              ))}
+              {loadingHero ? (
+                <VStack spacing={{ base: 3, md: 4 }} align="center" justify="center" w="full" maxW="4xl" mx="auto" py={1}>
+                  <Skeleton
+                    h={{ base: "48px", sm: "42px", md: "64px", xl: "80px" }}
+                    w={{ base: "85%", md: "70%", lg: "60%" }}
+                    maxW="720px"
+                    borderRadius="lg"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "48px", sm: "42px", md: "64px", xl: "80px" }}
+                    w={{ base: "65%", md: "50%", lg: "42%" }}
+                    maxW="480px"
+                    borderRadius="lg"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              ) : heroes.length > 0 ? (
+                heroes.map((h, idx) => (
+                  <Heading
+                    key={h.id ?? idx}
+                    as={idx === activeIndex ? "h1" : "div"}
+                    fontSize={{ base: "58px", sm: "48px", md: "72px", xl: "96px" }}
+                    color="#fff"
+                    fontWeight="600"
+                    lineHeight="1.05"
+                    letterSpacing="-1.5px"
+                    fontFamily="Plus Jakarta Sans"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 1 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.headlineLines && h.headlineLines.length > 0 ? (
+                      h.headlineLines.map((line, lIdx) => (
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || "#fff"}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
+                      ))
+                    ) : (
+                      <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: sanitizeRichText(h.headline) }} />
+                    )}
+                  </Heading>
+                ))
+              ) : null}
             </Box>
 
             {/* Subheadline with crossfade */}
             <Box position="relative" w="full" minH={{ base: "50px", md: "60px" }}>
-              {heroes.map((h, idx) => (
-                <Text
-                  key={h.id ?? idx}
-                  fontSize={{ base: "15px", md: "18px", xl: "20px" }}
-                  color="#ffffff"
-                  maxW="3xl"
-                  mx="auto"
-                  lineHeight="1.4"
-                  position={idx === 0 ? "relative" : "absolute"}
-                  top={0}
-                  left={0}
-                  right={0}
-                  opacity={idx === activeIndex ? 1 : 0}
-                  transition="opacity 0.6s ease-in-out"
-                  pointerEvents={idx === activeIndex ? "auto" : "none"}
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(h.subheadline) || FALLBACK_SUBHEADLINE }}
-                />
-              ))}
+              {loadingHero ? (
+                <VStack spacing={2.5} align="center" justify="center" w="full" maxW="3xl" mx="auto">
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="95%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="80%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="55%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              ) : heroes.length > 0 ? (
+                heroes.map((h, idx) => (
+                  <Text
+                    key={h.id ?? idx}
+                    fontSize={{ base: "15px", md: "18px", xl: "20px" }}
+                    color="#ffffff"
+                    maxW="3xl"
+                    mx="auto"
+                    lineHeight="1.4"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 1 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                    dangerouslySetInnerHTML={{ __html: sanitizeRichText(h.subheadline) }}
+                  />
+                ))
+              ) : null}
             </Box>
 
             {/* CTA Button */}
-            {currentHero?.cta_text && currentHero?.cta_url && (
+            {!loadingHero && currentHero?.cta_text && currentHero?.cta_url && (
               <Button
                 as="a"
                 href={currentHero.cta_url}
@@ -444,7 +581,7 @@ export default function HighlightPage() {
             )}
 
             {/* Carousel Dots */}
-            {showDots && (
+            {!loadingHero && showDots && (
               <HStack spacing={2.5} justify="center">
                 {heroes.map((_, idx) => (
                   <Box
@@ -472,32 +609,56 @@ export default function HighlightPage() {
           justify="space-evenly"
           w="full"
           position="relative"
-          zIndex={1}
+          zIndex={2}
           pb={{ base: 4, md: 8 }}
         >
-          {stats.map((stat, index) => (
-            <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
-              {index > 0 && <Box w="1px" h="120px" bg="rgba(255,255,255,0.15)" />}
-              <VStack spacing={1.5}>
-                <Text
-                  fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-                  fontWeight="600"
-                  color="var(--accent)"
-                  textTransform="uppercase"
-                >
-                  {stat.stat_label}
-                </Text>
-                <Text
-                  fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-                  fontWeight="700"
-                  color={bnw}
-                  fontFamily="Plus Jakarta Sans"
-                >
-                  {stat.stat_number}
-                </Text>
-              </VStack>
-            </HStack>
-          ))}
+          {loadingStats && stats.length === 0 ? (
+            [1, 2, 3].map((_, index) => (
+              <HStack key={index} spacing={{ base: 8, md: 20 }}>
+                {index > 0 && <Box w="1px" h="120px" bg="rgba(255,255,255,0.15)" />}
+                <VStack spacing={2} align="center">
+                  <Skeleton
+                    h={{ base: "13px", md: "15px", lg: "20px" }}
+                    w={{ base: "65px", md: "85px", lg: "110px" }}
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "38px", md: "44px", lg: "50px" }}
+                    w={{ base: "75px", md: "95px", lg: "120px" }}
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              </HStack>
+            ))
+          ) : (
+            stats.map((stat, index) => (
+              <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+                {index > 0 && <Box w="1px" h="120px" bg="rgba(255,255,255,0.15)" />}
+                <VStack spacing={1.5}>
+                  <Text
+                    fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+                    fontWeight="600"
+                    color="var(--accent)"
+                    textTransform="uppercase"
+                  >
+                    {stat.stat_label}
+                  </Text>
+                  <Text
+                    fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                    fontWeight="700"
+                    color={bnw}
+                    fontFamily="Plus Jakarta Sans"
+                  >
+                    {stat.stat_number}
+                  </Text>
+                </VStack>
+              </HStack>
+            ))
+          )}
         </HStack>
       </Box>
 
@@ -505,161 +666,211 @@ export default function HighlightPage() {
       <HighlightGallery />
 
       {/* ── Showcasing Section ── */}
-      <Box bg="transparent" pt={{ base: 0, md: 20 }} pb={{ base: 12, md: 20 }} overflow="hidden" position="relative">
-        <Image src="/assets/media/media-shape.svg" alt="background" position="absolute" display={{ base: "none", lg: "block" }} top={20} right={0} zIndex={0} />
-        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-          {/* Section Header with shape */}
-          <Flex
-            align="center"
-            justify="space-between"
-            mb={{ base: 8, md: 12 }}
-            gap={6}
-          >
-            <VStack align="flex-start" spacing={4} maxW="5xl">
-              <Heading
-                as="h2"
-                fontSize={{ base: "2xl", md: "4xl", lg: "6xl" }}
-                fontWeight="500"
-                color={headingColor}
-                fontFamily="Plus Jakarta Sans"
-                lineHeight="1.15"
-              >
-                Showcasing Our<br />
-                Communication Excellence
-              </Heading>
-              <Text
-                fontSize={{ base: "sm", md: "md" }}
-                color={textColor}
-                lineHeight="1.7"
-                maxW="2xl"
-              >
-                Take a closer look at the projects and collaborations that demonstrate our experience in delivering effective communication solutions.
-              </Text>
-            </VStack>
-
-            {/* Decorative half-pill shape */}
-            <Image
-              src="/assets/media/media-shape.svg"
-              alt="Decorative shape"
-              display={{ base: "none", lg: "block" }}
-              h="120px"
-              mr="-40px"
-              opacity={0.85}
-              visibility="hidden"
-            />
-          </Flex>
-
-          {/* Filter Tabs */}
-          <Flex gap={3} flexWrap="wrap" mb={{ base: 8, md: 10 }}>
-            {categories.map((cat) => {
-              const isActive = activeCategory === cat;
-              return (
-                <Box
-                  key={cat}
-                  as="button"
-                  onClick={() => handleCategory(cat)}
-                  px={{ base: 4, md: 5 }}
-                  py={2}
-                  borderRadius="full"
-                  border="1px solid"
-                  borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
-                  bg={isActive ? tabActiveBg : "transparent"}
-                  color={isActive ? tabActiveColor : tabInactiveColor}
-                  fontSize={{ base: "13px", md: "14px" }}
-                  fontWeight={isActive ? "600" : "400"}
-                  transition="all 0.2s"
-                  _hover={{ borderColor: tabHoverBorder, color: isActive ? tabActiveColor : tabHoverBorder }}
+      {(loadingBlog || allProjects.length > 0) && (
+        <Box bg="transparent" pt={{ base: 0, md: 20 }} pb={{ base: 12, md: 20 }} overflow="hidden" position="relative">
+          <Image src="/assets/media/media-shape.svg" alt="background" position="absolute" display={{ base: "none", lg: "block" }} top={20} right={0} zIndex={0} />
+          <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+            {/* Section Header with shape */}
+            <Flex
+              align="center"
+              justify="space-between"
+              mb={{ base: 8, md: 12 }}
+              gap={6}
+            >
+              <VStack align="flex-start" spacing={4} maxW="5xl">
+                <Heading
+                  as="h2"
+                  fontSize={{ base: "2xl", md: "4xl", lg: "6xl" }}
+                  fontWeight="500"
+                  color={headingColor}
+                  fontFamily="Plus Jakarta Sans"
+                  lineHeight="1.15"
                 >
-                  {cat}
-                </Box>
-              );
-            })}
-          </Flex>
+                  Showcasing Our<br />
+                  Communication Excellence
+                </Heading>
+                <Text
+                  fontSize={{ base: "sm", md: "md" }}
+                  color={textColor}
+                  lineHeight="1.7"
+                  maxW="2xl"
+                >
+                  Take a closer look at the projects and collaborations that demonstrate our experience in delivering effective communication solutions.
+                </Text>
+              </VStack>
 
-          {/* Project Cards Grid */}
-          {paginated.length > 0 ? (
-            <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
-              {paginated.map((project, idx) => (
-                <ProjectCard key={project.id ?? idx} {...project} />
-              ))}
-            </SimpleGrid>
-          ) : (
-            <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
-              No projects in this category yet.
-            </Text>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Flex justify="center" align="center" gap={{ base: 2, md: 4 }} mt={12}>
-              <Box
-                as="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                w="36px" h="36px"
-                borderRadius="full"
-                bg={pageBtnBg}
-                color={pageBtnColor}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize={{ base: 'sm', md: 'md' }}
-                _hover={{ bg: pageBtnHoverBg, color: "white" }}
-                transition="all 0.2s"
-              >
-                <IoIosArrowBack />
-              </Box>
-
-              {Array.from({ length: totalPages }).map((_, i) => {
-                const p = i + 1;
-                const isActive = currentPage === p;
-                return (
-                  <Box
-                    key={p}
-                    as="button"
-                    onClick={() => setPage(p)}
-                    w="36px" h="36px"
-                    borderRadius="full"
-                    bg={isActive ? pageBtnActiveBg : "transparent"}
-                    border="1px solid"
-                    borderColor={isActive ? pageBtnActiveBg : pageBtnInactiveBorder}
-                    color={isActive ? pageBtnActiveColor : tabInactiveColor}
-                    fontSize={{ base: 'sm', md: 'lg' }}
-                    fontWeight={isActive ? "700" : "400"}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    transition="all 0.2s"
-                    _hover={{ 
-                      bg: isActive ? pageBtnHoverBg : pageBtnBg, 
-                      color: isActive ? "white" : tabInactiveColor, 
-                      borderColor: isActive ? pageBtnHoverBg : tabInactiveColor 
-                    }}
-                  >
-                    {p}
-                  </Box>
-                );
-              })}
-
-              <Box
-                as="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                w="36px" h="36px"
-                borderRadius="full"
-                bg="rgb(255, 255, 255, 0.1)"
-                color="white"
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                fontSize={{ base: 'sm', md: 'md' }}
-                _hover={{ bg: "#025BCF" }}
-                transition="all 0.2s"
-              >
-                <IoIosArrowForward />
-              </Box>
+              {/* Decorative half-pill shape */}
+              <Image
+                src="/assets/media/media-shape.svg"
+                alt="Decorative shape"
+                display={{ base: "none", lg: "block" }}
+                h="120px"
+                mr="-40px"
+                opacity={0.85}
+                visibility="hidden"
+              />
             </Flex>
-          )}
-        </Container>
-      </Box>
+
+            {loadingBlog ? (
+              <>
+                {/* Skeleton Filter Tabs */}
+                <Flex gap={3} flexWrap="wrap" mb={{ base: 8, md: 10 }}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Skeleton
+                      key={i}
+                      h="36px"
+                      w={{ base: "70px", md: "100px" }}
+                      borderRadius="full"
+                      startColor={skeletonStartColor}
+                      endColor={skeletonEndColor}
+                    />
+                  ))}
+                </Flex>
+
+                {/* Skeleton Project Cards Grid */}
+                <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <Box
+                      key={i}
+                      borderRadius={{ base: "20px", md: "35px" }}
+                      overflow="hidden"
+                      bg="rgba(255,255,255,0.05)"
+                      border="1px solid rgba(255,255,255,0.08)"
+                    >
+                      <Skeleton h={{ base: "180px", md: "200px" }} w="full" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                      <Box p={5}>
+                        <VStack align="flex-start" spacing={4}>
+                          <Skeleton h="20px" w="85%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                          <Skeleton h="14px" w="95%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                          <Skeleton h="14px" w="65%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                          <HStack spacing={3} pt={2} w="full">
+                            <Skeleton w="28px" h="28px" borderRadius="full" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                            <Skeleton h="12px" w="100px" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                          </HStack>
+                        </VStack>
+                      </Box>
+                    </Box>
+                  ))}
+                </SimpleGrid>
+              </>
+            ) : (
+              <>
+                {/* Filter Tabs */}
+                {categories.length > 1 && (
+                  <Flex gap={3} flexWrap="wrap" mb={{ base: 8, md: 10 }}>
+                    {categories.map((cat) => {
+                      const isActive = activeCategory === cat;
+                      return (
+                        <Box
+                          key={cat}
+                          as="button"
+                          onClick={() => handleCategory(cat)}
+                          px={{ base: 4, md: 5 }}
+                          py={2}
+                          borderRadius="full"
+                          border="1px solid"
+                          borderColor={isActive ? tabHoverBorder : tabInactiveBorder}
+                          bg={isActive ? tabActiveBg : "transparent"}
+                          color={isActive ? tabActiveColor : tabInactiveColor}
+                          fontSize={{ base: "13px", md: "14px" }}
+                          fontWeight={isActive ? "600" : "400"}
+                          transition="all 0.2s"
+                          _hover={{ borderColor: tabHoverBorder, color: isActive ? tabActiveColor : tabHoverBorder }}
+                        >
+                          {cat}
+                        </Box>
+                      );
+                    })}
+                  </Flex>
+                )}
+
+                {/* Project Cards Grid */}
+                {paginated.length > 0 ? (
+                  <SimpleGrid columns={{ base: 1, sm: 2, md: 3 }} spacing={6}>
+                    {paginated.map((project, idx) => (
+                      <ProjectCard key={project.id ?? idx} {...project} />
+                    ))}
+                  </SimpleGrid>
+                ) : (
+                  <Text textAlign="center" color={emptyTextColor} py={16} fontSize="15px">
+                    No projects in this category yet.
+                  </Text>
+                )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <Flex justify="center" align="center" gap={{ base: 2, md: 4 }} mt={12}>
+                    <Box
+                      as="button"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      w="36px" h="36px"
+                      borderRadius="full"
+                      bg={pageBtnBg}
+                      color={pageBtnColor}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize={{ base: 'sm', md: 'md' }}
+                      _hover={{ bg: pageBtnHoverBg, color: "white" }}
+                      transition="all 0.2s"
+                    >
+                      <IoIosArrowBack />
+                    </Box>
+
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                      const p = i + 1;
+                      const isActive = currentPage === p;
+                      return (
+                        <Box
+                          key={p}
+                          as="button"
+                          onClick={() => setPage(p)}
+                          w="36px" h="36px"
+                          borderRadius="full"
+                          bg={isActive ? pageBtnActiveBg : "transparent"}
+                          border="1px solid"
+                          borderColor={isActive ? pageBtnActiveBg : pageBtnInactiveBorder}
+                          color={isActive ? pageBtnActiveColor : tabInactiveColor}
+                          fontSize={{ base: 'sm', md: 'lg' }}
+                          fontWeight={isActive ? "700" : "400"}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          transition="all 0.2s"
+                          _hover={{ 
+                            bg: isActive ? pageBtnHoverBg : pageBtnBg, 
+                            color: isActive ? "white" : tabInactiveColor, 
+                            borderColor: isActive ? pageBtnHoverBg : tabInactiveColor 
+                          }}
+                        >
+                          {p}
+                        </Box>
+                      );
+                    })}
+
+                    <Box
+                      as="button"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      w="36px" h="36px"
+                      borderRadius="full"
+                      bg="rgb(255, 255, 255, 0.1)"
+                      color="white"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      fontSize={{ base: 'sm', md: 'md' }}
+                      _hover={{ bg: "#025BCF" }}
+                      transition="all 0.2s"
+                    >
+                      <IoIosArrowForward />
+                    </Box>
+                  </Flex>
+                )}
+              </>
+            )}
+          </Container>
+        </Box>
+      )}
 
       {/* ── Contact & Footer ── */}
       <ContactSection />

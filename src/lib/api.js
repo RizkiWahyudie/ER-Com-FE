@@ -110,6 +110,23 @@ export async function getTimelineIntro() {
   }
 }
 
+export async function getTimelinePages() {
+  try {
+    const pages = await apiGet("/about-section4-pages");
+    if (!Array.isArray(pages)) return [];
+    return pages
+      .filter(isActive)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((page) => ({
+        year: page.year,
+        title: page.title,
+        desc: page.description,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getAboutMilestones() {
   try {
     const data = await apiGet("/about-milestones");
@@ -432,23 +449,97 @@ function htmlToLines(html) {
     .filter(Boolean);
 }
 
-// Same line-splitting as htmlToLines, but keeps the inline
-// color from a wrapping <span style="color: ...">, since CMS
-// headlines set color per line rather than on the whole block.
+// Splits HTML headlines into lines, preserving inner styling (e.g. colored words)
+// while ensuring line breaks (br, p, div, h1-6) reliably separate lines.
 function htmlToColoredLines(html) {
   if (!html) return [];
-  return html
-    .replace(/<\/(p|div|h[1-6])>/gi, "\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .split("\n")
+
+  let str = String(html).trim();
+
+  // If running in browser environment, use DOMParser for standard-compliant HTML manipulation
+  if (typeof window !== "undefined" && typeof DOMParser !== "undefined") {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(str, "text/html");
+
+      // Replace block elements with line breaks while preserving their content
+      const blockTags = ["H1", "H2", "H3", "H4", "H5", "H6", "P", "DIV", "HEADER", "SECTION", "LI"];
+      blockTags.forEach((tag) => {
+        const elements = Array.from(doc.body.getElementsByTagName(tag));
+        elements.forEach((el) => {
+          const br = doc.createElement("br");
+          el.after(br);
+          el.replaceWith(...el.childNodes);
+        });
+      });
+
+      // Unwrap unstyled spans and strip useless classes from styled spans
+      const spans = Array.from(doc.body.getElementsByTagName("span"));
+      spans.forEach((span) => {
+        const style = span.getAttribute("style");
+        if (!style || !style.trim()) {
+          span.replaceWith(...span.childNodes);
+        } else {
+          span.removeAttribute("class");
+        }
+      });
+
+      str = doc.body.innerHTML;
+    } catch {
+      // Fall through to regex-based parser if DOMParser fails
+    }
+  }
+
+  // Fallback regex-based cleaning (also handles SSR / Node.js)
+  // 1. Convert closing block tags </p>, </div>, </h1-6> to <br/>
+  str = str.replace(/<\/(h[1-6]|p|div|header|section)>\s*/gi, "<br/>");
+  str = str.replace(/<(h[1-6]|p|div|header|section)[^>]*>/gi, "");
+
+  // 2. Protect styled spans <span style="...">...</span>
+  const tokens = [];
+  str = str.replace(/<span\s+style="([^"]*)"[^>]*>(.*?)<\/span>/gi, (match, style, inner) => {
+    const idx = tokens.length;
+    tokens.push(`<span style="${style}">${inner}</span>`);
+    return `___STYLED_SPAN_${idx}___`;
+  });
+
+  // 3. Strip all remaining wrapper spans (both opening and closing)
+  str = str.replace(/<\/?span[^>]*>/gi, "");
+
+  // 4. Restore protected styled spans
+  tokens.forEach((token, idx) => {
+    str = str.replace(`___STYLED_SPAN_${idx}___`, token);
+  });
+
+  // 5. Split by <br> or newlines
+  const rawChunks = str.split(/<br\s*\/?>|\r?\n/gi);
+
+  return rawChunks
     .map((chunk) => {
-      const colorMatch = chunk.match(/color:\s*([^;"']+)/i);
-      const text = chunk
+      let cleaned = chunk.trim();
+
+      const text = cleaned
         .replace(/<[^>]*>/g, "")
         .replace(/&nbsp;/gi, " ")
         .replace(/\s+/g, " ")
         .trim();
-      return text ? { text, color: colorMatch ? colorMatch[1].trim() : null } : null;
+
+      if (!text) return null;
+
+      // If the line has an inner styled span, leave line-level color null
+      // so the inner span's color applies only to the styled word(s)
+      const hasInnerSpan = /<span\s+style=/i.test(cleaned);
+      let color = null;
+      if (!hasInnerSpan) {
+        const colorMatch = chunk.match(/color:\s*([^;"']+)/i);
+        color = colorMatch ? colorMatch[1].trim() : null;
+      }
+
+      return {
+        text,
+        html: cleaned,
+        color,
+      };
     })
     .filter(Boolean);
 }

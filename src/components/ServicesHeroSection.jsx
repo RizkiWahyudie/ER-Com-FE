@@ -9,6 +9,7 @@ import {
   HStack,
   Heading,
   Text,
+  Skeleton,
   useColorModeValue
 } from "@chakra-ui/react";
 import { getHeroSection } from "@/lib/api";
@@ -28,16 +29,22 @@ const FALLBACK_HERO = {
 const AUTO_SLIDE_INTERVAL = 4000;
 
 export default function ServicesHeroSection() {
-  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [heroes, setHeroes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    getHeroSection("service").then((apiHeroes) => {
-      if (apiHeroes.length > 0) {
-        setHeroes(apiHeroes);
-      }
-    });
+    getHeroSection("service")
+      .then((apiHeroes) => {
+        if (apiHeroes.length > 0) {
+          setHeroes(apiHeroes);
+        } else {
+          setHeroes([FALLBACK_HERO]);
+        }
+      })
+      .catch(() => setHeroes([FALLBACK_HERO]))
+      .finally(() => setLoading(false));
   }, []);
 
   const startTimer = useCallback(() => {
@@ -61,7 +68,7 @@ export default function ServicesHeroSection() {
   };
 
   const hasBg = heroes.length > 0 && heroes.some((h) => Boolean(h.hasBgImage || h.backgroundImage));
-  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
 
   const overlay = useColorModeValue("#fff", "#05060a");
@@ -71,6 +78,88 @@ export default function ServicesHeroSection() {
     "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)",
     "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%)"
   );
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
+
+  if (loading) {
+    return (
+      <Box
+        position="relative"
+        w="full"
+        minH={{ base: "80vh", md: "100vh" }}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        pt={{ base: "140px", md: "180px" }}
+        pb={{ base: 12, md: 16 }}
+        bg="var(--background)"
+        overflow="hidden"
+      >
+        <Container maxW="5xl" px={{ base: 6, md: 6 }} mx="auto" position="relative" zIndex={2}>
+          <VStack spacing={6} align="center" textAlign="center">
+            <Box
+              px={{ base: 4, md: 6 }}
+              py={{ base: 1.5, md: 2 }}
+              bgGradient="linear(to-r, #ff7043, #e64a19)"
+              borderRadius="50px"
+              fontSize={{ base: "xs", md: "sm" }}
+              fontWeight="600"
+              color="white"
+              boxShadow="0 4px 14px rgba(230, 74, 25, 0.4)"
+            >
+              Services
+            </Box>
+
+            {/* Headline Skeleton */}
+            <VStack spacing={{ base: 3, md: 4 }} align="center" justify="center" w="full" maxW="4xl" mx="auto" py={1}>
+              <Skeleton
+                h={{ base: "38px", md: "52px", lg: "62px" }}
+                w={{ base: "85%", md: "70%", lg: "60%" }}
+                maxW="700px"
+                borderRadius="lg"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+              <Skeleton
+                h={{ base: "38px", md: "52px", lg: "62px" }}
+                w={{ base: "65%", md: "50%", lg: "42%" }}
+                maxW="480px"
+                borderRadius="lg"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+            </VStack>
+
+            {/* Subheadline Skeleton */}
+            <VStack spacing={2.5} align="center" justify="center" w="full" maxW="2xl" mx="auto">
+              <Skeleton
+                h={{ base: "14px", md: "16px" }}
+                w="95%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+              <Skeleton
+                h={{ base: "14px", md: "16px" }}
+                w="80%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+              <Skeleton
+                h={{ base: "14px", md: "16px" }}
+                w="55%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+            </VStack>
+          </VStack>
+        </Container>
+      </Box>
+    );
+  }
 
   // If ANY active hero has a background image, use the Home/About hero style
   if (hasBg) {
@@ -85,6 +174,7 @@ export default function ServicesHeroSection() {
         justifyContent="center"
         pt={{ base: "140px", md: "180px" }}
         pb={{ base: 12, md: 16 }}
+        bg="var(--background)"
         overflow="hidden"
       >
         {/* Background Media — stacked for crossfade */}
@@ -185,9 +275,13 @@ export default function ServicesHeroSection() {
                 >
                   {h.headlineLines && h.headlineLines.length > 0 ? (
                     h.headlineLines.map((line, lIdx) => (
-                      <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
-                        {line.text}
-                      </Text>
+                      <Text
+                        as="span"
+                        display="block"
+                        key={lIdx}
+                        color={line.color || "#fff"}
+                        dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                      />
                     ))
                   ) : (
                     <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
@@ -281,7 +375,7 @@ export default function ServicesHeroSection() {
   return (
     <Box
       w="full"
-      bg={overlay}
+      bg="var(--background)"
       backgroundImage="radial-gradient(ellipse 700px 500px at 50% 30%, rgba(255, 87, 34, 0.25), transparent 65%)"
       pt={{ base: 32, md: 40 }}
       pb={{ base: 12, md: 16 }}
@@ -325,9 +419,13 @@ export default function ServicesHeroSection() {
               >
                 {h.headlineLines && h.headlineLines.length > 0 ? (
                   h.headlineLines.map((line, lIdx) => (
-                    <Text as="span" display="block" key={lIdx} color={line.color || headingText}>
-                      {line.text}
-                    </Text>
+                    <Text
+                      as="span"
+                      display="block"
+                      key={lIdx}
+                      color={line.color || headingText}
+                      dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                    />
                   ))
                 ) : (
                   <Text as="span" display="block" color={headingText} dangerouslySetInnerHTML={{ __html: h.headline }} />

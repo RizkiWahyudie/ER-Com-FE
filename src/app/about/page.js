@@ -14,6 +14,7 @@ import {
   Flex,
   Icon,
   Image,
+  Skeleton,
   useColorModeValue,
   useColorMode
 } from "@chakra-ui/react";
@@ -32,6 +33,7 @@ import {
   getPartnerLogos,
   getStatsSection,
   getTimelineIntro,
+  getTimelinePages,
 } from "@/lib/api";
 
 const FALLBACK_ABOUT_SECTION = {
@@ -128,45 +130,86 @@ function getFaIconComponent(iconClass) {
 }
 
 export default function AboutPage() {
-  const [features, setFeatures] = useState(FALLBACK_FEATURES_WITH_ICONS);
+  const [features, setFeatures] = useState([]);
+  const [loadingFeatures, setLoadingFeatures] = useState(true);
   const [timelineSettings, setTimelineSettings] = useState(null);
-  const [timelineItems, setTimelineItems] = useState(FALLBACK_TIMELINE_ITEMS);
-  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [timelineItems, setTimelineItems] = useState([]);
+  const [loadingMilestones, setLoadingMilestones] = useState(true);
+  const [timelinePages, setTimelinePages] = useState([]);
+  const [loadingTimeline, setLoadingTimeline] = useState(true);
+  const [heroes, setHeroes] = useState([]);
+  const [loadingHero, setLoadingHero] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [stats, setStats] = useState([]);
-  const [aboutSection, setAboutSection] = useState(FALLBACK_ABOUT_SECTION);
+  const [aboutSection, setAboutSection] = useState(null);
+  const [loadingAbout, setLoadingAbout] = useState(true);
   const [partnerLogos, setPartnerLogos] = useState([]);
   const [timelineIntro, setTimelineIntro] = useState(null);
   const timerRef = useRef(null);
 
   useEffect(() => {
-    getAboutFeatures().then((apiFeatures) => {
-      if (apiFeatures.length > 0) {
-        setFeatures(
-          apiFeatures.map((feature, idx) => ({
-            ...feature,
-            icon: feature.icon ?? FEATURE_ICONS[idx % FEATURE_ICONS.length],
-          }))
-        );
-      }
-    });
+    getAboutFeatures()
+      .then((apiFeatures) => {
+        if (Array.isArray(apiFeatures) && apiFeatures.length > 0) {
+          setFeatures(
+            apiFeatures.map((feature, idx) => ({
+              ...feature,
+              icon: feature.icon ?? FEATURE_ICONS[idx % FEATURE_ICONS.length],
+            }))
+          );
+        } else {
+          setFeatures(FALLBACK_FEATURES_WITH_ICONS);
+        }
+      })
+      .catch(() => setFeatures(FALLBACK_FEATURES_WITH_ICONS))
+      .finally(() => setLoadingFeatures(false));
 
-    getAboutMilestones().then(({ settings, items }) => {
-      setTimelineSettings(settings);
-      if (items.length > 0) setTimelineItems(items);
-    });
+    getAboutMilestones()
+      .then(({ settings, items }) => {
+        setTimelineSettings(settings);
+        if (Array.isArray(items) && items.length > 0) {
+          setTimelineItems(items);
+        } else {
+          setTimelineItems(FALLBACK_TIMELINE_ITEMS);
+        }
+      })
+      .catch(() => setTimelineItems(FALLBACK_TIMELINE_ITEMS))
+      .finally(() => setLoadingMilestones(false));
 
-    getHeroSection("about").then((apiHeroes) => {
-      if (apiHeroes.length > 0) {
-        setHeroes(apiHeroes);
-      }
-    });
+    getTimelinePages()
+      .then(setTimelinePages)
+      .catch(() => setTimelinePages([]))
+      .finally(() => setLoadingTimeline(false));
 
-    getStatsSection().then(setStats);
+    getHeroSection("about")
+      .then((apiHeroes) => {
+        if (apiHeroes.length > 0) {
+          setHeroes(apiHeroes);
+        } else {
+          setHeroes([FALLBACK_HERO]);
+        }
+      })
+      .catch(() => setHeroes([FALLBACK_HERO]))
+      .finally(() => setLoadingHero(false));
 
-    getAboutSection().then((apiAboutSection) => {
-      if (apiAboutSection?.headline) setAboutSection(apiAboutSection);
-    });
+    getStatsSection()
+      .then((apiStats) => {
+        if (Array.isArray(apiStats)) setStats(apiStats);
+      })
+      .catch(() => setStats([]))
+      .finally(() => setLoadingStats(false));
+
+    getAboutSection()
+      .then((apiAboutSection) => {
+        if (apiAboutSection?.headline) {
+          setAboutSection(apiAboutSection);
+        } else {
+          setAboutSection(FALLBACK_ABOUT_SECTION);
+        }
+      })
+      .catch(() => setAboutSection(FALLBACK_ABOUT_SECTION))
+      .finally(() => setLoadingAbout(false));
 
     getPartnerLogos().then(setPartnerLogos);
 
@@ -193,7 +236,7 @@ export default function AboutPage() {
     startTimer();
   };
 
-  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
 
   const particles = [
@@ -230,6 +273,8 @@ export default function AboutPage() {
   const lineBg = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255,255,255,0.5)");
   const overlay = useColorModeValue("radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)", "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )");
   const bnw = useColorModeValue("#000", "#fff");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   return (
     <>
@@ -244,24 +289,60 @@ export default function AboutPage() {
         flexDirection="column"
         alignItems="center"
         justifyContent="space-between"
+        bg="var(--background)"
+        overflow="hidden"
       >
         {/* Background Images — stacked for crossfade */}
-        {heroes.map((h, idx) => (
-          <Box
-            key={h.id ?? idx}
-            position="absolute"
-            top={0}
-            left={0}
-            right={0}
-            bottom={0}
-            backgroundImage={`url('${h.backgroundImage || "/assets/about/hero-bg.png"}')`}
-            backgroundSize="cover"
-            backgroundPosition="center"
-            opacity={idx === activeIndex ? 1 : 0}
-            transition="opacity 0.8s ease-in-out"
-            zIndex={0}
-          />
-        ))}
+        {!loadingHero && heroes.length > 0
+          ? heroes.map((h, idx) =>
+              h.background_media_type === "video" ? (
+                <Box
+                  key={h.id ?? idx}
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.8s ease-in-out"
+                  zIndex={0}
+                  overflow="hidden"
+                >
+                  <video
+                    src={h.backgroundImage}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      pointerEvents: "none",
+                    }}
+                  />
+                </Box>
+              ) : h.backgroundImage ? (
+                <Box
+                  key={h.id ?? idx}
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bottom={0}
+                  backgroundImage={`url('${h.backgroundImage}')`}
+                  backgroundSize="cover"
+                  backgroundPosition="center"
+                  opacity={idx === activeIndex ? 1 : 0}
+                  transition="opacity 0.8s ease-in-out"
+                  zIndex={0}
+                />
+              ) : null
+            )
+          : null}
 
         {/* Gradient overlay */}
         <Box
@@ -271,7 +352,10 @@ export default function AboutPage() {
           right={0}
           bottom={0}
           background={overlay}
+          opacity={!loadingHero && heroes.length > 0 ? 1 : 0}
+          transition="opacity 0.8s ease-in-out"
           zIndex={1}
+          pointerEvents="none"
         />
 
         {/* Heading Container */}
@@ -286,62 +370,113 @@ export default function AboutPage() {
           <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
             {/* Headline with crossfade */}
             <Box position="relative" w="full" minH={{ base: "120px", md: "160px" }}>
-              {heroes.map((h, idx) => (
-                <Heading
-                  key={h.id ?? idx}
-                  as={idx === activeIndex ? "h1" : "div"}
-                  fontSize={{ base: "52px", md: "72px", xl: "90px" }}
-                  color="#fff"
-                  fontWeight="700"
-                  lineHeight="1.05"
-                  letterSpacing="-1.8px"
-                  fontFamily="Plus Jakarta Sans"
-                  position={idx === 0 ? "relative" : "absolute"}
-                  top={0}
-                  left={0}
-                  right={0}
-                  opacity={idx === activeIndex ? 1 : 0}
-                  transition="opacity 0.6s ease-in-out"
-                  pointerEvents={idx === activeIndex ? "auto" : "none"}
-                >
-                  {h.headlineLines && h.headlineLines.length > 0 ? (
-                    h.headlineLines.map((line, lIdx) => (
-                      <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
-                        {line.text}
-                      </Text>
-                    ))
-                  ) : (
-                    <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
-                  )}
-                </Heading>
-              ))}
+              {loadingHero ? (
+                <VStack spacing={{ base: 3, md: 4 }} align="center" justify="center" w="full" maxW="4xl" mx="auto" py={1}>
+                  <Skeleton
+                    h={{ base: "48px", md: "64px", xl: "80px" }}
+                    w={{ base: "85%", md: "70%", lg: "60%" }}
+                    maxW="720px"
+                    borderRadius="lg"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "48px", md: "64px", xl: "80px" }}
+                    w={{ base: "65%", md: "50%", lg: "42%" }}
+                    maxW="480px"
+                    borderRadius="lg"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              ) : heroes.length > 0 ? (
+                heroes.map((h, idx) => (
+                  <Heading
+                    key={h.id ?? idx}
+                    as={idx === activeIndex ? "h1" : "div"}
+                    fontSize={{ base: "52px", md: "72px", xl: "90px" }}
+                    color="#fff"
+                    fontWeight="700"
+                    lineHeight="1.05"
+                    letterSpacing="-1.8px"
+                    fontFamily="Plus Jakarta Sans"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 1 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.headlineLines && h.headlineLines.length > 0 ? (
+                      h.headlineLines.map((line, lIdx) => (
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || "#fff"}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
+                      ))
+                    ) : (
+                      <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
+                    )}
+                  </Heading>
+                ))
+              ) : null}
             </Box>
 
             {/* Subheadline with crossfade */}
             <Box position="relative" w="full" minH={{ base: "60px", md: "70px" }}>
-              {heroes.map((h, idx) => (
-                <Text
-                  key={h.id ?? idx}
-                  fontSize={{ base: "18px", md: "20px", xl: "21px" }}
-                  color="#ffffff"
-                  maxW="3xl"
-                  mx="auto"
-                  lineHeight="1.6"
-                  position={idx === 0 ? "relative" : "absolute"}
-                  top={0}
-                  left={0}
-                  right={0}
-                  opacity={idx === activeIndex ? 0.85 : 0}
-                  transition="opacity 0.6s ease-in-out"
-                  pointerEvents={idx === activeIndex ? "auto" : "none"}
-                >
-                  {h.subheadline}
-                </Text>
-              ))}
+              {loadingHero ? (
+                <VStack spacing={2.5} align="center" justify="center" w="full" maxW="3xl" mx="auto">
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="95%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="80%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "14px", md: "16px" }}
+                    w="55%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              ) : heroes.length > 0 ? (
+                heroes.map((h, idx) => (
+                  <Text
+                    key={h.id ?? idx}
+                    fontSize={{ base: "18px", md: "20px", xl: "21px" }}
+                    color="#ffffff"
+                    maxW="3xl"
+                    mx="auto"
+                    lineHeight="1.6"
+                    position={idx === 0 ? "relative" : "absolute"}
+                    top={0}
+                    left={0}
+                    right={0}
+                    opacity={idx === activeIndex ? 0.85 : 0}
+                    transition="opacity 0.6s ease-in-out"
+                    pointerEvents={idx === activeIndex ? "auto" : "none"}
+                  >
+                    {h.subheadline}
+                  </Text>
+                ))
+              ) : null}
             </Box>
 
             {/* CTA Button */}
-            {currentHero?.cta_text && currentHero?.cta_url && (
+            {!loadingHero && currentHero?.cta_text && currentHero?.cta_url && (
               <Button
                 as="a"
                 href={currentHero.cta_url}
@@ -373,7 +508,7 @@ export default function AboutPage() {
             )}
 
             {/* Carousel Dots */}
-            {showDots && (
+            {!loadingHero && showDots && (
               <HStack spacing={2.5} justify="center">
                 {heroes.map((_, idx) => (
                   <Box
@@ -401,286 +536,494 @@ export default function AboutPage() {
           justify="space-evenly"
           w="full"
           position="relative"
-          zIndex={1}
+          zIndex={2}
           pb={{ base: 4, md: 8 }}
         >
-          {stats.map((stat, index) => (
-            <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
-              {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
-              <VStack spacing={1.5}>
-                <Text
-                  fontSize={{ base: "16px", md: "18px", lg: "27px" }}
-                  fontWeight="600"
-                  color="var(--accent)"
-                  textTransform="uppercase"
-                >
-                  {stat.stat_label}
-                </Text>
-                <Text
-                  fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-                  fontWeight="700"
-                  color={bnw}
-                  fontFamily="Plus Jakarta Sans"
-                >
-                  {stat.stat_number}
-                </Text>
-              </VStack>
-            </HStack>
-          ))}
+          {loadingStats && stats.length === 0 ? (
+            [1, 2, 3].map((_, index) => (
+              <HStack key={index} spacing={{ base: 8, md: 20 }}>
+                {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+                <VStack spacing={2} align="center">
+                  <Skeleton
+                    h={{ base: "14px", md: "16px", lg: "20px" }}
+                    w={{ base: "65px", md: "85px", lg: "110px" }}
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                  <Skeleton
+                    h={{ base: "38px", md: "44px", lg: "50px" }}
+                    w={{ base: "75px", md: "95px", lg: "120px" }}
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              </HStack>
+            ))
+          ) : (
+            stats.map((stat, index) => (
+              <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+                {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+                <VStack spacing={1.5}>
+                  <Text
+                    fontSize={{ base: "16px", md: "18px", lg: "27px" }}
+                    fontWeight="600"
+                    color="var(--accent)"
+                    textTransform="uppercase"
+                  >
+                    {stat.stat_label}
+                  </Text>
+                  <Text
+                    fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                    fontWeight="700"
+                    color={bnw}
+                    fontFamily="Plus Jakarta Sans"
+                  >
+                    {stat.stat_number}
+                  </Text>
+                </VStack>
+              </HStack>
+            ))
+          )}
         </HStack>
       </Box>
 
       {/* ── About ER Communications ── */}
-      <Box py={{ base: 20, md: 28 }} background={bgGradient}>
-        <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
-          <Heading
-            fontSize={{ base: "2xl", md: "3xl", lg: "6xl" }}
-            color={headingColor}
-            fontWeight="400"
-            fontFamily="Plus Jakarta Sans"
-            mb={8}
-            dangerouslySetInnerHTML={{ __html: aboutSection.headline }}
-          />
-          <Text
-            fontSize={{ base: "sm", md: "lg" }}
-            color={textColor}
-            lineHeight="1.8"
-            maxW="4xl"
-            mx="auto"
-            dangerouslySetInnerHTML={{ __html: aboutSection.description }}
-          />
-        </Container>
-      </Box>
-
-      <Box
-        position="relative"
-        overflow="hidden"
-        bg={sectionBg}
-        _before={{
-          content: '""',
-          position: "absolute",
-          top: 0, left: 0, right: 0, bottom: 0,
-          background:
-            "radial-gradient(circle at 20% 40%, rgba(29, 78, 216, 0.25) 0%, transparent 40%), " +
-            "radial-gradient(circle at 80% 60%, rgba(194, 65, 12, 0.35) 0%, transparent 40%)",
-          zIndex: 0,
-        }}
-      >
-        {/* ── What Drives Section ── */}
-        <Box
-          py={{ base: 16, md: 24 }}
-        >
-          <Container maxW="7xl" px={{ base: 6, md: 8 }}>
-            <Flex
-              direction={{ base: "column", md: "row" }}
-              justify="space-between"
-              align={{ base: "flex-start", md: "center" }}
-              gap={{ base: 4, md: 6 }}
-              mb={{ base: 12, md: 16 }}
-            >
-              <Heading
-                fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
-                color={headingColor}
-                fontWeight="500"
-                fontFamily="Plus Jakarta Sans"
-                maxW={{ md: "70%" }}
-                lineHeight="1.15"
-              >
-                What drives ER Communications?
-              </Heading>
-              <Text
-                fontSize={{ base: "sm", md: "lg" }}
-                color={textColor}
-                maxW={{ md: "30%" }}
-                lineHeight="1.7"
-              >
-                Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
-                that align with each client&apos;s business objectives.
-              </Text>
-            </Flex>
-
-            <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
-              {features.map((feature, idx) => {
-                const FaIcon = getFaIconComponent(feature.icon);
-                return (
-                <GridItem key={idx}>
-                  <Box
-                    bg={cardBg}
-                    borderRadius="20px"
-                    p={{ base: 6, md: 10 }}
-                    h="full"
-                    _hover={{ bg: cardHoverBg }}
-                    transition="background 0.2s"
-                  >
-                    <HStack align="flex-start" spacing={5}>
-                      <Flex
-                        w="58px"
-                        h="58px"
-                        borderRadius="full"
-                        bg="#2563EB"
-                        align="center"
-                        justify="center"
-                        flexShrink={0}
-                      >
-                        {FaIcon ? (
-                          <Icon as={FaIcon} boxSize={{ base: 5, md: 7 }} color="#fff" />
-                        ) : (
-                          <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
-                        )}
-                      </Flex>
-                      <VStack align="flex-start" spacing={2}>
-                        <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color={headingColor}>
-                          {feature.title}
-                        </Text>
-                        <Text
-                          fontSize={{ base: "sm", md: "lg" }}
-                          color={descColor}
-                          lineHeight="1.7"
-                        >
-                          {feature.desc}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Box>
-                </GridItem>
-                );
-              })}
-            </Grid>
-          </Container>
-        </Box>
-
-        {/* ── Timeline Section ── */}
-        <Box
-          py={{ base: 20, md: 32 }}
-          position="relative"
-          overflow="hidden"
-          sx={{
-            "@keyframes floatParticle": {
-              "0%": { transform: "translate(0, 0)" },
-              "50%": { transform: "translate(9px, -10px)" },
-              "100%": { transform: "translate(-9px, 8px)" },
-            },
-          }}
-        >
-          <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
-            {particles.map((p, i) => (
-              <Box
-                key={i}
-                position="absolute"
-                top={p.top}
-                left={p.left}
-                w={p.size}
-                h={p.size}
-                borderRadius="full"
-                bg={p.color}
-                opacity={p.opacity}
-                sx={{
-                  animation: `${p.duration} ease-in-out infinite alternate`,
-                  animationName: "floatParticle",
-                  animationDelay: p.delay,
-                }}
+      {loadingAbout ? (
+        <Box py={{ base: 20, md: 28 }} background={bgGradient}>
+          <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
+            <Skeleton
+              h={{ base: "32px", md: "48px" }}
+              w="60%"
+              mx="auto"
+              mb={8}
+              borderRadius="md"
+              startColor={skeletonStartColor}
+              endColor={skeletonEndColor}
+            />
+            <VStack spacing={3} maxW="4xl" mx="auto">
+              <Skeleton
+                h="18px"
+                w="100%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
               />
-            ))}
-          </Box>
-
-          <Container maxW="4xl" position="relative" zIndex={1}>
-            <VStack spacing={20} align="center">
-              {/* Title */}
-              <VStack spacing={4} textAlign="center">
-                <Heading
-                  fontSize={{ base: "xl", md: "5xl" }}
-                  fontWeight="600"
-                  color={headingColor}
-                  fontFamily="Plus Jakarta Sans"
-                >
-                  {timelineSettings?.title ?? "Timeline"}
-                </Heading>
-                <Text fontSize={{ base: "sm", md: "lg" }} color={textColor} lineHeight="1.8" maxW="600px">
-                  {timelineSettings?.description ??
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mattis vivamus at mattis bibendum congue cras id interdum. Risus leo et."}
-                </Text>
-              </VStack>
-
-              {/* Vertical Timeline Centered */}
-              <Box position="relative" w="full" maxW="8xl" mx="auto">
-                {/* Central Line */}
-                <Box
-                  position="absolute"
-                  left={{ base: '3%', md: '50%' }}
-                  top="0"
-                  bottom="0"
-                  w="3px"
-                  rounded="full"
-                  bg={lineBg}
-                  transform="translateX(-50%)"
-                />
-
-                <VStack spacing={{ base: 10, md: 16 }} align="stretch" w="full" position="relative">
-                  {timelineItems.map((item, idx) => {
-                    const isRight = idx % 2 === 0; // genap (0,2,...) -> kanan; ganjil -> kiri
-                    return (
-                      <Flex key={idx} w="full" justify={{ base: 'start', md: 'center'}} position="relative">
-                        {/* Dot */}
-                        <Box
-                          position="absolute"
-                          left={{ base: '3%', md: '50%' }}
-                          top="12px"
-                          w={{ base: '12px', md: '20px'}}
-                          h={{ base: '12px', md: '20px'}}
-                          borderRadius="full"
-                          bg={dotColor}
-                          transform="translateX(-50%)"
-                          zIndex={2}
-                        />
-
-                        {/* Content Left or Right */}
-                        <Box
-                          w={{ base: 'full', md: "50%" }}
-                          ml={isRight ? { base: '0', md: "50%" } : { base: '0', md: "-50%" }}
-                          pl={isRight ? { base: '40px', md: 10 } : '40px'}
-                          pr={isRight ? 0 : { base: 0, md: 10 }}
-                        >
-                          <VStack
-                            align={isRight ? "flex-start" : {base: 'flex-start', md: "flex-end"}}
-                            spacing={1}
-                            textAlign={isRight ? "left" : {base: 'left', md: "right"}}
-                          >
-                            <Text
-                              fontSize={{ base: "20px", md: "2xl" }}
-                              fontWeight="700"
-                              color={headingColor}
-                              fontFamily="Plus Jakarta Sans"
-                            >
-                              {item.year}
-                            </Text>
-                            <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color={headingColor}>
-                              {item.title}
-                            </Text>
-                            <Text
-                              fontSize={{ base: "sm", md: "lg" }}
-                              color={descColor}
-                              lineHeight="1.6"
-                            >
-                              {item.desc}
-                            </Text>
-                          </VStack>
-                        </Box>
-                      </Flex>
-                    );
-                  })}
-                </VStack>
-              </Box>
+              <Skeleton
+                h="18px"
+                w="95%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+              <Skeleton
+                h="18px"
+                w="80%"
+                borderRadius="md"
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
             </VStack>
           </Container>
         </Box>
-      </Box>
+      ) : aboutSection?.headline ? (
+        <Box py={{ base: 20, md: 28 }} background={bgGradient}>
+          <Container maxW="4xl" px={{ base: 6, md: 8 }} textAlign="center">
+            <Heading
+              fontSize={{ base: "2xl", md: "3xl", lg: "6xl" }}
+              color={headingColor}
+              fontWeight="400"
+              fontFamily="Plus Jakarta Sans"
+              mb={8}
+              dangerouslySetInnerHTML={{ __html: aboutSection.headline }}
+            />
+            <Text
+              fontSize={{ base: "sm", md: "lg" }}
+              color={textColor}
+              lineHeight="1.8"
+              maxW="4xl"
+              mx="auto"
+              dangerouslySetInnerHTML={{ __html: aboutSection.description }}
+            />
+          </Container>
+        </Box>
+      ) : null}
+
+      {(loadingFeatures || features.length > 0 || loadingMilestones || timelineItems.length > 0) && (
+        <Box
+          position="relative"
+          overflow="hidden"
+          bg={sectionBg}
+          _before={{
+            content: '""',
+            position: "absolute",
+            top: 0, left: 0, right: 0, bottom: 0,
+            background:
+              "radial-gradient(circle at 20% 40%, rgba(29, 78, 216, 0.25) 0%, transparent 40%), " +
+              "radial-gradient(circle at 80% 60%, rgba(194, 65, 12, 0.35) 0%, transparent 40%)",
+            zIndex: 0,
+          }}
+        >
+          {/* ── What Drives Section ── */}
+          {loadingFeatures ? (
+            <Box py={{ base: 16, md: 24 }}>
+              <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+                <Flex
+                  direction={{ base: "column", md: "row" }}
+                  justify="space-between"
+                  align={{ base: "flex-start", md: "center" }}
+                  gap={{ base: 4, md: 6 }}
+                  mb={{ base: 12, md: 16 }}
+                >
+                  <Heading
+                    fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
+                    color={headingColor}
+                    fontWeight="500"
+                    fontFamily="Plus Jakarta Sans"
+                    maxW={{ md: "70%" }}
+                    lineHeight="1.15"
+                  >
+                    What drives ER Communications?
+                  </Heading>
+                  <Text
+                    fontSize={{ base: "sm", md: "lg" }}
+                    color={textColor}
+                    maxW={{ md: "30%" }}
+                    lineHeight="1.7"
+                  >
+                    Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
+                    that align with each client&apos;s business objectives.
+                  </Text>
+                </Flex>
+
+                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
+                  {[0, 1, 2, 3].map((idx) => (
+                    <GridItem key={idx}>
+                      <Box
+                        bg={cardBg}
+                        borderRadius="20px"
+                        p={{ base: 6, md: 10 }}
+                        h="full"
+                      >
+                        <HStack align="flex-start" spacing={5}>
+                          <Skeleton
+                            w="58px"
+                            h="58px"
+                            borderRadius="full"
+                            flexShrink={0}
+                            startColor={skeletonStartColor}
+                            endColor={skeletonEndColor}
+                          />
+                          <VStack align="flex-start" spacing={3} w="full">
+                            <Skeleton
+                              h="22px"
+                              w="50%"
+                              borderRadius="md"
+                              startColor={skeletonStartColor}
+                              endColor={skeletonEndColor}
+                            />
+                            <Skeleton
+                              h="16px"
+                              w="90%"
+                              borderRadius="md"
+                              startColor={skeletonStartColor}
+                              endColor={skeletonEndColor}
+                            />
+                            <Skeleton
+                              h="16px"
+                              w="75%"
+                              borderRadius="md"
+                              startColor={skeletonStartColor}
+                              endColor={skeletonEndColor}
+                            />
+                          </VStack>
+                        </HStack>
+                      </Box>
+                    </GridItem>
+                  ))}
+                </Grid>
+              </Container>
+            </Box>
+          ) : features.length > 0 ? (
+            <Box py={{ base: 16, md: 24 }}>
+              <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+                <Flex
+                  direction={{ base: "column", md: "row" }}
+                  justify="space-between"
+                  align={{ base: "flex-start", md: "center" }}
+                  gap={{ base: 4, md: 6 }}
+                  mb={{ base: 12, md: 16 }}
+                >
+                  <Heading
+                    fontSize={{ base: "28px", md: "38px", lg: "5xl" }}
+                    color={headingColor}
+                    fontWeight="500"
+                    fontFamily="Plus Jakarta Sans"
+                    maxW={{ md: "70%" }}
+                    lineHeight="1.15"
+                  >
+                    What drives ER Communications?
+                  </Heading>
+                  <Text
+                    fontSize={{ base: "sm", md: "lg" }}
+                    color={textColor}
+                    maxW={{ md: "30%" }}
+                    lineHeight="1.7"
+                  >
+                    Becoming a pioneer PR Agency national &amp; international. Offering tailored solutions
+                    that align with each client&apos;s business objectives.
+                  </Text>
+                </Flex>
+
+                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={5}>
+                  {features.map((feature, idx) => {
+                    const FaIcon = getFaIconComponent(feature.icon);
+                    return (
+                      <GridItem key={idx}>
+                        <Box
+                          bg={cardBg}
+                          borderRadius="20px"
+                          p={{ base: 6, md: 10 }}
+                          h="full"
+                          _hover={{ bg: cardHoverBg }}
+                          transition="background 0.2s"
+                        >
+                          <HStack align="flex-start" spacing={5}>
+                            <Flex
+                              w="58px"
+                              h="58px"
+                              borderRadius="full"
+                              bg="#2563EB"
+                              align="center"
+                              justify="center"
+                              flexShrink={0}
+                            >
+                              {FaIcon ? (
+                                <Icon as={FaIcon} boxSize={{ base: 5, md: 7 }} color="#fff" />
+                              ) : (
+                                <Image src={feature.icon} alt="Feature" width={{ base: 6, md: 14 }} height={{ base: 6, md: 8 }} />
+                              )}
+                            </Flex>
+                            <VStack align="flex-start" spacing={2}>
+                              <Text fontSize={{ base: "md", md: "xl" }} fontWeight="500" color={headingColor}>
+                                {feature.title}
+                              </Text>
+                              <Text
+                                fontSize={{ base: "sm", md: "lg" }}
+                                color={descColor}
+                                lineHeight="1.7"
+                              >
+                                {feature.desc}
+                              </Text>
+                            </VStack>
+                          </HStack>
+                        </Box>
+                      </GridItem>
+                    );
+                  })}
+                </Grid>
+              </Container>
+            </Box>
+          ) : null}
+
+          {/* ── Milestones Timeline Section ── */}
+          {loadingMilestones ? (
+            <Box py={{ base: 20, md: 32 }} position="relative" overflow="hidden">
+              <Container maxW="4xl" position="relative" zIndex={1}>
+                <VStack spacing={12} align="center">
+                  <VStack spacing={4} textAlign="center" w="full">
+                    <Skeleton
+                      h="36px"
+                      w="180px"
+                      mx="auto"
+                      borderRadius="md"
+                      startColor={skeletonStartColor}
+                      endColor={skeletonEndColor}
+                    />
+                    <Skeleton
+                      h="18px"
+                      w="70%"
+                      mx="auto"
+                      borderRadius="md"
+                      startColor={skeletonStartColor}
+                      endColor={skeletonEndColor}
+                    />
+                  </VStack>
+                  <VStack spacing={8} align="stretch" w="full">
+                    {[0, 1, 2].map((idx) => (
+                      <HStack key={idx} spacing={6} align="flex-start">
+                        <Skeleton
+                          w="18px"
+                          h="18px"
+                          borderRadius="full"
+                          mt={1}
+                          flexShrink={0}
+                          startColor={skeletonStartColor}
+                          endColor={skeletonEndColor}
+                        />
+                        <VStack align="flex-start" spacing={2} flex={1}>
+                          <Skeleton
+                            h="24px"
+                            w="80px"
+                            borderRadius="md"
+                            startColor={skeletonStartColor}
+                            endColor={skeletonEndColor}
+                          />
+                          <Skeleton
+                            h="20px"
+                            w="200px"
+                            borderRadius="md"
+                            startColor={skeletonStartColor}
+                            endColor={skeletonEndColor}
+                          />
+                          <Skeleton
+                            h="16px"
+                            w="85%"
+                            borderRadius="md"
+                            startColor={skeletonStartColor}
+                            endColor={skeletonEndColor}
+                          />
+                        </VStack>
+                      </HStack>
+                    ))}
+                  </VStack>
+                </VStack>
+              </Container>
+            </Box>
+          ) : timelineItems.length > 0 ? (
+            <Box
+              py={{ base: 20, md: 32 }}
+              position="relative"
+              overflow="hidden"
+              sx={{
+                "@keyframes floatParticle": {
+                  "0%": { transform: "translate(0, 0)" },
+                  "50%": { transform: "translate(9px, -10px)" },
+                  "100%": { transform: "translate(-9px, 8px)" },
+                },
+              }}
+            >
+              <Box position="absolute" inset={0} zIndex={0} pointerEvents="none" overflow="hidden">
+                {particles.map((p, i) => (
+                  <Box
+                    key={i}
+                    position="absolute"
+                    top={p.top}
+                    left={p.left}
+                    w={p.size}
+                    h={p.size}
+                    borderRadius="full"
+                    bg={p.color}
+                    opacity={p.opacity}
+                    sx={{
+                      animation: `${p.duration} ease-in-out infinite alternate`,
+                      animationName: "floatParticle",
+                      animationDelay: p.delay,
+                    }}
+                  />
+                ))}
+              </Box>
+
+              <Container maxW="4xl" position="relative" zIndex={1}>
+                <VStack spacing={20} align="center">
+                  {/* Title */}
+                  <VStack spacing={4} textAlign="center">
+                    <Heading
+                      fontSize={{ base: "xl", md: "5xl" }}
+                      fontWeight="600"
+                      color={headingColor}
+                      fontFamily="Plus Jakarta Sans"
+                    >
+                      {timelineSettings?.title ?? "Timeline"}
+                    </Heading>
+                    <Text fontSize={{ base: "sm", md: "lg" }} color={textColor} lineHeight="1.8" maxW="600px">
+                      {timelineSettings?.description ?? ""}
+                    </Text>
+                  </VStack>
+
+                  {/* Vertical Timeline Centered */}
+                  <Box position="relative" w="full" maxW="8xl" mx="auto">
+                    {/* Central Line */}
+                    <Box
+                      position="absolute"
+                      left={{ base: '3%', md: '50%' }}
+                      top="0"
+                      bottom="0"
+                      w="3px"
+                      rounded="full"
+                      bg={lineBg}
+                      transform="translateX(-50%)"
+                    />
+
+                    <VStack spacing={{ base: 10, md: 16 }} align="stretch" w="full" position="relative">
+                      {timelineItems.map((item, idx) => {
+                        const isRight = idx % 2 === 0;
+                        return (
+                          <Flex key={idx} w="full" justify={{ base: 'start', md: 'center'}} position="relative">
+                            {/* Dot */}
+                            <Box
+                              position="absolute"
+                              left={{ base: '3%', md: '50%' }}
+                              top="12px"
+                              w={{ base: '12px', md: '20px'}}
+                              h={{ base: '12px', md: '20px'}}
+                              borderRadius="full"
+                              bg={dotColor}
+                              transform="translateX(-50%)"
+                              zIndex={2}
+                            />
+
+                            {/* Content Left or Right */}
+                            <Box
+                              w={{ base: 'full', md: "50%" }}
+                              ml={isRight ? { base: '0', md: "50%" } : { base: '0', md: "-50%" }}
+                              pl={isRight ? { base: '40px', md: 10 } : '40px'}
+                              pr={isRight ? 0 : { base: 0, md: 10 }}
+                            >
+                              <VStack
+                                align={isRight ? "flex-start" : {base: 'flex-start', md: "flex-end"}}
+                                spacing={1}
+                                textAlign={isRight ? "left" : {base: 'left', md: "right"}}
+                              >
+                                <Text
+                                  fontSize={{ base: "20px", md: "2xl" }}
+                                  fontWeight="700"
+                                  color={headingColor}
+                                  fontFamily="Plus Jakarta Sans"
+                                >
+                                  {item.year}
+                                </Text>
+                                <Text fontSize={{ base: "md", md: "xl" }} fontWeight="600" color={headingColor}>
+                                  {item.title}
+                                </Text>
+                                <Text
+                                  fontSize={{ base: "sm", md: "lg" }}
+                                  color={descColor}
+                                  lineHeight="1.6"
+                                >
+                                  {item.desc}
+                                </Text>
+                              </VStack>
+                            </Box>
+                          </Flex>
+                        );
+                      })}
+                    </VStack>
+                  </Box>
+                </VStack>
+              </Container>
+            </Box>
+          ) : null}
+        </Box>
+      )}
 
       <Suspense fallback={null}>
         <ServicesListSection />
       </Suspense>
 
       {/* ── Additional Sections ── */}
-      <TimelineSection intro={timelineIntro} />
+      <TimelineSection intro={timelineIntro} items={timelinePages} isLoading={loadingTimeline} />
       <PartnersSection logos={partnerLogos} />
       <ContactSection />
       <FooterSection />

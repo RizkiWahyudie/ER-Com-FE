@@ -9,16 +9,10 @@ import {
   Heading,
   Text,
   HStack,
-  useColorModeValue
+  Skeleton,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { getHeroSection, getStatsSection, sanitizeRichText } from "@/lib/api";
-
-const FALLBACK_HEADLINE =
-  'We are Building <span style="color:var(--accent)">Trust</span>.<br/>Driving Impact.';
-const FALLBACK_SUBHEADLINE =
-  "We help businesses communicate with confidence through strategic PR and " +
-  "communication solutions. At ER Communication, we share our knowledge to " +
-  "strengthen reputation and drive meaningful impact.";
 
 const AUTO_SLIDE_INTERVAL = 4000;
 
@@ -26,20 +20,45 @@ export default function HeroSection() {
   const [heroes, setHeroes] = useState([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [stats, setStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
   const timerRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     getHeroSection("home")
       .then((data) => {
-        if (data.length > 0) {
+        if (!isMounted) return;
+        if (Array.isArray(data) && data.length > 0) {
           setHeroes(data);
         } else {
           setHeroes([]);
         }
       })
-      .catch(() => setHeroes([]));
+      .catch(() => {
+        if (isMounted) setHeroes([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
 
-    getStatsSection().then(setStats);
+    getStatsSection()
+      .then((data) => {
+        if (isMounted && Array.isArray(data)) {
+          setStats(data);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setStats([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingStats(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Auto-slide timer — only when there are multiple slides
@@ -64,7 +83,7 @@ export default function HeroSection() {
     startTimer();
   };
 
-  // Resolve the currently displayed hero, or use fallback values
+  // Resolve the currently displayed hero
   const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
 
@@ -73,6 +92,8 @@ export default function HeroSection() {
     "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%  )"
   );
   const bnw = useColorModeValue("#000", "#fff");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   return (
     <Box
@@ -83,70 +104,60 @@ export default function HeroSection() {
       flexDirection="column"
       alignItems="center"
       justifyContent="space-between"
+      bg="var(--background)"
+      overflow="hidden"
     >
       {/* Background Media — stacked for crossfade */}
-      {heroes.length > 0 ? (
-        heroes.map((hero, idx) =>
-          hero.background_media_type === 'video' ? (
-            <Box
-              key={hero.id ?? idx}
-              position="absolute"
-              top={0}
-              left={0}
-              right={0}
-              bottom={0}
-              opacity={idx === activeIndex ? 1 : 0}
-              transition="opacity 0.8s ease-in-out"
-              zIndex={-2}
-              overflow="hidden"
-            >
-              <video
-                src={hero.backgroundImage}
-                autoPlay
-                loop
-                muted
-                playsInline
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  pointerEvents: 'none',
-                }}
+      {!loading && heroes.length > 0
+        ? heroes.map((hero, idx) =>
+            hero.background_media_type === "video" ? (
+              <Box
+                key={hero.id ?? idx}
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                opacity={idx === activeIndex ? 1 : 0}
+                transition="opacity 0.8s ease-in-out"
+                zIndex={0}
+                overflow="hidden"
+              >
+                <video
+                  src={hero.backgroundImage}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    pointerEvents: "none",
+                  }}
+                />
+              </Box>
+            ) : hero.backgroundImage ? (
+              <Box
+                key={hero.id ?? idx}
+                position="absolute"
+                top={0}
+                left={0}
+                right={0}
+                bottom={0}
+                backgroundImage={`url('${hero.backgroundImage}')`}
+                backgroundSize="cover"
+                backgroundPosition="center"
+                opacity={idx === activeIndex ? 1 : 0}
+                transition="opacity 0.8s ease-in-out"
+                zIndex={0}
               />
-            </Box>
-          ) : (
-            <Box
-              key={hero.id ?? idx}
-              position="absolute"
-              top={0}
-              left={0}
-              right={0}
-              bottom={0}
-              backgroundImage={`url('${hero.backgroundImage || "/assets/hero/hero-bg-new.png"}')`}
-              backgroundSize="cover"
-              backgroundPosition="center"
-              opacity={idx === activeIndex ? 1 : 0}
-              transition="opacity 0.8s ease-in-out"
-              zIndex={-2}
-            />
+            ) : null
           )
-        )
-      ) : (
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          backgroundImage="url('/assets/hero/hero-bg-new.png')"
-          backgroundSize="cover"
-          backgroundPosition="center"
-          zIndex={-2}
-        />
-      )}
+        : null}
 
       {/* Overlay */}
       <Box
@@ -156,27 +167,63 @@ export default function HeroSection() {
         right={0}
         bottom={0}
         background={overlay}
-        zIndex={-1}
+        opacity={!loading && heroes.length > 0 ? 1 : 0}
+        transition="opacity 0.8s ease-in-out"
+        zIndex={1}
+        pointerEvents="none"
       />
 
       <HStack
         spacing={{ base: 8, md: 20 }}
         justify="center"
         flexDir={{ base: "column", md: "row" }}
-      >
-      </HStack>
+      />
 
       {/* Content */}
-      <Container maxW="7xl" w="full" position="relative" zIndex={0} px={{ base: 6, md: 6 }} mx="auto">
+      <Container
+        maxW="7xl"
+        w="full"
+        position="relative"
+        zIndex={2}
+        px={{ base: 6, md: 6 }}
+        mx="auto"
+      >
         <VStack
           spacing={{ base: 6, md: 8, lg: 12 }}
           align="center"
           textAlign="center"
           w="full"
         >
-          {/* Main Heading — crossfade between slides */}
+          {/* Main Heading */}
           <Box position="relative" w="full" minH={{ base: "100px", md: "140px" }}>
-            {heroes.length > 0 ? (
+            {loading ? (
+              <VStack
+                spacing={{ base: 3, md: 4 }}
+                align="center"
+                justify="center"
+                w="full"
+                maxW="4xl"
+                mx="auto"
+                py={1}
+              >
+                <Skeleton
+                  h={{ base: "38px", md: "52px", lg: "62px" }}
+                  w={{ base: "85%", md: "70%", lg: "60%" }}
+                  maxW="720px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "38px", md: "52px", lg: "62px" }}
+                  w={{ base: "65%", md: "50%", lg: "42%" }}
+                  maxW="480px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+            ) : heroes.length > 0 ? (
               heroes.map((hero, idx) => (
                 <Heading
                   key={hero.id ?? idx}
@@ -194,26 +241,66 @@ export default function HeroSection() {
                   opacity={idx === activeIndex ? 1 : 0}
                   transition="opacity 0.6s ease-in-out"
                   pointerEvents={idx === activeIndex ? "auto" : "none"}
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero.headline) || FALLBACK_HEADLINE }}
-                />
+                >
+                  {hero.headlineLines && hero.headlineLines.length > 0 ? (
+                    hero.headlineLines.map((line, lIdx) => (
+                      <Text
+                        as="span"
+                        display="block"
+                        key={lIdx}
+                        color={line.color || "#fff"}
+                        dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                      />
+                    ))
+                  ) : (
+                    <Text
+                      as="span"
+                      display="block"
+                      color="#fff"
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeRichText(hero.headline),
+                      }}
+                    />
+                  )}
+                </Heading>
               ))
-            ) : (
-              <Heading
-                as="h1"
-                fontSize={{ base: "42px", md: "56px", lg: "64px" }}
-                color="#fff"
-                fontWeight="700"
-                lineHeight="1.15"
-                letterSpacing="-1px"
-                fontFamily="Plus Jakarta Sans"
-                dangerouslySetInnerHTML={{ __html: FALLBACK_HEADLINE }}
-              />
-            )}
+            ) : null}
           </Box>
 
-          {/* Subtitle — crossfade between slides */}
+          {/* Subtitle */}
           <Box position="relative" w="full" minH={{ base: "50px", md: "60px" }}>
-            {heroes.length > 0 ? (
+            {loading ? (
+              <VStack
+                spacing={2.5}
+                align="center"
+                justify="center"
+                w="full"
+                maxW="2xl"
+                mx="auto"
+              >
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="95%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="80%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="55%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+            ) : heroes.length > 0 ? (
               heroes.map((hero, idx) => (
                 <Text
                   key={hero.id ?? idx}
@@ -229,23 +316,16 @@ export default function HeroSection() {
                   opacity={idx === activeIndex ? 1 : 0}
                   transition="opacity 0.6s ease-in-out"
                   pointerEvents={idx === activeIndex ? "auto" : "none"}
-                  dangerouslySetInnerHTML={{ __html: sanitizeRichText(hero.subheadline) || FALLBACK_SUBHEADLINE }}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeRichText(hero.subheadline),
+                  }}
                 />
               ))
-            ) : (
-              <Text
-                fontSize={{ base: "sm", md: "16px", lg: "18px" }}
-                color="#a0aab8"
-                maxW="2xl"
-                mx="auto"
-                lineHeight="1.6"
-                dangerouslySetInnerHTML={{ __html: FALLBACK_SUBHEADLINE }}
-              />
-            )}
+            ) : null}
           </Box>
 
           {/* CTA Button */}
-          {currentHero?.cta_text && currentHero?.cta_url && (
+          {!loading && currentHero?.cta_text && currentHero?.cta_url && (
             <Button
               as="a"
               href={currentHero.cta_url}
@@ -277,7 +357,7 @@ export default function HeroSection() {
           )}
 
           {/* Carousel Dots */}
-          {showDots && (
+          {!loading && showDots && (
             <HStack spacing={2.5} justify="center">
               {heroes.map((_, idx) => (
                 <Box
@@ -303,31 +383,57 @@ export default function HeroSection() {
         justify="space-evenly"
         flexDir="row"
         pb={{ base: 4, md: 8 }}
-        w={{ xl:"7xl" }}
+        w={{ xl: "7xl" }}
+        position="relative"
+        zIndex={2}
       >
-        {stats.map((stat, index) => (
-          <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
-            {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
-            <VStack spacing={1.5}>
-              <Text
-                fontSize={{ base: "13px", md: "15px", lg: "24px" }}
-                fontWeight="600"
-                color="var(--accent)"
-                textTransform="uppercase"
-              >
-                {stat.stat_label}
-              </Text>
-              <Text
-                fontSize={{ base: "42px", md: "48px", lg: "52px" }}
-                fontWeight="700"
-                color={bnw}
-                fontFamily="Plus Jakarta Sans"
-              >
-                {stat.stat_number}
-              </Text>
-            </VStack>
-          </HStack>
-        ))}
+        {loadingStats && stats.length === 0 ? (
+          [1, 2, 3].map((_, index) => (
+            <HStack key={index} spacing={{ base: 8, md: 20 }}>
+              {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+              <VStack spacing={2} align="center">
+                <Skeleton
+                  h={{ base: "13px", md: "15px", lg: "20px" }}
+                  w={{ base: "65px", md: "85px", lg: "110px" }}
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "38px", md: "44px", lg: "50px" }}
+                  w={{ base: "75px", md: "95px", lg: "120px" }}
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+            </HStack>
+          ))
+        ) : (
+          stats.map((stat, index) => (
+            <HStack key={stat.id ?? stat.stat_label} spacing={{ base: 8, md: 20 }}>
+              {index > 0 && <Box w="1px" h="120px" bg="rgba(255, 255, 255, 0.15)" />}
+              <VStack spacing={1.5}>
+                <Text
+                  fontSize={{ base: "13px", md: "15px", lg: "24px" }}
+                  fontWeight="600"
+                  color="var(--accent)"
+                  textTransform="uppercase"
+                >
+                  {stat.stat_label}
+                </Text>
+                <Text
+                  fontSize={{ base: "42px", md: "48px", lg: "52px" }}
+                  fontWeight="700"
+                  color={bnw}
+                  fontFamily="Plus Jakarta Sans"
+                >
+                  {stat.stat_number}
+                </Text>
+              </VStack>
+            </HStack>
+          ))
+        )}
       </HStack>
     </Box>
   );

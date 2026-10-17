@@ -12,6 +12,7 @@ import {
   Flex,
   Icon,
   Portal,
+  Skeleton,
   useColorModeValue
 } from "@chakra-ui/react";
 import {
@@ -512,20 +513,35 @@ export default function HighlightGallery() {
   const [videoSlide, setVideoSlide] = useState(0);
   const marqueeRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
-  const [videos, setVideos] = useState(FALLBACK_VIDEOS);
-  const [galleryPhotos, setGalleryPhotos] = useState(FALLBACK_GALLERY_PHOTOS);
+  const [videos, setVideos] = useState([]);
+  const [galleryPhotos, setGalleryPhotos] = useState([]);
+  const [loadingGallery, setLoadingGallery] = useState(true);
 
   useEffect(() => {
-    getHighlightGallery().then(({ photos, videos: apiVideos }) => {
-      if (photos.length > 0) setGalleryPhotos(photos);
-      if (apiVideos.length > 0) setVideos(apiVideos);
-    });
+    getHighlightGallery()
+      .then(({ photos, videos: apiVideos }) => {
+        setGalleryPhotos(
+          Array.isArray(photos) && photos.length > 0 ? photos : FALLBACK_GALLERY_PHOTOS
+        );
+        setVideos(
+          Array.isArray(apiVideos) && apiVideos.length > 0 ? apiVideos : FALLBACK_VIDEOS
+        );
+      })
+      .catch(() => {
+        setGalleryPhotos(FALLBACK_GALLERY_PHOTOS);
+        setVideos(FALLBACK_VIDEOS);
+      })
+      .finally(() => setLoadingGallery(false));
   }, []);
 
-  const prevVideo = () =>
+  const prevVideo = () => {
+    if (videos.length === 0) return;
     setVideoSlide((i) => (i - 1 + videos.length) % videos.length);
-  const nextVideo = () =>
+  };
+  const nextVideo = () => {
+    if (videos.length === 0) return;
     setVideoSlide((i) => (i + 1) % videos.length);
+  };
 
   // Duplicate photos for seamless marquee
   const marqueePhotos = [...galleryPhotos, ...galleryPhotos];
@@ -534,6 +550,57 @@ export default function HighlightGallery() {
   const bnw = useColorModeValue("#000", "#fff");
   const sectionBg = useColorModeValue("#fff", "#05060A");
   const subHeading = useColorModeValue("#000", "rgba(255,255,255,0.7)");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
+
+
+  if (loadingGallery) {
+    return (
+      <Box bg={sectionBg} py={{ base: 12, md: 20 }} overflow="hidden">
+        <Container maxW="7xl" px={{ base: 6, md: 8 }}>
+          <VStack spacing={4} align="center" textAlign="center" mb={{ base: 10, md: 16 }}>
+            <Skeleton
+              h={{ base: "32px", md: "56px" }}
+              w={{ base: "260px", md: "460px" }}
+              borderRadius="md"
+              startColor={skeletonStartColor}
+              endColor={skeletonEndColor}
+            />
+            <Skeleton
+              h="16px"
+              w={{ base: "200px", md: "380px" }}
+              borderRadius="md"
+              startColor={skeletonStartColor}
+              endColor={skeletonEndColor}
+            />
+          </VStack>
+          <Skeleton
+            h={{ base: "240px", md: "480px" }}
+            w="full"
+            borderRadius="20px"
+            mb={{ base: 10, md: 16 }}
+            startColor={skeletonStartColor}
+            endColor={skeletonEndColor}
+          />
+          <Flex gap={4} overflow="hidden">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <Skeleton
+                key={i}
+                w={{ base: "180px", md: "260px" }}
+                h={{ base: "130px", md: "180px" }}
+                borderRadius="16px"
+                flexShrink={0}
+                startColor={skeletonStartColor}
+                endColor={skeletonEndColor}
+              />
+            ))}
+          </Flex>
+        </Container>
+      </Box>
+    );
+  }
+
+  const currentVideo = videos[videoSlide] ?? null;
 
   return (
     <Box bg={sectionBg} py={{ base: 12, md: 20 }} overflow="hidden">
@@ -565,6 +632,7 @@ export default function HighlightGallery() {
       </Container>
 
       {/* ── Section 1: Video Slider ── */}
+      {videos.length > 0 && currentVideo && (
       <Container maxW="7xl" px={{ base: 6, md: 8 }} mb={{ base: 10, md: 16 }}>
         <Box position="relative" borderRadius="20px" overflow="hidden">
           {/* Current video thumbnail */}
@@ -707,8 +775,10 @@ export default function HighlightGallery() {
           </HStack>
         </Box>
       </Container>
+      )}
 
       {/* ── Section 2: Photo Gallery Marquee ── */}
+      {galleryPhotos.length > 0 && (
       <Box
         position="relative"
         w="full"
@@ -881,6 +951,7 @@ export default function HighlightGallery() {
           })}
         </Flex>
       </Box>
+      )}
 
       {/* ── Popups ── */}
       {videoPopupIdx !== null && (

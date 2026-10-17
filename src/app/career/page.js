@@ -13,6 +13,7 @@ import {
   Flex,
   Select,
   useToast,
+  Skeleton,
   useColorModeValue,
 } from "@chakra-ui/react";
 import Navbar from "@/components/Navbar";
@@ -98,7 +99,8 @@ export default function CareerPage() {
     },
   };
 
-  const [heroes, setHeroes] = useState([FALLBACK_HERO]);
+  const [heroes, setHeroes] = useState([]);
+  const [loadingHero, setLoadingHero] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const timerRef = useRef(null);
   const [jobs, setJobs] = useState(FALLBACK_JOBS);
@@ -124,9 +126,16 @@ export default function CareerPage() {
       }
     });
 
-    getHeroSection("career").then((apiHeroes) => {
-      if (apiHeroes.length > 0) setHeroes(apiHeroes);
-    });
+    getHeroSection("career")
+      .then((apiHeroes) => {
+        if (apiHeroes.length > 0) {
+          setHeroes(apiHeroes);
+        } else {
+          setHeroes([FALLBACK_HERO]);
+        }
+      })
+      .catch(() => setHeroes([FALLBACK_HERO]))
+      .finally(() => setLoadingHero(false));
   }, []);
 
   const startTimer = useCallback(() => {
@@ -150,8 +159,15 @@ export default function CareerPage() {
   };
 
   const hasBg = heroes.length > 0 && heroes.some((h) => Boolean(h.hasBgImage || h.backgroundImage));
-  const currentHero = heroes[activeIndex] ?? heroes[0] ?? FALLBACK_HERO;
+  const currentHero = heroes[activeIndex] ?? null;
   const showDots = heroes.length > 1;
+
+  const bgOverlay = useColorModeValue(
+    "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(255, 255, 255, 0.3) 75%,rgba(255, 255, 255, 0.97) 90%,rgba(255, 255, 255, 1) 100%)",
+    "radial-gradient(ellipse at center bottom, rgba(5, 6, 10, 0) 0%, rgba(5, 6, 10, 0) 85%), linear-gradient(180deg,rgba(5, 6, 10, 0) 0%,rgba(5, 6, 10, 0.1) 30%,rgba(5, 6, 10, 0.2) 60%,rgba(5, 6, 10, 0.3) 75%,rgba(5, 6, 10, 0.97) 90%,rgba(5, 6, 10, 1) 100%)"
+  );
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   const [errors, setErrors] = useState({});
   const [isDragActive, setIsDragActive] = useState(false);
@@ -318,7 +334,7 @@ export default function CareerPage() {
       <Navbar />
 
       {/* ── Hero Section ── */}
-      {hasBg ? (
+      {loadingHero ? (
         <Box
           position="relative"
           w="full"
@@ -329,6 +345,83 @@ export default function CareerPage() {
           justifyContent="center"
           pt={{ base: "140px", md: "180px" }}
           pb={{ base: 12, md: 16 }}
+          bg="var(--background)"
+          overflow="hidden"
+        >
+          <Container maxW="7xl" px={{ base: 6, md: 8 }} textAlign="center" position="relative" zIndex={2}>
+            <VStack spacing={{ base: 5, md: 8 }} align="center" textAlign="center" w="full">
+              <Box
+                display="inline-block"
+                bg="linear-gradient(135deg, #E53E3E 0%, #e09f74ff 100%)"
+                color="#fff"
+                fontSize="lg"
+                fontWeight="600"
+                px={4}
+                py={1}
+                borderRadius="full"
+              >
+                Career
+              </Box>
+
+              {/* Headline Skeleton */}
+              <VStack spacing={{ base: 3, md: 4 }} align="center" justify="center" w="full" maxW="4xl" mx="auto" py={1}>
+                <Skeleton
+                  h={{ base: "48px", md: "64px", xl: "80px" }}
+                  w={{ base: "85%", md: "70%", lg: "60%" }}
+                  maxW="720px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "48px", md: "64px", xl: "80px" }}
+                  w={{ base: "65%", md: "50%", lg: "42%" }}
+                  maxW="480px"
+                  borderRadius="lg"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+
+              {/* Subheadline Skeleton */}
+              <VStack spacing={2.5} align="center" justify="center" w="full" maxW="2xl" mx="auto">
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="95%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="80%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <Skeleton
+                  h={{ base: "14px", md: "16px" }}
+                  w="55%"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+              </VStack>
+            </VStack>
+          </Container>
+        </Box>
+      ) : hasBg ? (
+        <Box
+          position="relative"
+          w="full"
+          minH={{ base: "80vh", md: "100vh" }}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          pt={{ base: "140px", md: "180px" }}
+          pb={{ base: 12, md: 16 }}
+          bg="var(--background)"
           overflow="hidden"
         >
           {/* Background Images — stacked for crossfade */}
@@ -397,9 +490,13 @@ export default function CareerPage() {
                   >
                     {h.headlineLines && h.headlineLines.length > 0 ? (
                       h.headlineLines.map((line, lIdx) => (
-                        <Text as="span" display="block" key={lIdx} color={line.color || "#fff"}>
-                          {line.text}
-                        </Text>
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || "#fff"}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
                       ))
                     ) : (
                       <Text as="span" display="block" color="#fff" dangerouslySetInnerHTML={{ __html: h.headline }} />
@@ -554,9 +651,13 @@ export default function CareerPage() {
                   >
                     {h.headlineLines && h.headlineLines.length > 0 ? (
                       h.headlineLines.map((line, lIdx) => (
-                        <Text as="span" display="block" key={lIdx} color={line.color || headingText}>
-                          {line.text}
-                        </Text>
+                        <Text
+                          as="span"
+                          display="block"
+                          key={lIdx}
+                          color={line.color || headingText}
+                          dangerouslySetInnerHTML={{ __html: line.html || line.text }}
+                        />
                       ))
                     ) : (
                       <Text as="span" display="block" color={headingText} dangerouslySetInnerHTML={{ __html: h.headline }} />

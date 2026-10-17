@@ -8,63 +8,12 @@ import {
   Circle,
   Box,
   Container,
+  Skeleton,
   useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
-
-// Fallback testimonial data (used when CMS has no active testimonials)
-const FALLBACK_TESTIMONIALS = [
-  {
-    quote:
-      "I imagine we can change the world, one heart, one face or one body at a time. We think outside the lines of our craft.",
-    name: "Garin Setiawan",
-    role: "Co-Founder",
-  },
-  {
-    quote:
-      "Great communication isn't about talking louder, it's about building trust that lasts long after the conversation ends.",
-    name: "Geri Cusenza",
-    role: "Founder Sabastian",
-  },
-  {
-    quote:
-      "Every brand has a story worth telling. Our job is to make sure the world listens with clarity and confidence.",
-    name: "Amanda Putri",
-    role: "Creative Director",
-  },
-  {
-    quote:
-      "We don't just manage reputations, we build relationships that turn clients into long-term partners.",
-    name: "Bima Aditya",
-    role: "Head of Strategy",
-  },
-  {
-    quote:
-      "I imagine we can change the world, one heart, one face or one body at a time. We think outside the lines of our craft.",
-    name: "Garin Setiawan",
-    role: "Co-Founder",
-  },
-  {
-    quote:
-      "Great communication isn't about talking louder, it's about building trust that lasts long after the conversation ends.",
-    name: "Geri Cusenza",
-    role: "Founder Sabastian",
-  },
-  {
-    quote:
-      "Every brand has a story worth telling. Our job is to make sure the world listens with clarity and confidence.",
-    name: "Amanda Putri",
-    role: "Creative Director",
-  },
-  {
-    quote:
-      "We don't just manage reputations, we build relationships that turn clients into long-term partners.",
-    name: "Bima Aditya",
-    role: "Head of Strategy",
-  },
-];
 
 // ambil inisial dari nama, misal "Geri Cusenza" -> "GC"
 function getInitials(name) {
@@ -77,11 +26,34 @@ function getInitials(name) {
     .slice(0, 2);
 }
 
-export default function QuoteCarousel({ testimonials: testimonialsProp }) {
-  const testimonials =
-    Array.isArray(testimonialsProp) && testimonialsProp.length > 0
-      ? testimonialsProp
-      : FALLBACK_TESTIMONIALS;
+const FALLBACK_TESTIMONIALS = [
+  {
+    quote:
+      "Working with ER Communication transformed our entire brand presence. Their strategic approach and creative execution exceeded all our expectations.",
+    name: "Geri Cusenza",
+    role: "Global Creative Director",
+  },
+  {
+    quote:
+      "The team delivers excellence consistently. From event production to digital campaigns, ER Communication is our most trusted partner in Indonesia.",
+    name: "Michael Chen",
+    role: "VP of Marketing, APAC",
+  },
+  {
+    quote:
+      "Outstanding professionalism and attention to detail. They took our complex brief and delivered a flawless campaign that resonated across all target markets.",
+    name: "Sarah Jenkins",
+    role: "Head of Communications",
+  },
+];
+
+export default function QuoteCarousel({ testimonials: testimonialsProp, isLoading = false }) {
+  const testimonials = useMemo(() => {
+    if (Array.isArray(testimonialsProp) && testimonialsProp.length > 0) {
+      return testimonialsProp;
+    }
+    return FALLBACK_TESTIMONIALS;
+  }, [testimonialsProp]);
   const itemsPerView = useBreakpointValue({ base: 1, md: 2, lg: 3 }) ?? 3;
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -97,10 +69,12 @@ export default function QuoteCarousel({ testimonials: testimonialsProp }) {
   const roleColor = useColorModeValue("#718096", "#8b93a7");
   const dotInactive = useColorModeValue("rgba(0,0,0,0.2)", "rgba(255, 255, 255, 0.3)");
   const navBg = useColorModeValue("rgba(240,240,255,0.9)", "rgba(10,15,25,0.85)");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   const maxIndex = useMemo(
     () => Math.max(0, testimonials.length - itemsPerView),
-    [itemsPerView]
+    [itemsPerView, testimonials.length]
   );
 
   // clamp activeIndex if viewport resize changes maxIndex
@@ -132,6 +106,63 @@ export default function QuoteCarousel({ testimonials: testimonialsProp }) {
     }, 3000);
     return () => clearInterval(interval);
   }, [activeIndex, maxIndex, isHovered, goToNext]);
+
+
+  if (isLoading) {
+    return (
+      <Box
+        w="full"
+        bgColor={bgColor}
+        py={{ base: 12, md: 20 }}
+      >
+        <Container maxW="7xl" px={{ base: 6, md: 6 }} mx="auto">
+          <Skeleton
+            h="18px"
+            w={{ base: "260px", md: "420px" }}
+            mx="auto"
+            mb={{ base: 8, md: 12 }}
+            borderRadius="md"
+            startColor={skeletonStartColor}
+            endColor={skeletonEndColor}
+          />
+          <Flex gap={6} justify="center">
+            {[0, 1, 2].slice(0, itemsPerView).map((idx) => (
+              <Box
+                key={idx}
+                flex={`0 0 ${100 / itemsPerView}%`}
+                minW={`${100 / itemsPerView}%`}
+                px={3}
+              >
+                <Box
+                  bg={cardBg}
+                  borderRadius="18px"
+                  p={{ base: 6, md: 8 }}
+                  border={`1px solid ${cardBorder}`}
+                  minH={{ base: "220px", md: "245px" }}
+                  display="flex"
+                  flexDirection="column"
+                  justifyContent="space-between"
+                >
+                  <VStack align="flex-start" spacing={3} w="full">
+                    <Skeleton h="16px" w="100%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                    <Skeleton h="16px" w="90%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                    <Skeleton h="16px" w="65%" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                  </VStack>
+                  <HStack spacing={4} align="center" mt={6}>
+                    <Skeleton w="46px" h="46px" borderRadius="full" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                    <VStack align="flex-start" spacing={1.5} flex={1}>
+                      <Skeleton h="16px" w="100px" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                      <Skeleton h="12px" w="70px" borderRadius="md" startColor={skeletonStartColor} endColor={skeletonEndColor} />
+                    </VStack>
+                  </HStack>
+                </Box>
+              </Box>
+            ))}
+          </Flex>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box

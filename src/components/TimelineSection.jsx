@@ -9,33 +9,11 @@ import {
   Heading,
   Image,
   Flex,
+  Skeleton,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { keyframes } from "@emotion/react";
 import { useMemo } from "react";
-
-const FALLBACK_TIMELINE_ITEMS = [
-  {
-    year: "1970",
-    title: "Years of establishment",
-    desc: "More than 57 years in the field",
-  },
-  {
-    year: "500",
-    title: "Projects are launched",
-    desc: "A lot of projects are done",
-  },
-  {
-    year: "50",
-    title: "Clients are satisfied",
-    desc: "These people love us",
-  },
-  {
-    year: "12",
-    title: "Projects in work",
-    desc: "What we do right now",
-  },
-];
 
 const TIMELINE_IMAGE_POOL = [
   [
@@ -66,9 +44,6 @@ const floatDot = keyframes`
   100% { transform: translateY(0) scale(1); opacity: 0.4; }
 `;
 
-// Deterministic pseudo-random (seeded by index) so server and client render
-// the same positions — Math.random() here would differ between SSR and
-// hydration and trip a hydration mismatch on every dot.
 function seededRandom(seed) {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
@@ -85,23 +60,52 @@ function generateDots(count) {
   }));
 }
 
-const FALLBACK_INTRO_YEAR = "2026";
+const FALLBACK_INTRO_YEAR = "2000";
 const FALLBACK_INTRO_DESCRIPTION =
-  "Whether it's media relations, public communication or brand " +
-  "strategy, we help organizations communicate with clarity, trust, " +
-  "credibility, confidence in a fast-moving world. And the results? " +
-  "The numbers speak for themselves.";
+  "ER Communication founded as a forward-thinking PR consultancy in Indonesia, " +
+  "dedicated to bridging brands with the public through impactful storytelling " +
+  "and strategic media relations.";
 
-export default function TimelineSection({ intro, items }) {
+const FALLBACK_TIMELINE_ITEMS = [
+  {
+    year: "2003",
+    title: "Lorem ipsum dolor sit ametero irseo",
+    desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
+  },
+  {
+    year: "2007",
+    title: "Lorem ipsum dolor sit ametero irseo",
+    desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
+  },
+  {
+    year: "2015",
+    title: "Lorem ipsum dolor sit ametero irseo",
+    desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
+  },
+  {
+    year: "2020",
+    title: "Lorem ipsum dolor sit ametero irseo",
+    desc: "Lorem ipsum dolor sit ametero irseo, consectetur adipiscing elit. Scelerisque viverra donec diammeo.",
+  },
+];
+
+export default function TimelineSection({ intro, items, isLoading = false }) {
   const dots = useMemo(() => generateDots(14), []);
-  const timelineItems =
-    Array.isArray(items) && items.length > 0 ? items : FALLBACK_TIMELINE_ITEMS;
+  const timelineItems = useMemo(() => {
+    if (Array.isArray(items) && items.length > 0) return items;
+    return FALLBACK_TIMELINE_ITEMS;
+  }, [items]);
+
+  const introYear = intro?.year || FALLBACK_INTRO_YEAR;
+  const introDesc = intro?.description || FALLBACK_INTRO_DESCRIPTION;
 
   const yearColor = useColorModeValue("#1a202c", "#fff");
   const titleColor = useColorModeValue("#2d3748", "#f0f0f0");
   const descColor = useColorModeValue("#718096", "#a0a0a0");
   const introYearColor = useColorModeValue("rgba(0,0,0,0.4)", "rgba(255, 255, 255, 0.5)");
   const introTextColor = useColorModeValue("#2d3748", "#ffffff");
+  const skeletonStartColor = useColorModeValue("gray.200", "whiteAlpha.100");
+  const skeletonEndColor = useColorModeValue("gray.300", "whiteAlpha.300");
 
   return (
     <Box
@@ -132,116 +136,227 @@ export default function TimelineSection({ intro, items }) {
 
       <Container maxW="8xl" px={{ base: 6, md: 0 }} mx="auto" position="relative" zIndex={1}>
         <VStack spacing={20} align="center">
-          {/* Intro Text */}
-          <HStack
-            gap={6}
-            textAlign="start"
-            alignItems="flex-start"
-            flexDir={{ base: "column", md: "row" }}
-          >
-            <Text
-              fontSize={{ base: "lg", md: "xl" }}
-              fontWeight="bold"
-              color={introYearColor}
-            >
-              {intro?.year ?? FALLBACK_INTRO_YEAR}
-            </Text>
-            <Text
-              color={introTextColor}
-              maxW="680px"
-              fontSize={{ base: "lg", md: "2xl" }}
-              lineHeight={{ lg: "32px" }}
-            >
-              {intro?.description ?? FALLBACK_INTRO_DESCRIPTION}
-            </Text>
-          </HStack>
-
-          {/* Timeline */}
-          <Flex
-            position="relative"
-            justify="space-between"
-            w="full"
-            gap={8}
-            pt={{ base: 10, lg: 24 }}
-            pb={{ base: 8, lg: 16 }}
-            px={5}
-            flexWrap={{ base: "wrap", md: "nowrap" }}
-          >
-            {timelineItems.map((item, idx) => {
-              const up = idx % 2 === 0;
-              const img = TIMELINE_IMAGE_POOL[idx % TIMELINE_IMAGE_POOL.length];
-              return (
-              <VStack
-                key={idx}
-                spacing={4}
-                align="start"
+          {isLoading ? (
+            <>
+              {/* Intro Skeleton */}
+              <HStack
+                gap={6}
                 textAlign="start"
-                flex={1}
-                transform={up ? "translateY(-80px)" : "translateY(0)"}
-                position="relative"
-                zIndex={1}
+                alignItems="flex-start"
+                flexDir={{ base: "column", md: "row" }}
+                w="full"
+                maxW="800px"
               >
-                <Heading
-                  as="div"
-                  fontSize={{ base: "38px", lg: "68px" }}
-                  fontWeight="700"
-                  color={yearColor}
-                  fontFamily="Plus Jakarta Sans"
-                >
-                  {item.year}
-                </Heading>
-                <VStack spacing={0} align="start">
-                  <Text fontSize={{ base: "lg", lg: "2xl" }} color={titleColor}>
-                    {item.title}
-                  </Text>
-                  <Text fontSize={{ base: "sm", lg: "md" }} color={descColor}>
-                    {item.desc}
-                  </Text>
-                </VStack>
-
-                <HStack spacing={0} align="center" w="full">
-                  <HStack spacing={0} zIndex={1}>
-                    {img.map((src, imgIdx) => (
-                      <Box
-                        key={imgIdx}
-                        w="50px"
-                        h="50px"
-                        borderRadius="full"
-                        overflow="hidden"
-                        border="3px solid #d6d6d6"
-                        boxShadow="0 4px 12px rgba(0,0,0,0.5)"
-                        ml={imgIdx === 0 ? 0 : "-24px"}
-                      >
-                        <Image
-                          src={src}
-                          alt={item.title}
-                          w="full"
-                          h="full"
-                          objectFit="cover"
-                        />
-                      </Box>
-                    ))}
-                  </HStack>
-
-                  {/* Shape connector */}
-                  <Image
-                    src={
-                      idx % 2 === 0
-                        ? "/assets/shape-story-1.svg"
-                        : "/assets/shape-story-2.svg"
-                    }
-                    alt="shape connector"
-                    flex={1}
-                    ml={-5}
-                    mt={idx % 2 === 0 ? "-30px" : "30px"}
-                    display={{ base: "none", md: "block" }}
-                    zIndex={0}
+                <Skeleton
+                  h="28px"
+                  w="70px"
+                  borderRadius="md"
+                  startColor={skeletonStartColor}
+                  endColor={skeletonEndColor}
+                />
+                <VStack align="flex-start" spacing={2} w="full" maxW="680px">
+                  <Skeleton
+                    h="20px"
+                    w="100%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
                   />
+                  <Skeleton
+                    h="20px"
+                    w="85%"
+                    borderRadius="md"
+                    startColor={skeletonStartColor}
+                    endColor={skeletonEndColor}
+                  />
+                </VStack>
+              </HStack>
+
+              {/* Items Skeleton */}
+              <Flex
+                position="relative"
+                justify="space-between"
+                w="full"
+                gap={8}
+                pt={{ base: 10, lg: 24 }}
+                pb={{ base: 8, lg: 16 }}
+                px={5}
+                flexWrap={{ base: "wrap", md: "nowrap" }}
+              >
+                {[0, 1, 2, 3].map((idx) => {
+                  const up = idx % 2 === 0;
+                  return (
+                    <VStack
+                      key={idx}
+                      spacing={4}
+                      align="start"
+                      textAlign="start"
+                      flex={1}
+                      transform={up ? "translateY(-40px)" : "translateY(0)"}
+                      position="relative"
+                      zIndex={1}
+                    >
+                      <Skeleton
+                        h={{ base: "38px", lg: "58px" }}
+                        w="110px"
+                        borderRadius="md"
+                        startColor={skeletonStartColor}
+                        endColor={skeletonEndColor}
+                      />
+                      <Skeleton
+                        h="20px"
+                        w="140px"
+                        borderRadius="md"
+                        startColor={skeletonStartColor}
+                        endColor={skeletonEndColor}
+                      />
+                      <Skeleton
+                        h="14px"
+                        w="180px"
+                        borderRadius="md"
+                        startColor={skeletonStartColor}
+                        endColor={skeletonEndColor}
+                      />
+                      <HStack spacing={0} mt={2}>
+                        {[0, 1, 2].map((cIdx) => (
+                          <Skeleton
+                            key={cIdx}
+                            w="50px"
+                            h="50px"
+                            borderRadius="full"
+                            ml={cIdx === 0 ? 0 : "-24px"}
+                            startColor={skeletonStartColor}
+                            endColor={skeletonEndColor}
+                          />
+                        ))}
+                      </HStack>
+                    </VStack>
+                  );
+                })}
+              </Flex>
+            </>
+          ) : (
+            <>
+              {/* Intro Text */}
+              {(introYear || introDesc) && (
+                <HStack
+                  gap={6}
+                  textAlign="start"
+                  alignItems="flex-start"
+                  flexDir={{ base: "column", md: "row" }}
+                >
+                  {introYear && (
+                    <Text
+                      fontSize={{ base: "lg", md: "xl" }}
+                      fontWeight="bold"
+                      color={introYearColor}
+                    >
+                      {introYear}
+                    </Text>
+                  )}
+                  {introDesc && (
+                    <Text
+                      color={introTextColor}
+                      maxW="680px"
+                      fontSize={{ base: "lg", md: "2xl" }}
+                      lineHeight={{ lg: "32px" }}
+                    >
+                      {introDesc}
+                    </Text>
+                  )}
                 </HStack>
-              </VStack>
-              );
-            })}
-          </Flex>
+              )}
+
+              {/* Timeline Items */}
+              {timelineItems.length > 0 && (
+                <Flex
+                  position="relative"
+                  justify="space-between"
+                  w="full"
+                  gap={8}
+                  pt={{ base: 10, lg: 24 }}
+                  pb={{ base: 8, lg: 16 }}
+                  px={5}
+                  flexWrap={{ base: "wrap", md: "nowrap" }}
+                >
+                  {timelineItems.map((item, idx) => {
+                    const up = idx % 2 === 0;
+                    const img = TIMELINE_IMAGE_POOL[idx % TIMELINE_IMAGE_POOL.length];
+                    return (
+                      <VStack
+                        key={idx}
+                        spacing={4}
+                        align="start"
+                        textAlign="start"
+                        flex={1}
+                        transform={up ? "translateY(-80px)" : "translateY(0)"}
+                        position="relative"
+                        zIndex={1}
+                      >
+                        <Heading
+                          as="div"
+                          fontSize={{ base: "38px", lg: "68px" }}
+                          fontWeight="700"
+                          color={yearColor}
+                          fontFamily="Plus Jakarta Sans"
+                        >
+                          {item.year}
+                        </Heading>
+                        <VStack spacing={0} align="start">
+                          <Text fontSize={{ base: "lg", lg: "2xl" }} color={titleColor}>
+                            {item.title}
+                          </Text>
+                          <Text fontSize={{ base: "sm", lg: "md" }} color={descColor}>
+                            {item.desc}
+                          </Text>
+                        </VStack>
+
+                        <HStack spacing={0} align="center" w="full">
+                          <HStack spacing={0} zIndex={1}>
+                            {img.map((src, imgIdx) => (
+                              <Box
+                                key={imgIdx}
+                                w="50px"
+                                h="50px"
+                                borderRadius="full"
+                                overflow="hidden"
+                                border="3px solid #d6d6d6"
+                                boxShadow="0 4px 12px rgba(0,0,0,0.5)"
+                                ml={imgIdx === 0 ? 0 : "-24px"}
+                              >
+                                <Image
+                                  src={src}
+                                  alt={item.title}
+                                  w="full"
+                                  h="full"
+                                  objectFit="cover"
+                                />
+                              </Box>
+                            ))}
+                          </HStack>
+
+                          {/* Shape connector */}
+                          <Image
+                            src={
+                              idx % 2 === 0
+                                ? "/assets/shape-story-1.svg"
+                                : "/assets/shape-story-2.svg"
+                            }
+                            alt="shape connector"
+                            flex={1}
+                            ml={-5}
+                            mt={idx % 2 === 0 ? "-30px" : "30px"}
+                            display={{ base: "none", md: "block" }}
+                            zIndex={0}
+                          />
+                        </HStack>
+                      </VStack>
+                    );
+                  })}
+                </Flex>
+              )}
+            </>
+          )}
         </VStack>
       </Container>
     </Box>
